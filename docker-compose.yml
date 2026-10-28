@@ -1,0 +1,75 @@
+version: '3.8'
+
+services:
+  # 1. Managed Database Layer: PostgreSQL 15 with persistent storage volume
+  db:
+    image: postgres:15-alpine
+    container_name: showcase_db
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: showcase_db
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres -d showcase_db"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    networks:
+      - showcase_net
+
+  # 2. Cloud Application Layer: FastAPI Backend with 12-factor configuration
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    container_name: showcase_backend
+    restart: unless-stopped
+    ports:
+      - "8000:8000"
+    environment:
+      ENVIRONMENT: production
+      PORT: 8000
+      HOST: 0.0.0.0
+      DEBUG: "false"
+      DATABASE_URL: postgresql://postgres:postgres@db:5432/showcase_db
+      CORS_ORIGINS: http://localhost:5173,http://localhost:80,http://127.0.0.1:5173
+    depends_on:
+      db:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8000/health"]
+      interval: 15s
+      timeout: 5s
+      retries: 3
+    networks:
+      - showcase_net
+
+  # 3. Client & Ingress Layer: React Gallery Frontend served by Nginx
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+    container_name: showcase_frontend
+    restart: unless-stopped
+    ports:
+      - "5173:80"
+    depends_on:
+      backend:
+        condition: service_healthy
+    networks:
+      - showcase_net
+
+volumes:
+  postgres_data:
+    name: showcase_postgres_data
+    driver: local
+
+networks:
+  showcase_net:
+    name: showcase_network
+    driver: bridge
