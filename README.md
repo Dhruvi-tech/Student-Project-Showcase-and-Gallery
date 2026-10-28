@@ -12,7 +12,7 @@
 
 **Academic mini-project · CS3452 Cloud Platforms and Service Models · RV University**
 
-[Features](#-what-you-can-do) · [Architecture](#-how-it-works) · [Run locally](#-run-locally) · [API](#-api-reference) · [Testing](#-tests-and-load-testing) · [Cloud notes](#-cloud-deployment-notes)
+[Features](#-what-you-can-do) · [Architecture](#-how-it-works) · [Run locally](#-run-locally) · [API](#-api-reference) · [Testing](#-tests-and-load-testing)
 
 </div>
 
@@ -231,18 +231,6 @@ docker-compose.yml     Local API + frontend + PostgreSQL stack
 ### Sample data seeder
 
 `python backend/seed_data.py` replaces the configured database contents before inserting demo data. **Back up important data first and only run it against a disposable demo database.** Do not describe seeded profiles, reactions, or comments as verified real community activity.
-
-## ☁️ Cloud deployment notes
-
-This project is intended to demonstrate the separation of presentation, application, and persistence layers for a cloud platform course. A production deployment would still need:
-
-- Cloud hosting for the frontend and API, plus a managed PostgreSQL service.
-- A secrets manager, HTTPS/TLS, restrictive CORS configuration, database backups, and monitoring.
-- Real authentication and authorization; the current development student ID is not secure identity verification.
-- A production migration workflow and review of database connection-pool settings for the selected host.
-- Optional object storage for project images or attachments; S3 settings are preparation only and uploads are not implemented.
-
-Do not deploy the example Compose credentials or expose the development identity scheme as production security.
 
 ## 🎓 Course context
 
