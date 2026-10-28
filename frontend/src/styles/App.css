@@ -1351,13 +1351,13 @@
   z-index: 1;
   max-width: 1220px;
   display: grid;
-  grid-template-columns: minmax(0, 1.35fr) minmax(310px, 0.65fr);
+  grid-template-columns: minmax(0, 1fr);
   align-items: center;
   gap: clamp(2rem, 7vw, 6.5rem);
   text-align: left;
 }
 
-.hero-copy { max-width: 690px; }
+.hero-copy { max-width: 880px; }
 .hero-tag {
   color: #a8dfc8;
   background: rgba(96, 168, 137, 0.13);
@@ -1396,48 +1396,6 @@
   margin: 0;
   font-size: 0.75rem;
 }
-
-.hero-community {
-  padding: 1.35rem 1.4rem 1.2rem;
-  color: #f2f4ed;
-  background: linear-gradient(145deg, rgba(42, 69, 60, .96), rgba(31, 54, 47, .96));
-  border: 1px solid rgba(204, 227, 211, .16);
-  border-radius: 18px;
-  box-shadow: 0 24px 60px rgba(0,0,0,.2);
-}
-
-.community-panel-heading { display: flex; align-items: center; gap: 0.7rem; }
-.community-panel-heading > div { display: flex; flex-direction: column; gap: 0.1rem; }
-.community-panel-heading strong { font-size: 0.96rem; }
-.community-panel-heading span:not(.community-spark) { color: #aabbb0; font-size: 0.75rem; }
-.community-spark {
-  display: grid;
-  place-items: center;
-  width: 35px;
-  height: 35px;
-  border-radius: 11px;
-  background: rgba(224, 157, 111, .17);
-  color: #f1aa7e;
-  font-size: 1.35rem;
-}
-
-.hero-community .stats-strip {
-  justify-content: space-between;
-  gap: 0.55rem;
-  margin-top: 1.25rem;
-  padding: 1rem 0 0.9rem;
-  border-top-color: rgba(255,255,255,.12);
-  border-bottom: 1px solid rgba(255,255,255,.12);
-}
-.hero-community .stat-item { align-items: flex-start; min-width: 0; }
-.hero-community .stat-value { color: #f6f4ec; font-size: 1.55rem; }
-.hero-community .stat-label {
-  color: #b3c3b9;
-  font-size: 0.62rem;
-  text-align: left;
-  letter-spacing: 0.045em;
-}
-.community-panel-note { color: #b9c9bf; font-size: 0.78rem; line-height: 1.5; margin-top: 0.9rem; }
 
 .main-content { max-width: 1280px; padding-top: 2.4rem; }
 .featured-card {
@@ -1510,13 +1468,10 @@
 @media (max-width: 760px) {
   .hero-banner { padding: 2.8rem 1.1rem 2.25rem; }
   .hero-content { grid-template-columns: 1fr; gap: 1.5rem; }
-  .hero-community { max-width: 560px; width: 100%; }
 }
 
 @media (max-width: 640px) {
   .hero-title { font-size: 2.45rem; }
-  .hero-community { padding: 1.1rem; }
-  .hero-community .stat-value { font-size: 1.3rem; }
   .project-card { padding: 1rem; }
   .vote-button { padding: 0.38rem 0.5rem; }
   .card-vote-row { align-items: flex-start; flex-direction: column; }

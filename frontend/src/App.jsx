@@ -190,27 +190,6 @@ export function App() {
             <p className="demo-data-note">Demo mode: sample profiles, votes, and comments. Votes can be switched later.</p>
           </div>
 
-          <aside className="hero-community" aria-label="Demo gallery summary">
-            <div className="community-panel-heading">
-              <span className="community-spark">✳</span>
-              <div><strong>Gallery snapshot</strong><span>Seeded demo data</span></div>
-            </div>
-            <div className="stats-strip">
-              <div className="stat-item">
-                <span className="stat-value">{totalCount}</span>
-                <span className="stat-label">Projects</span>
-              </div>
-              <div className="stat-item">
-                <span className="stat-value">{students.length}</span>
-                <span className="stat-label">Sample profiles</span>
-              </div>
-              <div className="stat-item">
-                <span className="stat-value">{projects.reduce((acc, curr) => acc + (curr.upvote_count || 0), 0)}</span>
-                <span className="stat-label">Sample likes</span>
-              </div>
-            </div>
-            <p className="community-panel-note">Search by idea, filter by stack, and open a project for details and feedback.</p>
-          </aside>
         </div>
       </section>
 
