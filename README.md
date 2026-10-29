@@ -1,48 +1,74 @@
-# Student Project Showcase & Peer Gallery
+<div align="center">
 
-A full-stack project gallery for discovering student work and open-source projects, exploring projects across technical domains, and sharing constructive feedback.
+# 🎓 Student Project Showcase
 
-## What the app includes
+### A home for student projects, thoughtful feedback, and open-source discovery.
 
-- **120 catalog projects** across **20 domains**, including Cybersecurity, Cloud Computing & DevOps, Generative AI & AI Agents, and Open Source & Developer Utilities.
-- **Domain filters** to browse every category, plus a project search field.
-- **Complete gallery view** loads the full 120-project catalog at once, without a load-more button.
-- **Project search** across project titles, descriptions, and technology stacks.
-- **Project cards and detail views** with descriptions, difficulty, technology stacks, source repositories, and available project websites.
-- **Accounts and profiles** with registration, login, signed sessions, profile editing, and project ownership checks.
-- **Community features** including likes/dislikes, comments, saved projects, followed domains, and personalized recommendations.
-- **Responsive interface** with light and dark themes and a larger account creation form.
-- **FastAPI backend** with a local SQLite configuration, PostgreSQL support, Docker Compose configuration, and optional AWS infrastructure templates.
+[![React](https://img.shields.io/badge/React-18-149eca?logo=react&logoColor=white)](https://react.dev/)
+[![Vite](https://img.shields.io/badge/Vite-5-646cff?logo=vite&logoColor=white)](https://vite.dev/)
+[![FastAPI](https://img.shields.io/badge/API-FastAPI-009688?logo=fastapi&logoColor=white)](https://fastapi.tiangolo.com/)
+[![Python](https://img.shields.io/badge/Python-3.10%2B-3776ab?logo=python&logoColor=white)](https://www.python.org/)
+[![Database](https://img.shields.io/badge/Database-SQLite%20%7C%20PostgreSQL-4169e1?logo=postgresql&logoColor=white)](https://www.postgresql.org/)
 
-The catalog contains 30 attributed open-source projects and 90 clearly identified community catalog entries. No fabricated repository or website links are added to those entries.
+[Explore the app](http://localhost:5173/) · [API documentation](http://127.0.0.1:8000/docs) · [Architecture](docs/architecture.md)
 
-## Technology stack
+</div>
 
-| Area | Technology |
-|---|---|
-| Frontend | React 18, Vite, Lucide React, CSS |
-| Backend | Python, FastAPI, SQLAlchemy, Pydantic |
-| Database | SQLite locally; PostgreSQL supported |
-| Deployment options | Docker Compose; AWS templates under `infra/aws/` |
+---
 
-## Run locally
+## ✨ The project
 
-Requirements: Python 3.10+, Node.js 18+, and npm.
+A full-stack gallery where students can publish their work, browse projects across technical domains, and exchange constructive feedback. Search matches project titles, descriptions, and technology stacks. The gallery loads the complete **120-project catalog** in one view.
+
+| **20 domains** | **120 projects** | **Community feedback** |
+|:--:|:--:|:--:|
+| From cybersecurity to robotics | Open-source projects and community entries | Likes, dislikes, and comments |
+
+### Browse every domain
+
+| | | | |
+|:--|:--|:--|:--|
+| AI & Machine Learning | Data Science & Analytics | Cybersecurity | Cloud Computing & DevOps |
+| Web Development & Full Stack | Mobile App Development | Internet of Things | Blockchain & Web3 |
+| Computer Vision | Natural Language Processing | Generative AI & AI Agents | Robotics & Automation |
+| Data Engineering & Big Data | Software Engineering & Developer Tools | FinTech | HealthTech |
+| EdTech | Game Development | AR/VR | Open Source & Developer Utilities |
+
+The catalog includes **30 attributed open-source projects** and **90 clearly identified community entries**. Community entries have no invented repository or website links.
+
+## 🧩 Features
+
+- Search projects by title, description, or technology stack; filter by any of the 20 domains.
+- View project details, difficulty, stack, source repository, and available website.
+- Create an account, sign in, manage a profile, and edit your own projects.
+- Like or dislike a project, comment, bookmark projects, and follow domains.
+- Explore personalized recommendations and switch between light and dark themes.
+- Use a responsive React interface backed by a FastAPI REST API.
+
+## 🛠 Built with
+
+| Frontend | Backend | Data & deployment |
+|:--|:--|:--|
+| React 18 · Vite · Lucide · CSS | Python · FastAPI · SQLAlchemy · Pydantic | SQLite · PostgreSQL · Docker Compose |
+
+## 🚀 Run locally
+
+**Requirements:** Python 3.10+, Node.js 18+, and npm.
 
 ### 1. Start the API
 
-From the repository root, create a virtual environment, install dependencies, then start FastAPI:
+From the repository root, in PowerShell:
 
 ```powershell
 python -m venv .venv
 .\.venv\Scripts\Activate.ps1
 pip install -r backend/requirements.txt
-python -m uvicorn app.main:app --host 127.0.0.1 --port 8000 --app-dir backend --reload
+python -m uvicorn app.main:app --app-dir backend --host 127.0.0.1 --port 8000 --reload
 ```
 
-The API uses `backend/.env` when present. The default local configuration uses SQLite. Interactive API documentation is available at `http://127.0.0.1:8000/docs`.
+API docs: <http://127.0.0.1:8000/docs>
 
-### 2. Start the frontend
+### 2. Start the web app
 
 In a second terminal:
 
@@ -51,52 +77,45 @@ npm install --prefix frontend
 npm run dev --prefix frontend
 ```
 
-Open `http://localhost:5173/`.
+Open <http://localhost:5173/>.
 
-### Docker Compose
-
-When Docker Desktop is available, start the configured PostgreSQL, API, and frontend services with:
+### Or use Docker Compose
 
 ```powershell
 docker compose up --build
 ```
 
-Stop the services with `Ctrl+C`; use `docker compose down` to remove the containers while retaining the named database volume.
+Stop with `Ctrl+C`. Run `docker compose down` to remove the containers while retaining the named database volume.
 
-## Build and API checks
-
-Build the frontend for production:
+## ✅ Build & checks
 
 ```powershell
 npm run build --prefix frontend
-```
-
-Run the backend API suite:
-
-```powershell
 python -m pytest backend/tests/test_api.py -v
 ```
 
-A separate additive migration check is available in `backend/tests/test_migrations.py`.
+The additive database migration check is in `backend/tests/test_migrations.py`.
 
-## Project structure
+## 🗂 Repository map
 
 ```text
-backend/       FastAPI application, models, services, and tests
-frontend/      React/Vite application and styles
-docs/          Requirements, architecture, deployment, and evaluation notes
-infra/aws/     AWS infrastructure templates (not deployed)
-loadtests/     Locust and standalone load-test scripts
+backend/       FastAPI app, database models, services, and tests
+frontend/      React app, components, and styles
+docs/          Requirements, architecture, and deployment notes
+infra/aws/     AWS infrastructure templates
+loadtests/     Locust and standalone benchmark scripts
 ```
 
-## Cloud deployment status
+## ☁️ Deployment status
 
-The AWS templates describe a possible deployment using CloudFront/S3, ECS Fargate, an Application Load Balancer, RDS PostgreSQL, and optional object storage. These resources are **not deployed or verified**. Review [the deployment notes](docs/aws-deployment.md) before preparing a cloud rollout. The project also includes a [50:50 completion matrix](docs/50-50-completion-matrix.md) and [architecture notes](docs/architecture.md).
+AWS templates are included for a possible CloudFront/S3, ECS Fargate, load balancer, and RDS deployment. **These resources have not been deployed or verified.** See the [deployment notes](docs/aws-deployment.md) and [project completion matrix](docs/50-50-completion-matrix.md) for current status and outstanding work.
 
-## Configuration
+Local settings can be configured with environment variables or `backend/.env`; see [`backend/.env.example`](backend/.env.example). Configure a unique `AUTH_SECRET` and production CORS origins before any production deployment.
 
-Use environment variables or `backend/.env` for settings such as `DATABASE_URL`, `AUTH_SECRET`, `CORS_ORIGINS`, and optional AWS storage values. Set a unique secret and production-appropriate CORS origins before any production deployment. See `backend/.env.example` for the available configuration keys.
+---
 
-## License
+<div align="center">
 
-No repository license is currently specified. Add a `LICENSE` file before redistributing the project under an open-source license.
+Made for sharing what you build — and learning from what others create.
+
+</div>
