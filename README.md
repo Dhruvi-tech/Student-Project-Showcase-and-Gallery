@@ -6,6 +6,7 @@ A full-stack project gallery for discovering student work and open-source projec
 
 - **120 catalog projects** across **20 domains**, including Cybersecurity, Cloud Computing & DevOps, Generative AI & AI Agents, and Open Source & Developer Utilities.
 - **Domain filters** to browse every category, plus a project search field.
+- **Complete gallery view** loads the full 120-project catalog at once, without a load-more button.
 - **Project search** across project titles, descriptions, and technology stacks.
 - **Project cards and detail views** with descriptions, difficulty, technology stacks, source repositories, and available project websites.
 - **Accounts and profiles** with registration, login, signed sessions, profile editing, and project ownership checks.

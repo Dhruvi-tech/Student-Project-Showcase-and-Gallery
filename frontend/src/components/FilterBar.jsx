@@ -75,7 +75,7 @@ export function FilterBar({
           </span>
         ))}
       </div>
-      <div className="filter-results-count">Showing <strong>{showingCount ?? totalCount}</strong>{showingCount !== undefined && showingCount < totalCount ? <> of <strong>{totalCount}</strong></> : null} projects</div>
+      <div className="filter-results-count">{showingCount === totalCount ? <>All <strong>{totalCount}</strong> projects</> : <>Showing <strong>{showingCount ?? totalCount}</strong> of <strong>{totalCount}</strong> projects</>}</div>
     </div>
   );
 }

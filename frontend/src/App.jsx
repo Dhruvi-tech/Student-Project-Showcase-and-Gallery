@@ -17,8 +17,6 @@ export function App() {
   const [projects, setProjects] = useState([]);
   const [totalCount, setTotalCount] = useState(0);
   const [loading, setLoading] = useState(true);
-  const [loadingMoreProjects, setLoadingMoreProjects] = useState(false);
-  const [hasMoreProjects, setHasMoreProjects] = useState(false);
   const [error, setError] = useState(null);
 
   // Theme state: warm neutral light (default) or polished slate dark
@@ -122,30 +120,17 @@ export function App() {
         category: selectedCategory,
         search: searchQuery,
         studentId: currentStudentId,
-        limit: 24,
+        limit: 200,
         offset: 0,
         });
       setProjects(res.data || []);
       setTotalCount(res.total ?? (res.data ? res.data.length : 0));
-      setHasMoreProjects(!myProjectsMode && !savedProjectsMode && !recommendationsMode && (res.data?.length || 0) < (res.total || 0));
     } catch (err) {
       setError(err.message || 'Failed to load projects');
     } finally {
       setLoading(false);
     }
   }, [sortOption, selectedCategory, searchQuery, currentStudentId, myProjectsMode, savedProjectsMode, recommendationsMode]);
-
-  const loadMoreProjects = async () => {
-    if (loadingMoreProjects || !hasMoreProjects) return;
-    setLoadingMoreProjects(true);
-    try {
-      const res = await api.getProjects({ sort: sortOption, category: selectedCategory, search: searchQuery, studentId: currentStudentId, limit: 24, offset: projects.length });
-      const next = [...projects, ...(res.data || [])];
-      setProjects(next);
-      setHasMoreProjects(next.length < (res.total || 0));
-    } catch (err) { showToast(err.message || 'Could not load more projects.', 'error'); }
-    finally { setLoadingMoreProjects(false); }
-  };
 
   // Refetch when filters or identity change
   useEffect(() => {
@@ -440,7 +425,6 @@ export function App() {
               />
             ))}
             </div>
-            {hasMoreProjects && <div className="load-more-row"><button className="btn-secondary" onClick={loadMoreProjects} disabled={loadingMoreProjects}>{loadingMoreProjects ? 'Loading…' : `Load more projects (${projects.length} of ${totalCount})`}</button></div>}
           </>
         )}
       </main>
