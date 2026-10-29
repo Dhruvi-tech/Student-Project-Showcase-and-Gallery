@@ -123,8 +123,22 @@ export function App() {
         limit: 200,
         offset: 0,
         });
-      setProjects(res.data || []);
-      setTotalCount(res.total ?? (res.data ? res.data.length : 0));
+      let allProjects = res.data || [];
+      const resultCount = res.total ?? allProjects.length;
+      while (!myProjectsMode && !savedProjectsMode && !recommendationsMode && allProjects.length < resultCount) {
+        const nextPage = await api.getProjects({
+          sort: sortOption,
+          category: selectedCategory,
+          search: searchQuery,
+          studentId: currentStudentId,
+          limit: 200,
+          offset: allProjects.length,
+        });
+        if (!nextPage.data?.length) break;
+        allProjects = [...allProjects, ...nextPage.data];
+      }
+      setProjects(allProjects);
+      setTotalCount(resultCount);
     } catch (err) {
       setError(err.message || 'Failed to load projects');
     } finally {

@@ -73,7 +73,7 @@ def list_projects(
     tech_stack: Optional[str] = Query(None, description="Filter by technology stack (e.g. FastAPI, React)"),
     category: Optional[str] = Query(None, description="Filter by primary technology domain"),
     search: Optional[str] = Query(None, description="Search project title or description"),
-    limit: int = Query(100, ge=1, le=200, description="Page size limit"),
+    limit: int = Query(100, ge=1, le=500, description="Page size limit"),
     offset: int = Query(0, ge=0, description="Offset for pagination"),
     x_student_id: Optional[str] = Header(None, description="Current student identifier for vote status tracking"),
     db: Session = Depends(get_db),

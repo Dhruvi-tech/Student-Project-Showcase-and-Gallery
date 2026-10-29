@@ -1,10 +1,7 @@
-"""
-Repeatable, additive development catalog seed for ProjectSpace.
-Retains existing upstream repository/demo URLs and adds clearly fictional examples
-without fabricated project links, votes, or peer comments.
-"""
+"""Repeatable, additive catalog seed for real repositories and community entries."""
 import sys
 import os
+import json
 from datetime import datetime, timedelta, timezone
 
 # Add backend directory to sys.path
@@ -16,6 +13,9 @@ from app.models.project import Project
 from app.models.upvote import Upvote
 from app.models.comment import Comment
 from app.catalog import CATEGORIES
+
+with open(os.path.join(os.path.dirname(__file__), "curated_projects.json"), encoding="utf-8") as catalog_file:
+    CURATED_UPSTREAM_PROJECTS = json.load(catalog_file)["projects"]
 
 STUDENTS_DATA = [
     {"name": "Aarav Sharma", "email": "aarav.sharma@student.edu", "roll_number": "CS2026-001"},
@@ -441,8 +441,33 @@ def seed_database(reset=False):
             projects_by_github[p_info["github_link"]] = project
         db.commit()
 
+        print(f"[+] Adding {len(CURATED_UPSTREAM_PROJECTS)} curated GitHub projects...")
+        for idx, item in enumerate(CURATED_UPSTREAM_PROJECTS):
+            github_link = item["github_link"]
+            if github_link in projects_by_github:
+                continue
+            project = Project(
+                title=item["title"],
+                description=item["description"],
+                category=item["category"],
+                difficulty=item["difficulty"],
+                tech_stacks=item["tech_stacks"],
+                author_display_name=item["author_display_name"],
+                author_profile_url=item["author_profile_url"],
+                github_link=github_link,
+                demo_url=None,
+                docs_url=None,
+                upvote_count=0,
+                student_id=None,
+                created_at=now - timedelta(days=31 + idx),
+            )
+            db.add(project)
+            projects_by_github[github_link] = project
+        db.commit()
+        print(f"[OK] Curated GitHub project catalog now includes {len(projects_by_github)} source repositories.")
+
         projects = list(projects_by_github.values())
-        print(f"[OK] Preserved {len(projects)} existing upstream project records.")
+        print(f"[OK] Catalog includes {len(projects)} attributed GitHub projects.")
 
         for index, item in enumerate(sample_catalog_records()):
             existing = db.query(Project).filter(
@@ -450,11 +475,11 @@ def seed_database(reset=False):
             ).first()
             if existing:
                 continue
-            demo_student = fictional_students[item["author_display_name"]]
+            sample_student = fictional_students[item["author_display_name"]]
             db.add(Project(
                 title=item["title"], description=item["description"], category=item["category"],
                 difficulty=item["difficulty"], tech_stacks=item["tech_stacks"],
-                author_display_name=item["author_display_name"], student_id=demo_student.id,
+                author_display_name=item["author_display_name"], student_id=sample_student.id,
                 github_link=None, demo_url=None, docs_url=None, upvote_count=0,
                 created_at=now - timedelta(days=item["days_ago"]),
             ))
@@ -465,7 +490,7 @@ def seed_database(reset=False):
 
         print("\n================ SEEDING COMPLETE ================")
         print(f"Total Student Authors: {db.query(Student).count()}")
-        print(f"Total Projects (upstream references + clearly fictional samples): {db.query(Project).count()}")
+        print(f"Total Projects (curated repositories + community catalog entries): {db.query(Project).count()}")
         print(f"Total Upvotes Cast:    {db.query(Upvote).count()}")
         print(f"Total Peer Comments:   {db.query(Comment).count()}")
         top_project = db.query(Project).order_by(Project.upvote_count.desc()).first()

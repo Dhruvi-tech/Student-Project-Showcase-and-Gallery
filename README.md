@@ -18,9 +18,9 @@
 
 ## ✨ The project
 
-A full-stack gallery where students can publish their work, browse projects across technical domains, and exchange constructive feedback. Search matches project titles, descriptions, and technology stacks. The gallery loads the complete **120-project catalog** in one view.
+A full-stack gallery where students can publish their work, browse projects across technical domains, and exchange constructive feedback. Search matches project titles, descriptions, and technology stacks. The gallery loads the complete **320-project catalog** in one view.
 
-| **20 domains** | **120 projects** | **Community feedback** |
+| **20 domains** | **320 projects** | **Community feedback** |
 |:--:|:--:|:--:|
 | From cybersecurity to robotics | Open-source projects and community entries | Likes, dislikes, and comments |
 
@@ -34,7 +34,7 @@ A full-stack gallery where students can publish their work, browse projects acro
 | Data Engineering & Big Data | Software Engineering & Developer Tools | FinTech | HealthTech |
 | EdTech | Game Development | AR/VR | Open Source & Developer Utilities |
 
-The catalog includes **30 attributed open-source projects** and **90 clearly identified community entries**. Community entries have no invented repository or website links.
+The catalog includes **230 attributed open-source projects** and **90 clearly identified community entries**. The latest 200 additions were selected from GitHub's topic search by star count, exclude forks and archived repositories, and add 10 repositories in each domain. They link directly to their source repositories; community entries have no invented repository or website links.
 
 ## 🧩 Features
 
