@@ -1,17 +1,17 @@
 import logging
 from typing import List, Optional, Tuple
 from sqlalchemy.orm import Session
-from sqlalchemy import desc, asc, func
+from sqlalchemy import desc, asc, func, case
 from sqlalchemy.exc import IntegrityError
 from fastapi import HTTPException, status
 
 from app.models.project import Project
-from app.models.upvote import Upvote
-from app.models.downvote import Downvote
 from app.models.comment import Comment
 from app.models.student import Student
 from app.schemas.project import ProjectCreate
 from app.schemas.comment import CommentCreate
+from app.models.saved_project import SavedProject
+from app.models.project_vote import ProjectVote
 
 logger = logging.getLogger("showcase.service")
 
@@ -19,6 +19,8 @@ logger = logging.getLogger("showcase.service")
 def create_project(db: Session, project_in: ProjectCreate) -> Project:
     """Publishes a new student project into the database."""
     student_id = project_in.student_id
+    if project_in.thumbnail_key and not project_in.thumbnail_key.startswith(f"projects/{student_id}/"):
+        raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="Thumbnail must belong to the project owner")
     if student_id:
         student = db.query(Student).filter(Student.id == student_id).first()
         if not student:
@@ -29,6 +31,12 @@ def create_project(db: Session, project_in: ProjectCreate) -> Project:
     db_project = Project(
         title=project_in.title,
         description=project_in.description,
+        category=project_in.category,
+        difficulty=project_in.difficulty,
+        docs_url=project_in.docs_url,
+        author_display_name=project_in.author_display_name,
+        author_profile_url=project_in.author_profile_url,
+        thumbnail_key=project_in.thumbnail_key,
         github_link=project_in.github_link,
         demo_url=project_in.demo_url,
         tech_stacks=project_in.tech_stacks,
@@ -42,10 +50,38 @@ def create_project(db: Session, project_in: ProjectCreate) -> Project:
     return db_project
 
 
+def update_project(db: Session, project_id: str, owner_id: str, project_in: ProjectCreate) -> Project:
+    project = db.query(Project).filter(Project.id == project_id).first()
+    if not project:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=f"Project with ID '{project_id}' not found")
+    if project.student_id != owner_id:
+        raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="Only the project owner can edit this project")
+    if project_in.thumbnail_key and not project_in.thumbnail_key.startswith(f"projects/{owner_id}/"):
+        raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="Thumbnail must belong to the project owner")
+    for field in ("title", "description", "category", "difficulty", "docs_url", "github_link", "demo_url", "tech_stacks", "thumbnail_key"):
+        if field in {"thumbnail_key", "docs_url"} and field not in project_in.model_fields_set:
+            continue
+        setattr(project, field, getattr(project_in, field))
+    db.commit()
+    db.refresh(project)
+    return project
+
+
+def delete_project(db: Session, project_id: str, owner_id: str) -> None:
+    project = db.query(Project).filter(Project.id == project_id).first()
+    if not project:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=f"Project with ID '{project_id}' not found")
+    if project.student_id != owner_id:
+        raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="Only the project owner can delete this project")
+    db.delete(project)
+    db.commit()
+
+
 def get_projects(
     db: Session,
     sort: str = "upvotes",
     tech_stack: Optional[str] = None,
+    category: Optional[str] = None,
     search: Optional[str] = None,
     student_id: Optional[str] = None,
     limit: int = 100,
@@ -54,13 +90,6 @@ def get_projects(
     """Retrieves projects ranked by upvotes, creation date, or filter criteria."""
     query = db.query(Project)
 
-    # Search filter
-    if search and search.strip():
-        term = f"%{search.strip().lower()}%"
-        query = query.filter(
-            func.lower(Project.title).like(term) | func.lower(Project.description).like(term)
-        )
-
     # Sorting
     if sort == "upvotes":
         query = query.order_by(desc(Project.upvote_count), desc(Project.created_at))
@@ -68,10 +97,23 @@ def get_projects(
         query = query.order_by(desc(Project.created_at))
     elif sort == "oldest":
         query = query.order_by(asc(Project.created_at))
+    elif sort == "alphabetical":
+        query = query.order_by(asc(Project.title))
     else:
         query = query.order_by(desc(Project.upvote_count))
 
     all_matching = query.all()
+
+    if search and search.strip():
+        from app.catalog import search_terms
+        terms = search_terms(search)
+        all_matching = [
+            p for p in all_matching
+            if any(term in " ".join((p.title or "", p.description or "", p.category or "", p.student.name if p.student else "", " ".join(p.tech_stacks or []))).casefold() for term in terms)
+        ]
+
+    if category and category.lower() != "all":
+        all_matching = [p for p in all_matching if (p.category or "Other").lower() == category.strip().lower()]
 
     # Filter by tech stack (JSON array match)
     if tech_stack and tech_stack.lower() != "all":
@@ -87,19 +129,12 @@ def get_projects(
     # Pre-fetch upvoted and downvoted project IDs for the current student
     upvoted_ids = set()
     downvoted_ids = set()
+    saved_ids = set()
     if student_id:
-        upvoted_ids = set(
-            row[0]
-            for row in db.query(Upvote.project_id)
-            .filter(Upvote.student_id == student_id)
-            .all()
-        )
-        downvoted_ids = set(
-            row[0]
-            for row in db.query(Downvote.project_id)
-            .filter(Downvote.student_id == student_id)
-            .all()
-        )
+        votes = db.query(ProjectVote.project_id, ProjectVote.direction).filter(ProjectVote.student_id == student_id).all()
+        upvoted_ids = {project_id for project_id, direction in votes if direction == "up"}
+        downvoted_ids = {project_id for project_id, direction in votes if direction == "down"}
+        saved_ids = set(row[0] for row in db.query(SavedProject.project_id).filter(SavedProject.student_id == student_id).all())
 
     # Build response payload
     results = []
@@ -114,6 +149,12 @@ def get_projects(
                 "id": proj.id,
                 "title": proj.title,
                 "description": proj.description or "",
+                "category": proj.category or "Other",
+                "difficulty": proj.difficulty or "Intermediate",
+                "docs_url": proj.docs_url,
+                "author_display_name": proj.author_display_name or (proj.student.name if proj.student else "Student Developer"),
+                "author_profile_url": proj.author_profile_url,
+                "thumbnail_url": f"/api/v1/assets/{proj.thumbnail_key}" if proj.thumbnail_key else None,
                 "github_link": proj.github_link,
                 "demo_url": proj.demo_url,
                 "tech_stacks": proj.tech_stacks or [],
@@ -122,10 +163,12 @@ def get_projects(
                 "comment_count": comment_count,
                 "created_at": proj.created_at,
                 "student_name": student_name,
+                "student_id": proj.student_id,
                 "has_voted": has_up,
                 "has_liked": has_up,
                 "has_disliked": has_down,
                 "user_vote": "up" if has_up else ("down" if has_down else None),
+                "is_saved": proj.id in saved_ids,
             }
         )
 
@@ -146,18 +189,9 @@ def get_project_by_id(
     has_up = False
     has_down = False
     if student_id:
-        has_up = (
-            db.query(Upvote)
-            .filter(Upvote.project_id == project_id, Upvote.student_id == student_id)
-            .first()
-            is not None
-        )
-        has_down = (
-            db.query(Downvote)
-            .filter(Downvote.project_id == project_id, Downvote.student_id == student_id)
-            .first()
-            is not None
-        )
+        vote = db.query(ProjectVote.direction).filter(ProjectVote.project_id == project_id, ProjectVote.student_id == student_id).first()
+        has_up = bool(vote and vote[0] == "up")
+        has_down = bool(vote and vote[0] == "down")
 
     # Fetch comments sorted newest first
     comments = (
@@ -184,6 +218,12 @@ def get_project_by_id(
         "id": proj.id,
         "title": proj.title,
         "description": proj.description or "",
+        "category": proj.category or "Other",
+        "difficulty": proj.difficulty or "Intermediate",
+        "docs_url": proj.docs_url,
+        "author_display_name": proj.author_display_name or (proj.student.name if proj.student else "Student Developer"),
+        "author_profile_url": proj.author_profile_url,
+        "thumbnail_url": f"/api/v1/assets/{proj.thumbnail_key}" if proj.thumbnail_key else None,
         "github_link": proj.github_link,
         "demo_url": proj.demo_url,
         "tech_stacks": proj.tech_stacks or [],
@@ -192,192 +232,89 @@ def get_project_by_id(
         "comment_count": len(comments),
         "created_at": proj.created_at,
         "student_name": proj.student.name if proj.student else "Student Developer",
+        "student_id": proj.student_id,
         "has_voted": has_up,
         "has_liked": has_up,
         "has_disliked": has_down,
         "user_vote": "up" if has_up else ("down" if has_down else None),
+        "is_saved": bool(student_id and db.query(SavedProject.id).filter(SavedProject.project_id == project_id, SavedProject.student_id == student_id).first()),
         "comments": formatted_comments,
     }
 
 
-def upvote_project(
-    db: Session, project_id: str, student_id: str
-) -> Tuple[int, int, bool, str]:
-    """
-    Records an upvote (like) for a project with strict 1-student = 1-vote constraint.
-    If the student had previously disliked the project, the dislike is switched to a like.
-    """
+def _cast_project_vote(db: Session, project_id: str, student_id: str, direction: str) -> Tuple[int, int, bool, str]:
     proj = db.query(Project).filter(Project.id == project_id).first()
     if not proj:
-        raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND,
-            detail=f"Project with ID '{project_id}' not found",
-        )
-
-    # Ensure student exists in DB or create development identity
+        raise HTTPException(status_code=404, detail=f"Project with ID '{project_id}' not found")
     student = db.query(Student).filter(Student.id == student_id).first()
     if not student:
-        student = Student(
-            id=student_id,
-            name=f"Student {student_id.replace('stu_', '')}",
-            email=f"{student_id}@student.edu",
-        )
+        student = Student(id=student_id, name=f"Student {student_id.replace('stu_', '')}", email=f"{student_id}@student.edu")
         db.add(student)
         db.commit()
 
-    # Check if student already upvoted
-    existing_upvote = (
-        db.query(Upvote)
-        .filter(Upvote.project_id == project_id, Upvote.student_id == student_id)
-        .first()
-    )
-    if existing_upvote:
-        raise HTTPException(
-            status_code=status.HTTP_409_CONFLICT,
-            detail={
-                "message": "Student has already upvoted this project. Each student can vote only once.",
-                "project_id": project_id,
-                "upvote_count": proj.upvote_count,
-                "voted": False,
-            },
-        )
+    vote = db.query(ProjectVote).filter_by(project_id=project_id, student_id=student_id).first()
+    if vote and vote.direction == direction:
+        raise HTTPException(status_code=409, detail={
+            "message": "Student has already voted this way. Each student can cast one vote per project.",
+            "project_id": project_id, "upvote_count": proj.upvote_count,
+            "downvote_count": proj.downvote_count, "voted": False,
+        })
+    previous = vote.direction if vote else None
+    if vote:
+        vote.direction = direction
+    else:
+        db.add(ProjectVote(project_id=project_id, student_id=student_id, direction=direction))
 
-    # If student previously downvoted, remove downvote and decrement downvote_count
-    existing_downvote = (
-        db.query(Downvote)
-        .filter(Downvote.project_id == project_id, Downvote.student_id == student_id)
-        .first()
-    )
-    if existing_downvote:
-        db.delete(existing_downvote)
-        if proj.downvote_count > 0:
-            proj.downvote_count = Project.downvote_count - 1
-
-    # Record upvote with DB constraint safety
-    upvote_record = Upvote(project_id=project_id, student_id=student_id)
+    changes = {}
+    if direction == "up":
+        changes["upvote_count"] = Project.upvote_count + 1
+        if previous == "down":
+            changes["downvote_count"] = case((Project.downvote_count > 0, Project.downvote_count - 1), else_=0)
+    else:
+        changes["downvote_count"] = Project.downvote_count + 1
+        if previous == "up":
+            changes["upvote_count"] = case((Project.upvote_count > 0, Project.upvote_count - 1), else_=0)
+    db.query(Project).filter(Project.id == project_id).update(changes, synchronize_session=False)
     try:
-        db.add(upvote_record)
-        proj.upvote_count = Project.upvote_count + 1
         db.commit()
         db.refresh(proj)
-        return proj.upvote_count, proj.downvote_count, True, "Like recorded successfully"
+        message = "Like recorded successfully" if direction == "up" else "Dislike recorded successfully"
+        return proj.upvote_count, proj.downvote_count, True, message
     except IntegrityError:
         db.rollback()
-        current_count = (
-            db.query(Project.upvote_count)
-            .filter(Project.id == project_id)
-            .scalar()
-            or 0
-        )
-        raise HTTPException(
-            status_code=status.HTTP_409_CONFLICT,
-            detail={
-                "message": "Student has already upvoted this project. Each student can vote only once.",
-                "project_id": project_id,
-                "upvote_count": current_count,
-                "downvote_count": db.query(Project.downvote_count).filter(Project.id == project_id).scalar() or 0,
-                "voted": False,
-            },
-        )
+        raise HTTPException(status_code=409, detail={
+            "message": "A vote from this student already exists for this project.",
+            "project_id": project_id,
+            "upvote_count": db.query(Project.upvote_count).filter(Project.id == project_id).scalar() or 0,
+            "downvote_count": db.query(Project.downvote_count).filter(Project.id == project_id).scalar() or 0,
+            "voted": False,
+        })
 
 
-def downvote_project(
-    db: Session, project_id: str, student_id: str
-) -> Tuple[int, int, bool, str]:
-    """
-    Records a downvote (dislike) for a project.
-    If the student had previously liked the project, the like is switched to a dislike.
-    """
-    proj = db.query(Project).filter(Project.id == project_id).first()
-    if not proj:
-        raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND,
-            detail=f"Project with ID '{project_id}' not found",
-        )
+def upvote_project(db: Session, project_id: str, student_id: str) -> Tuple[int, int, bool, str]:
+    return _cast_project_vote(db, project_id, student_id, "up")
 
-    student = db.query(Student).filter(Student.id == student_id).first()
-    if not student:
-        student = Student(
-            id=student_id,
-            name=f"Student {student_id.replace('stu_', '')}",
-            email=f"{student_id}@student.edu",
-        )
-        db.add(student)
-        db.commit()
 
-    # Check if student already downvoted
-    existing_downvote = (
-        db.query(Downvote)
-        .filter(Downvote.project_id == project_id, Downvote.student_id == student_id)
-        .first()
-    )
-    if existing_downvote:
-        raise HTTPException(
-            status_code=status.HTTP_409_CONFLICT,
-            detail={
-                "message": "Student has already disliked this project. Each student can vote only once.",
-                "project_id": project_id,
-                "downvote_count": getattr(proj, "downvote_count", 0) or 0,
-                "voted": False,
-            },
-        )
-
-    # If student previously upvoted, remove upvote and decrement upvote_count
-    existing_upvote = (
-        db.query(Upvote)
-        .filter(Upvote.project_id == project_id, Upvote.student_id == student_id)
-        .first()
-    )
-    if existing_upvote:
-        db.delete(existing_upvote)
-        if proj.upvote_count > 0:
-            proj.upvote_count = Project.upvote_count - 1
-
-    # Record downvote with DB constraint safety
-    downvote_record = Downvote(project_id=project_id, student_id=student_id)
-    try:
-        db.add(downvote_record)
-        proj.downvote_count = Project.downvote_count + 1
-        db.commit()
-        db.refresh(proj)
-        return proj.upvote_count, proj.downvote_count, True, "Dislike recorded successfully"
-    except IntegrityError:
-        db.rollback()
-        current_down = (
-            db.query(Project.downvote_count)
-            .filter(Project.id == project_id)
-            .scalar()
-            or 0
-        )
-        raise HTTPException(
-            status_code=status.HTTP_409_CONFLICT,
-            detail={
-                "message": "Student has already disliked this project. Each student can vote only once.",
-                "project_id": project_id,
-                "downvote_count": current_down,
-                "voted": False,
-            },
-        )
+def downvote_project(db: Session, project_id: str, student_id: str) -> Tuple[int, int, bool, str]:
+    return _cast_project_vote(db, project_id, student_id, "down")
 
 
 def remove_project_vote(db: Session, project_id: str, student_id: str) -> Tuple[int, int]:
     proj = db.query(Project).filter(Project.id == project_id).first()
     if not proj:
-        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=f"Project with ID '{project_id}' not found")
-    up = db.query(Upvote).filter(Upvote.project_id == project_id, Upvote.student_id == student_id).first()
-    down = db.query(Downvote).filter(Downvote.project_id == project_id, Downvote.student_id == student_id).first()
-    if up:
-        db.delete(up)
-        if proj.upvote_count > 0:
-            proj.upvote_count = Project.upvote_count - 1
-    if down:
-        db.delete(down)
-        if proj.downvote_count > 0:
-            proj.downvote_count = Project.downvote_count - 1
+        raise HTTPException(status_code=404, detail=f"Project with ID '{project_id}' not found")
+    vote = db.query(ProjectVote).filter_by(project_id=project_id, student_id=student_id).first()
+    if vote:
+        direction = vote.direction
+        db.delete(vote)
+        column = Project.upvote_count if direction == "up" else Project.downvote_count
+        field = "upvote_count" if direction == "up" else "downvote_count"
+        db.query(Project).filter(Project.id == project_id).update(
+            {field: case((column > 0, column - 1), else_=0)}, synchronize_session=False
+        )
     db.commit()
     db.refresh(proj)
     return proj.upvote_count, proj.downvote_count
-
 
 def add_comment(
     db: Session, project_id: str, comment_in: CommentCreate

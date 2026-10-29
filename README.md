@@ -1,247 +1,101 @@
-<div align="center">
+# Student Project Showcase & Peer Gallery
 
-# 🎓 Student Project Showcase & Gallery
+A full-stack project gallery for discovering student work and open-source projects, exploring projects across technical domains, and sharing constructive feedback.
 
-### One place to publish student projects, explore how they are built, and exchange useful feedback.
+## What the app includes
 
-[![React](https://img.shields.io/badge/React-18-149eca?logo=react&logoColor=white)](https://react.dev/)
-[![FastAPI](https://img.shields.io/badge/API-FastAPI-009688?logo=fastapi&logoColor=white)](https://fastapi.tiangolo.com/)
-[![Python](https://img.shields.io/badge/Python-3.11%2B-3776ab?logo=python&logoColor=white)](https://www.python.org/)
-[![Database](https://img.shields.io/badge/Database-PostgreSQL%20%7C%20SQLite-4169e1?logo=postgresql&logoColor=white)](https://www.postgresql.org/)
-[![Docker Compose](https://img.shields.io/badge/Containers-Docker%20Compose-2496ed?logo=docker&logoColor=white)](https://docs.docker.com/compose/)
+- **120 catalog projects** across **20 domains**, including Cybersecurity, Cloud Computing & DevOps, Generative AI & AI Agents, and Open Source & Developer Utilities.
+- **Domain filters** to browse every category, plus a project search field.
+- **Project search** across project titles, descriptions, and technology stacks.
+- **Project cards and detail views** with descriptions, difficulty, technology stacks, source repositories, and available project websites.
+- **Accounts and profiles** with registration, login, signed sessions, profile editing, and project ownership checks.
+- **Community features** including likes/dislikes, comments, saved projects, followed domains, and personalized recommendations.
+- **Responsive interface** with light and dark themes and a larger account creation form.
+- **FastAPI backend** with a local SQLite configuration, PostgreSQL support, Docker Compose configuration, and optional AWS infrastructure templates.
 
-**Academic mini-project · CS3452 Cloud Platforms and Service Models · RV University**
+The catalog contains 30 attributed open-source projects and 90 clearly identified community catalog entries. No fabricated repository or website links are added to those entries.
 
-[Features](#-what-you-can-do) · [Architecture](#-how-it-works) · [Run locally](#-run-locally) · [API](#-api-reference) · [Testing](#-tests-and-load-testing)
+## Technology stack
 
-</div>
-
----
-
-## ✨ About
-
-The Student Project Showcase is a full-stack web application for sharing student software projects. A student can publish a project with a description, technology stack, GitHub repository, and live demo. Other visitors can discover projects, browse the implementation details, react with **Like** or **Dislike**, and leave feedback marked **Positive** or **Improvement**. The goal is to make student work easier for classmates and faculty to find, review, and discuss.
-
-> **Project status:** The app runs locally and includes a Docker Compose environment. It demonstrates a cloud-oriented, three-tier design but is **not currently deployed as a public cloud service**. The included profiles, votes, and comments are sample/demo data. Secure authentication and production cloud storage are future work.
-
-## 🚀 What you can do
-
-| Explore | Publish | Review |
-|---|---|---|
-| Search by project title or description; filter by technology; sort by popularity or date; open source and demo links. | Add a title, overview, links, and technology tags. Choose from common stacks or add a custom one. | Like or Dislike a project, switch reactions, or double-click the active reaction to clear it. Leave Positive or Improvement comments. |
-
-Other interface details include a featured project, project detail dialogs, responsive layouts, light/dark themes, and an accessible API health status. Reactions and comments are associated with a development identity in this Phase 1 demo; the identity selector is hidden in the gallery.
-
-## 🧱 How it works
-
-```mermaid
-flowchart LR
-    Person[Student / Faculty Browser] --> UI[React + Vite Frontend]
-    UI -->|HTTP + JSON| API[FastAPI REST API]
-    API --> Schemas[Pydantic Validation]
-    Schemas --> Services[Project and Feedback Services]
-    Services --> ORM[SQLAlchemy ORM]
-    ORM --> DB[(PostgreSQL or SQLite)]
-    Compose[Docker Compose] -. local orchestration .-> UI
-    Compose -. local orchestration .-> API
-    Compose -. local orchestration .-> DB
-```
-
-- **Frontend:** React single-page application. It renders the gallery, dialogs, search and filtering controls, and sends API requests.
-- **API:** FastAPI validates requests, applies project/reaction/comment rules, and exposes interactive OpenAPI documentation.
-- **Data:** SQLAlchemy persists students, projects, reactions, and comments. PostgreSQL is used by the Compose setup; SQLite is the default for simple local runs.
-- **Health:** `GET /health` reports API and database connectivity and latency for local checks or an orchestrator probe.
-
-The tiers can be deployed independently: host the frontend as static assets/CDN content, run the API as a container or managed application, and use managed PostgreSQL for persistent cloud storage. This describes the deployment path; the repository does not provision cloud infrastructure or configure autoscaling, TLS, or production identity on its own.
-
-## 🧰 Technology
-
-| Area | Tools |
+| Area | Technology |
 |---|---|
-| UI | React 18, Vite, JavaScript, CSS, Lucide React |
-| API | Python, FastAPI, Pydantic, Uvicorn |
-| Persistence | SQLAlchemy, PostgreSQL, SQLite |
-| Containers | Docker, Docker Compose, Nginx |
-| Verification | Pytest, FastAPI TestClient, HTTPX |
-| Optional load tools | Locust, async HTTPX benchmark |
+| Frontend | React 18, Vite, Lucide React, CSS |
+| Backend | Python, FastAPI, SQLAlchemy, Pydantic |
+| Database | SQLite locally; PostgreSQL supported |
+| Deployment options | Docker Compose; AWS templates under `infra/aws/` |
 
-## 💻 Run locally
+## Run locally
 
-### Requirements
+Requirements: Python 3.10+, Node.js 18+, and npm.
 
-- Python **3.11+** and pip
-- Node.js **18+** and npm
-- Docker Desktop only if using Docker Compose
-- PostgreSQL is optional for local development; SQLite is used by default if `DATABASE_URL` is unset.
+### 1. Start the API
 
-### 1. Install and start the API
-
-Run these commands from the repository root. The API creates its tables at startup.
-
-**Windows PowerShell**
+From the repository root, create a virtual environment, install dependencies, then start FastAPI:
 
 ```powershell
 python -m venv .venv
 .\.venv\Scripts\Activate.ps1
-python -m pip install -r backend/requirements.txt
-python -m uvicorn app.main:app --app-dir backend --reload --host 127.0.0.1 --port 8000
+pip install -r backend/requirements.txt
+python -m uvicorn app.main:app --host 127.0.0.1 --port 8000 --app-dir backend --reload
 ```
 
-**macOS / Linux**
+The API uses `backend/.env` when present. The default local configuration uses SQLite. Interactive API documentation is available at `http://127.0.0.1:8000/docs`.
 
-```bash
-python3 -m venv .venv
-source .venv/bin/activate
-python -m pip install -r backend/requirements.txt
-python -m uvicorn app.main:app --app-dir backend --reload --host 127.0.0.1 --port 8000
-```
+### 2. Start the frontend
 
-SQLite creates `showcase.db` in the API process working directory. To use a local PostgreSQL instance, set `DATABASE_URL` before starting the backend. For example, in PowerShell:
+In a second terminal:
 
 ```powershell
-$env:DATABASE_URL = "postgresql://USER:PASSWORD@localhost:5432/showcase_db"
+npm install --prefix frontend
+npm run dev --prefix frontend
 ```
 
-### 2. Install and start the frontend
+Open `http://localhost:5173/`.
 
-Open a second terminal in the repository root:
+### Docker Compose
 
-```bash
-cd frontend
-npm ci
-npm run dev
-```
+When Docker Desktop is available, start the configured PostgreSQL, API, and frontend services with:
 
-The checked-in `frontend/.env.example` points to `http://localhost:8000`. To change the API origin, create `frontend/.env.local` with:
-
-```dotenv
-VITE_API_BASE_URL=http://localhost:8000
-```
-
-Open **http://localhost:5173**. The API docs are at **http://localhost:8000/docs** (Swagger UI) and **http://localhost:8000/redoc** (ReDoc).
-
-### 🐳 Run with Docker Compose
-
-From the repository root:
-
-```bash
+```powershell
 docker compose up --build
 ```
 
-Compose starts PostgreSQL, the FastAPI API, and an Nginx-served frontend. Browse to `http://localhost:5173`; health and docs are available at `http://localhost:8000/health` and `http://localhost:8000/docs`. Stop the stack with `Ctrl+C`, or run `docker compose down` in another terminal. The named `postgres_data` volume keeps local database records between container restarts. `docker compose down -v` deletes that volume and its data.
+Stop the services with `Ctrl+C`; use `docker compose down` to remove the containers while retaining the named database volume.
 
-> **Local credentials:** The Compose file currently contains example database credentials for local evaluation. Replace them with secret-managed values before any shared deployment; never commit real passwords, API keys, or `.env` files.
+## Build and API checks
 
-## 🔌 API reference
+Build the frontend for production:
 
-All project endpoints use `/api/v1`. The complete schemas and interactive “Try it out” interface are generated at `/docs`.
-
-| Method | Path | Description |
-|---|---|---|
-| `GET` | `/api/v1/projects` | Browse, search, filter, sort, and paginate projects |
-| `POST` | `/api/v1/projects` | Publish project metadata |
-| `GET` | `/api/v1/projects/{id}` | Get project details and comments |
-| `POST` | `/api/v1/projects/{id}/upvote` | Like, or switch from Dislike to Like |
-| `POST` | `/api/v1/projects/{id}/downvote` | Dislike, or switch from Like to Dislike |
-| `DELETE` | `/api/v1/projects/{id}/vote` | Remove the identified student's current reaction |
-| `GET` | `/api/v1/projects/{id}/comments` | List a project's feedback |
-| `POST` | `/api/v1/projects/{id}/comments` | Add a Positive or Improvement comment |
-| `GET` | `/api/v1/students` | List development/demo identities |
-| `GET` | `/health` | Check API and database health |
-
-`GET /api/v1/projects` supports `sort=upvotes` (default), `sort=newest`, or `sort=oldest`, plus `search`, `tech_stack`, `limit`, and `offset`. The current student ID can be passed in a request body or the `X-Student-Id` header on relevant routes.
-
-<details>
-<summary><strong>Example: publish a project</strong></summary>
-
-```bash
-curl -X POST http://localhost:8000/api/v1/projects \
-  -H 'Content-Type: application/json' \
-  -d '{
-    "title": "Campus Event Planner",
-    "description": "A web app for organizing student events and sharing schedules.",
-    "github_link": "https://github.com/example/campus-event-planner",
-    "demo_url": "https://example.com",
-    "tech_stacks": ["React", "FastAPI", "PostgreSQL"]
-  }'
+```powershell
+npm run build --prefix frontend
 ```
 
-</details>
+Run the backend API suite:
 
-<details>
-<summary><strong>Example: react and leave feedback</strong></summary>
-
-```bash
-curl -X POST http://localhost:8000/api/v1/projects/PROJECT_ID/upvote \
-  -H 'Content-Type: application/json' \
-  -d '{"student_id":"stu_demo01"}'
-
-curl -X POST http://localhost:8000/api/v1/projects/PROJECT_ID/comments \
-  -H 'Content-Type: application/json' \
-  -d '{
-    "student_id":"stu_demo01",
-    "author_name":"Demo Student",
-    "feedback_type":"improvement",
-    "content":"The project flow is clear; adding keyboard navigation could improve accessibility."
-  }'
+```powershell
+python -m pytest backend/tests/test_api.py -v
 ```
 
-Use `"feedback_type":"positive"` for a positive comment. Valid values are `positive` and `improvement`.
+A separate additive migration check is available in `backend/tests/test_migrations.py`.
 
-</details>
-
-## ✅ Tests and load testing
-
-Run API integration tests from the repository root after installing backend requirements:
-
-```bash
-python -m pytest backend/tests/test_api.py -q
-```
-
-The optional Locust profile can be run against a local API:
-
-```bash
-python -m locust -f loadtests/locustfile.py --host=http://127.0.0.1:8000
-```
-
-The async benchmark script targets `http://127.0.0.1:8000` and runs stages with 10, 25, and 50 simulated users:
-
-```bash
-python loadtests/benchmark.py
-```
-
-> **Load-test caution:** These scripts send requests that may create reaction or comment records. Use a disposable database or an environment where you are authorized to generate traffic.
-
-## 🗂️ Repository map
+## Project structure
 
 ```text
-backend/
-  app/                 FastAPI app, API routes, schemas, ORM models, services
-  tests/               API integration tests
-  seed_data.py         Optional demo-data seeder (resets its target database)
-frontend/
-  src/                 React app, components, styles, and API client
-  Dockerfile           Production frontend image
-  nginx.conf           Static app serving and API proxy configuration
-docs/                  Requirements, architecture, and test plan
-loadtests/             Locust profile and async benchmark
-docker-compose.yml     Local API + frontend + PostgreSQL stack
+backend/       FastAPI application, models, services, and tests
+frontend/      React/Vite application and styles
+docs/          Requirements, architecture, deployment, and evaluation notes
+infra/aws/     AWS infrastructure templates (not deployed)
+loadtests/     Locust and standalone load-test scripts
 ```
 
-### Sample data seeder
+## Cloud deployment status
 
-`python backend/seed_data.py` replaces the configured database contents before inserting demo data. **Back up important data first and only run it against a disposable demo database.** Do not describe seeded profiles, reactions, or comments as verified real community activity.
+The AWS templates describe a possible deployment using CloudFront/S3, ECS Fargate, an Application Load Balancer, RDS PostgreSQL, and optional object storage. These resources are **not deployed or verified**. Review [the deployment notes](docs/aws-deployment.md) before preparing a cloud rollout. The project also includes a [50:50 completion matrix](docs/50-50-completion-matrix.md) and [architecture notes](docs/architecture.md).
 
-## 🎓 Course context
+## Configuration
 
-**CS3452 — Cloud Platforms and Service Models**<br>
-RV University · School of Computer Science and Engineering<br>
-Academic mini-project demonstrating a full-stack student showcase and its path toward cloud hosting.
+Use environment variables or `backend/.env` for settings such as `DATABASE_URL`, `AUTH_SECRET`, `CORS_ORIGINS`, and optional AWS storage values. Set a unique secret and production-appropriate CORS origins before any production deployment. See `backend/.env.example` for the available configuration keys.
 
----
+## License
 
-<div align="center">
-
-Made for sharing student work and making project feedback more useful.
-
-</div>
+No repository license is currently specified. Add a `LICENSE` file before redistributing the project under an open-source license.

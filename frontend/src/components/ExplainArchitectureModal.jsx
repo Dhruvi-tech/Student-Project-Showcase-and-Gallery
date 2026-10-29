@@ -57,7 +57,7 @@ export function ExplainArchitectureModal({ onClose, healthData }) {
             }}
           >
             <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-              <span className="live-demo-indicator"></span>
+              <span className="live-site-indicator"></span>
               <span style={{ fontSize: '0.84rem', fontWeight: 600, color: 'var(--accent-emerald)' }}>
                 Active Backend Service: {healthData?.status?.toUpperCase() || 'HEALTHY'}
               </span>
@@ -127,7 +127,7 @@ export function ExplainArchitectureModal({ onClose, healthData }) {
             <div className="flow-steps">
               <div className="flow-step">
                 <strong style={{ display: 'block', color: 'var(--text-primary)', marginBottom: '0.2rem' }}>1. Client Tier (React Vite SPA)</strong>
-                <p style={{ color: 'var(--text-secondary)' }}>Renders project cards, demo links, and records like/dislike choices.</p>
+                <p style={{ color: 'var(--text-secondary)' }}>Renders project cards and website links, and records like/dislike choices.</p>
               </div>
               <div className="flow-arrow">→</div>
               <div className="flow-step">

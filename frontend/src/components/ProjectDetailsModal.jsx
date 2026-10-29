@@ -17,6 +17,9 @@ export function ProjectDetailsModal({
   onVote,
   isVoting,
   onCommentAdded,
+  currentUser,
+  onEdit,
+  onDelete,
 }) {
   const [details, setDetails] = useState(null);
   const [loading, setLoading] = useState(true);
@@ -103,7 +106,7 @@ export function ProjectDetailsModal({
               {project.title}
             </h3>
             <span style={{ fontSize: '0.8rem', color: 'var(--text-secondary)' }}>
-              Demo profile <strong>{project.student_name || 'Student Creator'}</strong>
+              By <strong>{details?.author_display_name || project.author_display_name || project.student_name || 'Student Creator'}</strong>{(details?.author_profile_url || project.author_profile_url)?.startsWith('https://') && <a className="profile-source-link" href={details?.author_profile_url || project.author_profile_url} target="_blank" rel="noopener noreferrer">Author profile</a>}
             </span>
           </div>
           <button className="modal-close-btn" onClick={onClose} aria-label="Close modal">
@@ -123,10 +126,10 @@ export function ProjectDetailsModal({
                   rel="noopener noreferrer"
                   className="featured-btn-live"
                   style={{ padding: '0.45rem 0.85rem', fontSize: '0.84rem' }}
-                  title={`Open Live Demo: ${project.demo_url}`}
+                  title={`Open project website: ${project.demo_url}`}
                 >
-                  <span className="live-demo-indicator"></span>
-                  <span>Open demo site ({project.demo_url.replace(/^https?:\/\//, '')})</span>
+                  <span className="live-site-indicator"></span>
+                  <span>Visit website ({project.demo_url.replace(/^https?:\/\//, '')})</span>
                   <ExternalLink size={13} />
                 </a>
               )}
@@ -142,9 +145,18 @@ export function ProjectDetailsModal({
                   <span>GitHub Repository</span>
                 </a>
               )}
+              {(details?.docs_url || project.docs_url) && <a href={details?.docs_url || project.docs_url} target="_blank" rel="noopener noreferrer" className="btn-secondary"><ExternalLink size={14} /><span>Documentation</span></a>}
             </div>
 
             <VoteControls project={{ ...project, ...details }} onVote={handleVote} isVoting={isVoting} />
+              {currentUser?.id === (details?.student_id || project.student_id) && (
+                <div className="owner-actions">
+                  <button className="btn-secondary" onClick={() => onEdit?.({ ...project, ...details })}>Edit</button>
+                  <button className="btn-secondary owner-delete" onClick={() => {
+                    if (window.confirm('Delete this project and its comments and votes?')) onDelete?.(project);
+                  }}>Delete</button>
+                </div>
+              )}
           </div>
 
           {/* Description Section */}
@@ -158,6 +170,13 @@ export function ProjectDetailsModal({
           </div>
 
           {/* Tech Stacks */}
+          <div>
+            <h4 style={{ fontSize: '0.78rem', color: 'var(--text-muted)', textTransform: 'uppercase', marginBottom: '0.4rem', letterSpacing: '0.04em', fontWeight: 600 }}>
+              Primary domain
+            </h4>
+            <span className="tech-badge">{details?.category || project.category || 'Other'}</span>
+            <span className="tech-badge difficulty-badge">{details?.difficulty || project.difficulty || 'Intermediate'}</span>
+          </div>
           <div>
             <h4 style={{ fontSize: '0.78rem', color: 'var(--text-muted)', textTransform: 'uppercase', marginBottom: '0.4rem', letterSpacing: '0.04em', fontWeight: 600 }}>
               Technology Stack

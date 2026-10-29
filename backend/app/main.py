@@ -8,7 +8,8 @@ from fastapi.exceptions import RequestValidationError
 from fastapi.encoders import jsonable_encoder
 from app.config import settings
 from app.database import init_db
-from app.routers import projects_router, health_router
+from app.routers import projects_router, health_router, auth_router
+from app.routers.discovery import router as discovery_router
 
 # Configure logging
 logging.basicConfig(
@@ -44,7 +45,7 @@ app = FastAPI(
 # CORS Middleware for React frontend
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=settings.cors_origins_list + ["*"],
+    allow_origins=settings.cors_origins_list,
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
@@ -53,6 +54,8 @@ app.add_middleware(
 # Include API Routers
 app.include_router(health_router)
 app.include_router(projects_router)
+app.include_router(auth_router)
+app.include_router(discovery_router)
 
 
 @app.get("/", tags=["Root"])

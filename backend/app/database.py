@@ -1,5 +1,6 @@
 import logging
 import time
+import uuid
 from typing import Generator, Tuple
 from sqlalchemy import create_engine, text, inspect
 from sqlalchemy.orm import declarative_base, sessionmaker, Session
@@ -8,7 +9,7 @@ from app.config import settings
 logger = logging.getLogger("showcase.database")
 
 # Handle SQLite vs PostgreSQL engine parameters
-is_sqlite = settings.DATABASE_URL.startswith("sqlite")
+is_sqlite = settings.resolved_database_url.startswith("sqlite")
 
 connect_args = {}
 engine_kwargs = {"echo": False}
@@ -26,7 +27,7 @@ else:
     )
 
 engine = create_engine(
-    settings.DATABASE_URL,
+    settings.resolved_database_url,
     connect_args=connect_args,
     **engine_kwargs
 )
@@ -46,7 +47,9 @@ def get_db() -> Generator[Session, None, None]:
 
 def init_db() -> None:
     """Create all tables defined on Base."""
-    logger.info(f"Initializing database using: {settings.DATABASE_URL.split('@')[-1] if '@' in settings.DATABASE_URL else settings.DATABASE_URL}")
+    resolved_url = settings.resolved_database_url
+    safe_url = resolved_url.split("@")[-1] if "@" in resolved_url else resolved_url
+    logger.info("Initializing database using: %s", safe_url)
     Base.metadata.create_all(bind=engine)
     # Additive upgrade for existing databases created before dislikes were introduced.
     columns = {column["name"] for column in inspect(engine).get_columns("projects")}
@@ -55,10 +58,69 @@ def init_db() -> None:
             connection.execute(text(
                 "ALTER TABLE projects ADD COLUMN downvote_count INTEGER NOT NULL DEFAULT 0"
             ))
+    if "category" not in columns:
+        with engine.begin() as connection:
+            connection.execute(text("ALTER TABLE projects ADD COLUMN category VARCHAR(80) NOT NULL DEFAULT 'Other'"))
+    if "thumbnail_key" not in columns:
+        with engine.begin() as connection:
+            connection.execute(text("ALTER TABLE projects ADD COLUMN thumbnail_key VARCHAR(500)"))
+    for column_name, column_sql in (
+        ("difficulty", "VARCHAR(20) NOT NULL DEFAULT 'Intermediate'"),
+        ("docs_url", "VARCHAR(500)"),
+        ("author_display_name", "VARCHAR(120)"),
+        ("author_profile_url", "VARCHAR(500)"),
+    ):
+        if column_name not in columns:
+            with engine.begin() as connection:
+                connection.execute(text(f"ALTER TABLE projects ADD COLUMN {column_name} {column_sql}"))
+    with engine.begin() as connection:
+        connection.execute(text("CREATE INDEX IF NOT EXISTS ix_projects_category ON projects (category)"))
     comment_columns = {column["name"] for column in inspect(engine).get_columns("comments")}
     if "feedback_type" not in comment_columns:
         with engine.begin() as connection:
             connection.execute(text("ALTER TABLE comments ADD COLUMN feedback_type VARCHAR(20)"))
+    student_columns = {column["name"] for column in inspect(engine).get_columns("students")}
+    for column_name, column_sql in (
+        ("username", "VARCHAR(40)"),
+        ("password_hash", "VARCHAR(255)"),
+        ("bio", "VARCHAR(500)"),
+        ("session_version", "INTEGER NOT NULL DEFAULT 0"),
+        ("interests", "JSON NOT NULL DEFAULT '[]'"),
+    ):
+        if column_name not in student_columns:
+            with engine.begin() as connection:
+                connection.execute(text(f"ALTER TABLE students ADD COLUMN {column_name} {column_sql}"))
+    with engine.begin() as connection:
+        connection.execute(text("CREATE UNIQUE INDEX IF NOT EXISTS ix_students_username ON students (username)"))
+
+    # Canonicalize only the legacy labels that are unambiguous in the new 20-domain taxonomy.
+    with engine.begin() as connection:
+        connection.execute(text("UPDATE projects SET category = 'Web Development & Full Stack' WHERE lower(category) = 'web development'"))
+        connection.execute(text("UPDATE projects SET category = 'Mobile App Development' WHERE lower(category) = 'mobile development'"))
+        connection.execute(text("UPDATE projects SET category = 'Blockchain & Web3' WHERE lower(category) = 'blockchain'"))
+        connection.execute(text("UPDATE projects SET category = 'Open Source & Developer Utilities' WHERE lower(category) = 'other' OR category IS NULL OR category = ''"))
+
+    # Fold the legacy like/dislike tables into one table whose unique key spans both directions.
+    table_names = set(inspect(engine).get_table_names())
+    with engine.begin() as connection:
+        for table_name, direction in (("upvotes", "up"), ("downvotes", "down")):
+            if table_name not in table_names:
+                continue
+            for row in connection.execute(text(f"SELECT project_id, student_id, created_at FROM {table_name}")).mappings():
+                existing = connection.execute(text(
+                    "SELECT direction FROM project_votes WHERE project_id = :project_id AND student_id = :student_id"
+                ), {"project_id": row["project_id"], "student_id": row["student_id"]}).first()
+                if not existing:
+                    connection.execute(text(
+                        "INSERT INTO project_votes (id, project_id, student_id, direction, created_at) "
+                        "VALUES (:id, :project_id, :student_id, :direction, :created_at)"
+                    ), {"id": f"vte_{uuid.uuid4().hex[:12]}", "project_id": row["project_id"],
+                        "student_id": row["student_id"], "direction": direction, "created_at": row["created_at"]})
+        connection.execute(text(
+            "UPDATE projects SET "
+            "upvote_count = (SELECT COUNT(*) FROM project_votes WHERE project_votes.project_id = projects.id AND direction = 'up'), "
+            "downvote_count = (SELECT COUNT(*) FROM project_votes WHERE project_votes.project_id = projects.id AND direction = 'down')"
+        ))
 
 
 def check_db_health() -> Tuple[bool, str, float]:

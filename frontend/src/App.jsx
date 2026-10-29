@@ -6,6 +6,9 @@ import { FeaturedSpotlight } from './components/FeaturedSpotlight';
 import { ProjectDetailsModal } from './components/ProjectDetailsModal';
 import { PublishProjectModal } from './components/PublishProjectModal';
 import { ExplainArchitectureModal } from './components/ExplainArchitectureModal';
+import { AuthModal } from './components/AuthModal';
+import { AuthorProfileModal } from './components/AuthorProfileModal';
+import { ProfileEditModal } from './components/ProfileEditModal';
 import { api } from './services/api';
 import './styles/App.css';
 import { Terminal, FolderSearch, AlertTriangle, CheckCircle } from 'lucide-react';
@@ -14,6 +17,8 @@ export function App() {
   const [projects, setProjects] = useState([]);
   const [totalCount, setTotalCount] = useState(0);
   const [loading, setLoading] = useState(true);
+  const [loadingMoreProjects, setLoadingMoreProjects] = useState(false);
+  const [hasMoreProjects, setHasMoreProjects] = useState(false);
   const [error, setError] = useState(null);
 
   // Theme state: warm neutral light (default) or polished slate dark
@@ -21,12 +26,23 @@ export function App() {
 
   // Filters & Sorting
   const [searchQuery, setSearchQuery] = useState('');
-  const [selectedTech, setSelectedTech] = useState('All');
+  const [selectedCategory, setSelectedCategory] = useState('All');
   const [sortOption, setSortOption] = useState('upvotes');
 
   // Development Identity Personas
   const [students, setStudents] = useState([]);
   const [currentStudentId, setCurrentStudentId] = useState('');
+  const [currentUser, setCurrentUser] = useState(null);
+  const [isAuthModalOpen, setIsAuthModalOpen] = useState(false);
+  const [myProjectsMode, setMyProjectsMode] = useState(false);
+  const [savedProjectsMode, setSavedProjectsMode] = useState(false);
+  const [recommendationsMode, setRecommendationsMode] = useState(false);
+  const [followedCategories, setFollowedCategories] = useState([]);
+  const [interests, setInterests] = useState([]);
+  const [technologyCatalog, setTechnologyCatalog] = useState([]);
+  const [projectToEdit, setProjectToEdit] = useState(null);
+  const [profileStudentId, setProfileStudentId] = useState(null);
+  const [isProfileEditorOpen, setIsProfileEditorOpen] = useState(false);
 
   // Modals & Active View
   const [activeProject, setActiveProject] = useState(null);
@@ -57,18 +73,31 @@ export function App() {
   useEffect(() => {
     async function initSystem() {
       try {
-        const [health, studentsList] = await Promise.allSettled([
+        const [health, studentsList, userResult, technologyResult] = await Promise.allSettled([
           api.getHealth(),
           api.getStudents(),
+          api.getCurrentUser(),
+          api.getTechnologies(),
         ]);
 
         if (health.status === 'fulfilled') {
           setHealthData(health.value);
         }
+        if (technologyResult.status === 'fulfilled') setTechnologyCatalog(technologyResult.value.data || []);
 
         if (studentsList.status === 'fulfilled' && studentsList.value.length > 0) {
           setStudents(studentsList.value);
           setCurrentStudentId(studentsList.value[0].id);
+          const [follows, profileInterests] = await Promise.allSettled([
+            api.getFollowedCategories(studentsList.value[0].id), api.getInterests(studentsList.value[0].id),
+          ]);
+          if (follows.status === 'fulfilled') setFollowedCategories(follows.value.data || []);
+          if (profileInterests.status === 'fulfilled') setInterests(profileInterests.value.data || []);
+        }
+        if (userResult.status === 'fulfilled' && userResult.value?.user) {
+          setCurrentUser(userResult.value.user);
+          setCurrentStudentId(userResult.value.user.id);
+          setInterests(userResult.value.user.interests || []);
         }
       } catch (err) {
         console.error('System initialization error:', err);
@@ -82,20 +111,41 @@ export function App() {
     try {
       setLoading(true);
       setError(null);
-      const res = await api.getProjects({
+      const res = myProjectsMode
+        ? await api.getMyProjects()
+        : savedProjectsMode
+          ? await api.getBookmarks(currentStudentId)
+          : recommendationsMode
+            ? await api.getRecommendations(currentStudentId)
+        : await api.getProjects({
         sort: sortOption,
-        techStack: selectedTech,
+        category: selectedCategory,
         search: searchQuery,
         studentId: currentStudentId,
-      });
+        limit: 24,
+        offset: 0,
+        });
       setProjects(res.data || []);
       setTotalCount(res.total ?? (res.data ? res.data.length : 0));
+      setHasMoreProjects(!myProjectsMode && !savedProjectsMode && !recommendationsMode && (res.data?.length || 0) < (res.total || 0));
     } catch (err) {
       setError(err.message || 'Failed to load projects');
     } finally {
       setLoading(false);
     }
-  }, [sortOption, selectedTech, searchQuery, currentStudentId]);
+  }, [sortOption, selectedCategory, searchQuery, currentStudentId, myProjectsMode, savedProjectsMode, recommendationsMode]);
+
+  const loadMoreProjects = async () => {
+    if (loadingMoreProjects || !hasMoreProjects) return;
+    setLoadingMoreProjects(true);
+    try {
+      const res = await api.getProjects({ sort: sortOption, category: selectedCategory, search: searchQuery, studentId: currentStudentId, limit: 24, offset: projects.length });
+      const next = [...projects, ...(res.data || [])];
+      setProjects(next);
+      setHasMoreProjects(next.length < (res.total || 0));
+    } catch (err) { showToast(err.message || 'Could not load more projects.', 'error'); }
+    finally { setLoadingMoreProjects(false); }
+  };
 
   // Refetch when filters or identity change
   useEffect(() => {
@@ -105,10 +155,10 @@ export function App() {
     return () => clearTimeout(timer);
   }, [loadProjects]);
 
-  // A demo identity can cast one vote per project and switch between like/dislike.
+  // The current profile can cast one vote per project and switch between like/dislike.
   const handleVote = async (projectId, direction) => {
     if (!currentStudentId) {
-      showToast('The demo voting identity is loading. Try again in a moment.', 'error');
+      showToast('Your profile is loading. Try again in a moment.', 'error');
       return null;
     }
 
@@ -152,6 +202,7 @@ export function App() {
   const handleProjectPublished = (newProject) => {
     showToast(`Project "${newProject.title}" published successfully!`, 'success');
     loadProjects();
+    api.getTechnologies().then((result) => setTechnologyCatalog(result.data || [])).catch(() => {});
   };
 
   const handleCommentAdded = () => {
@@ -159,9 +210,82 @@ export function App() {
     loadProjects();
   };
 
+  const handleLogout = async () => {
+    try {
+      await api.logout();
+      setCurrentUser(null);
+      setCurrentStudentId(students[0]?.id || '');
+      setMyProjectsMode(false);
+      setSavedProjectsMode(false);
+      setRecommendationsMode(false);
+      showToast('You are logged out.', 'success');
+    } catch (err) {
+      showToast(err.message || 'Could not log out.', 'error');
+    }
+  };
+
+  const showMyProjects = () => {
+    setMyProjectsMode(true);
+    setSavedProjectsMode(false);
+    setRecommendationsMode(false);
+    setSearchQuery('');
+    setSelectedTech('All');
+    setSelectedCategory('All');
+  };
+
+  const handleNavigate = (target) => {
+    setMyProjectsMode(false);
+    setSavedProjectsMode(target === 'saved');
+    setRecommendationsMode(target === 'recommended');
+    setSearchQuery('');
+    setSelectedTech('All');
+    if (target === 'ai') setSelectedCategory('AI & Machine Learning');
+    else if (target === 'data') setSelectedCategory('Data Science & Analytics');
+    else setSelectedCategory('All');
+    if (target === 'trending') setSortOption('upvotes');
+    if (target === 'saved' || target === 'recommended') setSelectedCategory('All');
+    else if (target === 'home' || target === 'explore') setSortOption(target === 'home' ? 'upvotes' : sortOption);
+    if (target === 'home') window.scrollTo({ top: 0, behavior: 'smooth' });
+    else requestAnimationFrame(() => document.getElementById('gallery')?.scrollIntoView({ behavior: 'smooth', block: 'start' }));
+  };
+
+  const toggleBookmark = async (project) => {
+    try {
+      await api.setBookmark(project.id, !project.is_saved, currentStudentId);
+      setProjects((rows) => rows.filter((row) => row.id !== project.id || !project.is_saved).map((row) => row.id === project.id ? { ...row, is_saved: !project.is_saved } : row));
+      showToast(project.is_saved ? 'Removed from saved projects.' : 'Project saved for later.', 'success');
+      if (savedProjectsMode && project.is_saved) loadProjects();
+    } catch (err) { showToast(err.message || 'Could not update saved projects.', 'error'); }
+  };
+
+  const toggleCategoryFollow = async (category) => {
+    const next = followedCategories.includes(category)
+      ? followedCategories.filter((item) => item !== category)
+      : [...followedCategories, category];
+    try {
+      const result = await api.setFollowedCategories(next, currentStudentId);
+      setFollowedCategories(result.data || next);
+      showToast(next.includes(category) ? `Following ${category}.` : `Unfollowed ${category}.`, 'success');
+    } catch (err) { showToast(err.message || 'Could not save your category preferences.', 'error'); }
+  };
+
+  const handleAuthenticated = async (user) => {
+    setCurrentUser(user);
+    setCurrentStudentId(user.id);
+    setMyProjectsMode(false);
+    setSavedProjectsMode(false);
+    setRecommendationsMode(false);
+    setInterests(user.interests || []);
+    try {
+      const result = await api.getFollowedCategories(user.id);
+      setFollowedCategories(result.data || []);
+    } catch { setFollowedCategories([]); }
+    showToast(`Signed in as @${user.username}.`, 'success');
+  };
+
   // Top featured spotlight project (Rank #1 or first item)
   const spotlightProject = sortOption === 'upvotes' && projects.length > 0 ? projects[0] : null;
-  const showSpotlight = !loading && !error && !searchQuery && selectedTech === 'All' && spotlightProject;
+  const showSpotlight = !myProjectsMode && !savedProjectsMode && !recommendationsMode && !loading && !error && !searchQuery && selectedCategory === 'All' && spotlightProject;
 
   return (
     <div className="app-layout">
@@ -172,6 +296,14 @@ export function App() {
         healthData={healthData}
         theme={theme}
         onToggleTheme={toggleTheme}
+        user={currentUser}
+        onOpenAuth={() => setIsAuthModalOpen(true)}
+        onLogout={handleLogout}
+        onShowMyProjects={showMyProjects}
+        onNavigate={handleNavigate}
+        onShowSaved={() => handleNavigate('saved')}
+        onShowRecommendations={() => handleNavigate('recommended')}
+        onEditProfile={() => setIsProfileEditorOpen(true)}
       />
 
       {/* Hero Section */}
@@ -187,14 +319,37 @@ export function App() {
               Explore student work, open the source, and leave a thoughtful vote or comment.
               Publish your own project when it is ready to share.
             </p>
-            <p className="demo-data-note">Demo mode: sample profiles, votes, and comments. Votes can be switched later.</p>
+            <p className="catalog-data-note">Catalog includes upstream open-source projects and clearly labeled fictional samples. Sample entries do not include invented repository or website links.</p>
           </div>
 
+          <aside className="hero-community" aria-label="Project gallery summary">
+            <div className="community-panel-heading">
+              <span className="community-spark">✳</span>
+              <div><strong>Gallery overview</strong><span>Student and open-source projects</span></div>
+            </div>
+            <div className="stats-strip">
+              <div className="stat-item">
+                <span className="stat-value">{totalCount}</span>
+                <span className="stat-label">Projects</span>
+              </div>
+              <div className="stat-item">
+                <span className="stat-value">20</span>
+                <span className="stat-label">Domains</span>
+              </div>
+              <div className="stat-item">
+                <span className="stat-value">{technologyCatalog.length}</span>
+                <span className="stat-label">Technologies</span>
+              </div>
+            </div>
+            <p className="community-panel-note">Search by idea, filter by stack, and open a project for details and feedback.</p>
+          </aside>
         </div>
       </section>
 
       {/* Main Content Area */}
       <main className="main-content">
+        <div id="gallery" className="gallery-anchor" />
+        {(myProjectsMode || savedProjectsMode || recommendationsMode) && <div className="gallery-section-heading"><div><h2>{myProjectsMode ? 'My projects' : savedProjectsMode ? 'Saved projects' : 'Picked for you'}</h2><p>{myProjectsMode ? 'Projects published by your account' : savedProjectsMode ? 'Your bookmarked projects' : 'Ranked using your followed categories, technology interests, recency, and stored community votes.'}</p></div><button className="btn-secondary" onClick={() => handleNavigate('explore')}>Back to Explore</button></div>}
         {/* Featured Spotlight Card */}
         {showSpotlight && (
           <FeaturedSpotlight
@@ -202,6 +357,8 @@ export function App() {
             onVote={handleVote}
             onOpenDetails={(p) => setActiveProject(p)}
             isUpvoting={votingIds.has(spotlightProject.id)}
+            onToggleBookmark={toggleBookmark}
+            onOpenAuthor={(id) => setProfileStudentId(id)}
           />
         )}
 
@@ -209,11 +366,14 @@ export function App() {
         <FilterBar
           searchQuery={searchQuery}
           onSearchChange={setSearchQuery}
-          selectedTech={selectedTech}
-          onTechChange={setSelectedTech}
+        selectedCategory={selectedCategory}
+        onCategoryChange={setSelectedCategory}
           sortOption={sortOption}
           onSortChange={setSortOption}
           totalCount={totalCount}
+          showingCount={projects.length}
+          followedCategories={followedCategories}
+          onToggleCategoryFollow={toggleCategoryFollow}
         />
 
         {/* Loading Spinner */}
@@ -243,15 +403,15 @@ export function App() {
             <FolderSearch size={38} color="var(--text-muted)" />
             <h3 className="state-title">No Projects Found</h3>
             <p className="state-desc">
-              {searchQuery || selectedTech !== 'All'
-                ? `No projects matched "${searchQuery || selectedTech}". Try clearing filters.`
-                : 'The showcase gallery is currently empty. Be the first to publish a project!'}
+              {searchQuery || selectedCategory !== 'All'
+                ? `No projects matched your current filters. Try clearing filters.`
+              : myProjectsMode ? 'You have not published a project with this account yet.' : savedProjectsMode ? 'Save projects from the gallery and they will be collected here.' : recommendationsMode ? 'Follow categories or technologies to personalize recommendations.' : 'The showcase gallery is currently empty. Be the first to publish a project!'}
             </p>
             <button
               className="btn-primary"
               onClick={() => {
                 setSearchQuery('');
-                setSelectedTech('All');
+                setSelectedCategory('All');
               }}
               style={{ marginTop: '0.8rem' }}
             >
@@ -275,9 +435,12 @@ export function App() {
                 onVote={handleVote}
                 onOpenDetails={(p) => setActiveProject(p)}
                 isUpvoting={votingIds.has(project.id)}
+                onToggleBookmark={toggleBookmark}
+                onOpenAuthor={(id) => setProfileStudentId(id)}
               />
             ))}
             </div>
+            {hasMoreProjects && <div className="load-more-row"><button className="btn-secondary" onClick={loadMoreProjects} disabled={loadingMoreProjects}>{loadingMoreProjects ? 'Loading…' : `Load more projects (${projects.length} of ${totalCount})`}</button></div>}
           </>
         )}
       </main>
@@ -288,21 +451,39 @@ export function App() {
           project={activeProject}
           currentStudentId={currentStudentId}
           students={students}
+          currentUser={currentUser}
           onClose={() => setActiveProject(null)}
           onVote={handleVote}
+          onEdit={(project) => { setActiveProject(null); setProjectToEdit(project); setIsPublishModalOpen(true); }}
+          onDelete={async (project) => {
+            try {
+              await api.deleteProject(project.id, currentUser?.id);
+              setActiveProject(null);
+              showToast('Project deleted.', 'success');
+              loadProjects();
+            } catch (err) { showToast(err.message || 'Could not delete project.', 'error'); }
+          }}
           isVoting={votingIds.has(activeProject.id)}
           onCommentAdded={handleCommentAdded}
         />
       )}
 
+      {profileStudentId && <AuthorProfileModal studentId={profileStudentId} onClose={() => setProfileStudentId(null)} onOpenProject={(projectId) => { setProfileStudentId(null); const found = projects.find((project) => project.id === projectId); if (found) setActiveProject(found); else api.getProjectDetails(projectId, currentStudentId).then(setActiveProject).catch((err) => showToast(err.message || 'Could not open project.', 'error')); }} />}
+
+      {isProfileEditorOpen && currentUser && <ProfileEditModal user={currentUser} onClose={() => setIsProfileEditorOpen(false)} onSaved={(user) => { setCurrentUser(user); setInterests(user.interests || []); showToast('Profile updated.', 'success'); }} />}
+
       {isPublishModalOpen && (
         <PublishProjectModal
           currentStudentId={currentStudentId}
           students={students}
-          onClose={() => setIsPublishModalOpen(false)}
+          onClose={() => { setIsPublishModalOpen(false); setProjectToEdit(null); }}
           onProjectPublished={handleProjectPublished}
+          initialProject={projectToEdit}
+          onSaved={() => { setProjectToEdit(null); setIsPublishModalOpen(false); loadProjects(); showToast('Project updated.', 'success'); }}
         />
       )}
+
+      {isAuthModalOpen && <AuthModal onClose={() => setIsAuthModalOpen(false)} onAuthenticated={handleAuthenticated} />}
 
       {isExplainModalOpen && (
         <ExplainArchitectureModal

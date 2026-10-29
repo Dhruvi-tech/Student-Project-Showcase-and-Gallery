@@ -1,6 +1,11 @@
 import pytest
 from app.models.project import Project
 from app.models.upvote import Upvote
+from app.config import settings
+from app.models.student import Student
+from app.models.project_vote import ProjectVote
+from app.models.saved_project import SavedProject
+from app.catalog import CATEGORIES
 from sqlalchemy.exc import IntegrityError
 
 
@@ -341,3 +346,186 @@ def test_19_vote_can_be_removed_and_feedback_is_typed(client, db_session):
     })
     assert comment.status_code == 201
     assert comment.json()["feedback_type"] == "improvement"
+
+
+def test_20_primary_domain_filter_and_category_response(client, db_session):
+    db_session.add_all([
+        Project(title="Model Lab", description="Train classifiers", category="AI & Machine Learning", tech_stacks=["Python"]),
+        Project(title="Research Charts", description="Explore a survey", category="Data Science & Analytics", tech_stacks=["Python"]),
+    ])
+    db_session.commit()
+
+    ai = client.get("/api/v1/projects", params={"category": "AI & Machine Learning"})
+    assert ai.status_code == 200
+    assert [item["title"] for item in ai.json()["data"]] == ["Model Lab"]
+    assert ai.json()["data"][0]["category"] == "AI & Machine Learning"
+
+    data = client.get("/api/v1/projects", params={"category": "Data Science & Analytics"})
+    assert [item["title"] for item in data.json()["data"]] == ["Research Charts"]
+
+    created = client.post("/api/v1/projects", json={
+        "title": "Secure Sensor Hub", "category": "Internet of Things", "tech_stacks": ["Python"],
+    })
+    assert created.status_code == 201
+    assert created.json()["category"] == "Internet of Things"
+
+
+def test_21_search_matches_technology_stack_and_combines_with_category(client, db_session):
+    db_session.add_all([
+        Project(title="Classifier", description="Image classification", category="AI & Machine Learning", tech_stacks=["PyTorch"]),
+        Project(title="Charts", description="Survey results", category="Data Science & Analytics", tech_stacks=["PyTorch"]),
+    ])
+    db_session.commit()
+
+    response = client.get("/api/v1/projects", params={
+        "search": "pytorch", "category": "AI & Machine Learning", "sort": "alphabetical",
+    })
+    assert response.status_code == 200
+    assert [item["title"] for item in response.json()["data"]] == ["Classifier"]
+
+
+def test_22_account_registration_login_and_logout(client, db_session):
+    payload = {
+        "name": "Project Owner", "username": "project_owner", "email": "owner@example.edu",
+        "password": "StrongPass123",
+    }
+    registered = client.post("/api/v1/auth/register", json=payload)
+    assert registered.status_code == 201
+    user_id = registered.json()["user"]["id"]
+    stored = db_session.query(Student).filter(Student.id == user_id).first()
+    assert stored.password_hash != payload["password"]
+    assert stored.password_hash.startswith("pbkdf2_sha256$")
+    assert client.get("/api/v1/auth/me").json()["user"]["username"] == "project_owner"
+    csrf = client.get("/api/v1/auth/csrf").json()["csrf_token"]
+    forbidden_profile_update = client.patch("/api/v1/auth/me", json={"bio": "Builder"})
+    assert forbidden_profile_update.status_code == 403
+    profile_update = client.patch("/api/v1/auth/me", headers={"X-CSRF-Token": csrf}, json={"bio": "Builder"})
+    assert profile_update.status_code == 200
+    assert profile_update.json()["user"]["bio"] == "Builder"
+
+    client.post("/api/v1/auth/logout", headers={"X-CSRF-Token": csrf})
+    assert client.get("/api/v1/auth/me").status_code == 401
+    invalid = client.post("/api/v1/auth/login", json={"identifier": "project_owner", "password": "wrong-password"})
+    assert invalid.status_code == 401
+    login = client.post("/api/v1/auth/login", json={"identifier": "owner@example.edu", "password": payload["password"]})
+    assert login.status_code == 200
+    assert login.json()["user"]["id"] == user_id
+
+
+def test_23_project_edit_and_delete_are_owner_checked(client, db_session):
+    created = client.post("/api/v1/projects", headers={"X-Student-Id": "stu_project_owner"}, json={
+        "title": "Owned project", "category": "Cloud Computing & DevOps", "tech_stacks": ["AWS"],
+    })
+    project_id = created.json()["id"]
+    update_payload = {"title": "Renamed project", "category": "AI & Machine Learning", "tech_stacks": ["Python"]}
+    denied = client.put(f"/api/v1/projects/{project_id}", headers={"X-Student-Id": "stu_other"}, json=update_payload)
+    assert denied.status_code == 403
+    updated = client.put(f"/api/v1/projects/{project_id}", headers={"X-Student-Id": "stu_project_owner"}, json=update_payload)
+    assert updated.status_code == 200
+    assert updated.json()["title"] == "Renamed project"
+    assert client.delete(f"/api/v1/projects/{project_id}", headers={"X-Student-Id": "stu_other"}).status_code == 403
+    assert client.delete(f"/api/v1/projects/{project_id}", headers={"X-Student-Id": "stu_project_owner"}).status_code == 204
+
+
+def test_24_production_mode_rejects_demo_identity(client, monkeypatch):
+    monkeypatch.setattr(settings, "DEMO_MODE", False)
+    response = client.post("/api/v1/projects", headers={"X-Student-Id": "spoofed"}, json={"title": "Protected"})
+    assert response.status_code == 401
+
+
+def test_25_image_upload_validates_signature_and_requires_bucket(client, monkeypatch):
+    monkeypatch.setattr(settings, "S3_BUCKET_NAME", "")
+    invalid = client.post("/api/v1/assets", files={"file": ("fake.png", b"not-an-image", "image/png")})
+    assert invalid.status_code == 415
+    valid_png_header = b"\x89PNG\r\n\x1a\n" + b"\x00" * 16
+    not_configured = client.post("/api/v1/assets", files={"file": ("tiny.png", valid_png_header, "image/png")})
+    assert not_configured.status_code == 503
+
+
+def test_26_authenticated_project_ownership_cannot_be_spoofed(client):
+    first = client.post("/api/v1/auth/register", json={
+        "name": "First Owner", "username": "FirstOwner", "email": "first-owner@example.edu", "password": "StrongPass123",
+    }).json()["user"]
+    assert first["username"] == "firstowner"
+    csrf = client.get("/api/v1/auth/csrf").json()["csrf_token"]
+    created = client.post("/api/v1/projects", headers={"X-CSRF-Token": csrf, "X-Student-Id": "spoofed-id"}, json={
+        "title": "Account-owned project", "category": "Web Development",
+    })
+    assert created.status_code == 201
+    project_id = created.json()["id"]
+    assert client.get(f"/api/v1/projects/{project_id}").json()["student_id"] == first["id"]
+
+    client.post("/api/v1/auth/logout", headers={"X-CSRF-Token": csrf})
+    second = client.post("/api/v1/auth/register", json={
+        "name": "Second Owner", "username": "secondowner", "email": "second-owner@example.edu", "password": "StrongPass123",
+    })
+    assert second.status_code == 201
+    csrf = client.get("/api/v1/auth/csrf").json()["csrf_token"]
+    denied = client.delete(f"/api/v1/projects/{project_id}", headers={"X-CSRF-Token": csrf, "X-Student-Id": first["id"]})
+    assert denied.status_code == 403
+
+
+def test_27_discovery_catalog_search_assistant_and_metadata(client, db_session):
+    categories = client.get("/api/v1/catalog/categories")
+    assert categories.status_code == 200
+    assert categories.json()["data"] == CATEGORIES
+    assert len(categories.json()["data"]) == 20
+
+    created = client.post("/api/v1/projects", json={
+        "title": "Phishing Mail Classifier", "description": "Detect phishing emails using text signals.",
+        "category": "Cybersecurity", "difficulty": "Advanced", "docs_url": "https://docs.example.test/guide",
+        "tech_stacks": ["Python", "scikit-learn"],
+    })
+    assert created.status_code == 201
+    found = client.get("/api/v1/projects", params={"search": "phishing detection"})
+    assert found.status_code == 200
+    project = found.json()["data"][0]
+    assert project["category"] == "Cybersecurity"
+    assert project["difficulty"] == "Advanced"
+    assert project["docs_url"] == "https://docs.example.test/guide"
+
+    follow = client.put("/api/v1/preferences/categories", headers={"X-Student-Id": "stu_test_alpha"}, json={"categories": ["Cybersecurity"]})
+    assert follow.status_code == 200
+    interests = client.put("/api/v1/preferences/interests", headers={"X-Student-Id": "stu_test_alpha"}, json={"interests": ["Python"]})
+    assert interests.status_code == 200
+    recommendations = client.get("/api/v1/recommendations", headers={"X-Student-Id": "stu_test_alpha"})
+    recommended = next(item for item in recommendations.json()["data"] if item["id"] == created.json()["id"])
+    assert any("Cybersecurity" in reason for reason in recommended["recommendation_reasons"])
+    assert any("Python" in reason for reason in recommended["recommendation_reasons"])
+
+    suggestion = client.post("/api/v1/assist/project-description", json={
+        "title": "Phishing Mail Classifier", "description": "Detect phishing emails.\n\n\n", "tech_stacks": ["Python"],
+    })
+    assert suggestion.status_code == 200
+    assert suggestion.json()["category"] == "Cybersecurity"
+    assert suggestion.json()["description"] == "Detect phishing emails."
+    assert suggestion.json()["tech_stacks"] == ["Python", "scikit-learn"]
+
+
+def test_28_bookmarks_are_persistent_and_idempotent(client, db_session):
+    project = Project(title="Save this project", category="EdTech", tech_stacks=["Python"])
+    db_session.add(project)
+    db_session.commit()
+    headers = {"X-Student-Id": "stu_test_alpha"}
+    endpoint = f"/api/v1/projects/{project.id}/bookmark"
+    assert client.post(endpoint, headers=headers).status_code == 201
+    assert client.post(endpoint, headers=headers).json()["saved"] is True
+    assert db_session.query(SavedProject).filter_by(project_id=project.id, student_id="stu_test_alpha").count() == 1
+    saved = client.get("/api/v1/my/bookmarks", headers=headers)
+    assert [item["id"] for item in saved.json()["data"]] == [project.id]
+    assert saved.json()["data"][0]["is_saved"] is True
+    assert client.delete(endpoint, headers=headers).json()["saved"] is False
+    assert client.get("/api/v1/my/bookmarks", headers=headers).json()["total"] == 0
+
+
+def test_29_single_vote_constraint_spans_like_and_dislike(client, db_session):
+    project = Project(title="Unique cross-direction vote", tech_stacks=[])
+    db_session.add(project)
+    db_session.commit()
+    db_session.add(ProjectVote(project_id=project.id, student_id="stu_test_alpha", direction="up"))
+    db_session.commit()
+    db_session.add(ProjectVote(project_id=project.id, student_id="stu_test_alpha", direction="down"))
+    with pytest.raises(IntegrityError):
+        db_session.commit()
+    db_session.rollback()
+    assert db_session.query(ProjectVote).filter_by(project_id=project.id, student_id="stu_test_alpha").count() == 1

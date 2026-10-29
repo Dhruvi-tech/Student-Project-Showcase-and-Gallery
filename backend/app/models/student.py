@@ -1,6 +1,6 @@
 from datetime import datetime, timezone
 import uuid
-from sqlalchemy import Column, String, DateTime
+from sqlalchemy import Column, String, DateTime, Integer, JSON
 from sqlalchemy.orm import relationship
 from app.database import Base
 
@@ -15,6 +15,11 @@ class Student(Base):
     id = Column(String(36), primary_key=True, default=generate_student_id)
     name = Column(String(100), nullable=False)
     email = Column(String(150), unique=True, nullable=False, index=True)
+    username = Column(String(40), unique=True, nullable=True, index=True)
+    password_hash = Column(String(255), nullable=True)
+    bio = Column(String(500), nullable=True)
+    interests = Column(JSON, nullable=False, default=list)
+    session_version = Column(Integer, nullable=False, default=0)
     roll_number = Column(String(50), nullable=True)
     avatar_seed = Column(String(50), nullable=True)
     created_at = Column(

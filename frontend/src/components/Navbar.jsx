@@ -1,5 +1,6 @@
 import React from 'react';
-import { Plus, Terminal, BookOpen, Sun, Moon } from 'lucide-react';
+import { useState } from 'react';
+import { Plus, Terminal, BookOpen, Sun, Moon, Menu, X, Bookmark, Sparkles } from 'lucide-react';
 
 export function Navbar({
   onOpenPublishModal,
@@ -7,7 +8,17 @@ export function Navbar({
   healthData,
   theme = 'light',
   onToggleTheme,
+  user,
+  onOpenAuth,
+  onLogout,
+  onShowMyProjects,
+  onNavigate,
+  onShowSaved,
+  onShowRecommendations,
+  onEditProfile,
 }) {
+  const [mobileOpen, setMobileOpen] = useState(false);
+  const navigate = (target) => { onNavigate?.(target); setMobileOpen(false); };
   return (
     <header className="navbar">
       <div className="navbar-container">
@@ -21,6 +32,18 @@ export function Navbar({
             <span className="badge-course">Open-Source Developer Community</span>
           </div>
         </div>
+
+        <button className="mobile-nav-toggle" aria-label={mobileOpen ? 'Close navigation' : 'Open navigation'} aria-expanded={mobileOpen} onClick={() => setMobileOpen((open) => !open)}>
+          {mobileOpen ? <X size={18} /> : <Menu size={18} />}
+        </button>
+        <nav className={`primary-nav ${mobileOpen ? 'is-open' : ''}`} aria-label="Main navigation">
+          <button onClick={() => navigate('home')}>Home</button>
+          <button onClick={() => navigate('explore')}>Explore</button>
+          <button onClick={() => navigate('ai')}>AI &amp; ML</button>
+          <button onClick={() => navigate('data')}>Data Science</button>
+          <button onClick={() => navigate('trending')}>Trending</button>
+          <button onClick={() => { onShowRecommendations?.(); setMobileOpen(false); }}><Sparkles size={14} /> For you</button>
+        </nav>
 
         {/* Right side controls */}
         <div className="navbar-actions">
@@ -54,6 +77,20 @@ export function Navbar({
           >
             {theme === 'dark' ? <Sun size={15} color="#f59e0b" /> : <Moon size={15} color="#4f46e5" />}
           </button>
+
+          {/* Publish Project Action */}
+          {user ? (
+            <>
+              <button className="btn-secondary my-projects-nav" onClick={onShowMyProjects}>My Projects</button>
+              <span className="nav-user-name">@{user.username}</span>
+              <button className="btn-secondary" onClick={onEditProfile}>Profile</button>
+              <button className="btn-secondary" onClick={onLogout}>Log out</button>
+            </>
+          ) : (
+            <button className="btn-secondary" onClick={onOpenAuth}>Log in / Sign up</button>
+          )}
+
+          <button className="btn-secondary saved-nav" onClick={onShowSaved}><Bookmark size={14} /> Saved</button>
 
           {/* Publish Project Action */}
           <button className="btn-primary" onClick={onOpenPublishModal}>

@@ -1,35 +1,18 @@
 import React from 'react';
 import { Search, ArrowUpDown, X } from 'lucide-react';
-
-const COMMON_TECH_STACKS = [
-  'All',
-  'React',
-  'Next.js',
-  'TypeScript',
-  'Python',
-  'FastAPI',
-  'Node.js',
-  'PostgreSQL',
-  'Docker',
-  'Tailwind CSS',
-  'Go',
-  'Rust',
-  'GraphQL',
-  'Redis',
-  'MongoDB',
-  'AWS',
-  'Firebase',
-  'Java',
-];
+import { PROJECT_CATEGORIES } from '../constants/catalog';
 
 export function FilterBar({
   searchQuery,
   onSearchChange,
-  selectedTech,
-  onTechChange,
+  selectedCategory,
+  onCategoryChange,
   sortOption,
   onSortChange,
   totalCount,
+  showingCount,
+  followedCategories = [],
+  onToggleCategoryFollow,
 }) {
   return (
     <div className="filter-bar">
@@ -40,6 +23,7 @@ export function FilterBar({
           <input
             type="text"
             className="search-input"
+            aria-label="Search projects"
             placeholder="Search projects by title, description, or tech stack..."
             value={searchQuery}
             onChange={(e) => onSearchChange(e.target.value)}
@@ -47,6 +31,7 @@ export function FilterBar({
           {searchQuery && (
             <button
               onClick={() => onSearchChange('')}
+              aria-label="Clear search"
               style={{
                 position: 'absolute',
                 right: '0.75rem',
@@ -67,30 +52,30 @@ export function FilterBar({
           <span className="sort-label">Sort:</span>
           <select
             className="sort-select"
+            aria-label="Sort projects"
             value={sortOption}
             onChange={(e) => onSortChange(e.target.value)}
           >
             <option value="upvotes">Most Appreciated</option>
             <option value="newest">Recently Published</option>
             <option value="oldest">Chronological</option>
+            <option value="alphabetical">A to Z</option>
           </select>
         </div>
       </div>
 
       {/* Bottom row: Tech stack pills + Showing count */}
-      <div className="tech-pills-row">
-        <span className="tech-pills-label">Tech Filter:</span>
-        {COMMON_TECH_STACKS.map((tech) => (
-          <button
-            key={tech}
-            className={`tech-pill ${selectedTech === tech ? 'active' : ''}`}
-            onClick={() => onTechChange(tech)}
-          >
-            {tech}
-          </button>
+      <div className="tech-pills-row domain-filter-row" aria-label="Filter by project domain">
+        <span className="tech-pills-label">Domain:</span>
+        <button aria-pressed={selectedCategory === 'All'} className={`tech-pill ${selectedCategory === 'All' ? 'active' : ''}`} onClick={() => onCategoryChange('All')}>All domains</button>
+        {PROJECT_CATEGORIES.map((category) => (
+          <span className="category-filter-item" key={category}>
+            <button aria-pressed={selectedCategory === category} className={`tech-pill ${selectedCategory === category ? 'active' : ''}`} onClick={() => onCategoryChange(category)}>{category}</button>
+            <button className={`follow-mini ${followedCategories.includes(category) ? 'active' : ''}`} aria-label={`${followedCategories.includes(category) ? 'Unfollow' : 'Follow'} ${category}`} aria-pressed={followedCategories.includes(category)} onClick={() => onToggleCategoryFollow?.(category)}>{followedCategories.includes(category) ? '★' : '☆'}</button>
+          </span>
         ))}
       </div>
-      <div className="filter-results-count">Showing <strong>{totalCount}</strong> projects</div>
+      <div className="filter-results-count">Showing <strong>{showingCount ?? totalCount}</strong>{showingCount !== undefined && showingCount < totalCount ? <> of <strong>{totalCount}</strong></> : null} projects</div>
     </div>
   );
 }

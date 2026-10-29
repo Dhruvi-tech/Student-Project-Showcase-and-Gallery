@@ -1,5 +1,5 @@
 import React from 'react';
-import { ExternalLink, MessageSquare } from 'lucide-react';
+import { ExternalLink, MessageSquare, Bookmark } from 'lucide-react';
 import { VoteControls } from './VoteControls';
 
 const GithubIcon = ({ size = 14 }) => (
@@ -39,6 +39,8 @@ export function ProjectCard({
   onOpenDetails,
   isUpvoting = false,
   index = 0,
+  onToggleBookmark,
+  onOpenAuthor,
 }) {
 
   const formattedDate = new Date(project.created_at).toLocaleDateString(undefined, {
@@ -47,24 +49,26 @@ export function ProjectCard({
   });
 
   const studentName = project.student_name || 'Student Developer';
+  const authorName = project.author_display_name || studentName;
   const initials = getInitials(studentName);
   const avatarBg = getAvatarColor(studentName);
 
   return (
     <article className="project-card">
+      {project.thumbnail_url && <img className="project-thumbnail" src={project.thumbnail_url} alt={`${project.title} thumbnail`} loading="lazy" />}
       {/* Card Header: Title & Upvote Button */}
       <div className="card-header">
         <div className="card-title-group">
-          <h3 className="card-title" onClick={() => onOpenDetails(project)}>
-            {project.title}
-          </h3>
+          <h3 className="card-title"><button className="card-title-button" onClick={() => onOpenDetails(project)}>
+            {project.title}<span className="sr-only"> — open project details</span>
+          </button></h3>
 
           {/* Student Author Pill */}
           <div className="card-author-pill">
             <div className="avatar-circle" style={{ backgroundColor: avatarBg }}>
               {initials}
             </div>
-            <span style={{ fontWeight: 600 }}>Demo · {studentName}</span>
+            {project.author_profile_url?.startsWith('http') ? <a className="author-profile-link" href={project.author_profile_url} target="_blank" rel="noopener noreferrer">{authorName}</a> : project.student_id ? <button className="author-profile-link author-profile-button" onClick={() => onOpenAuthor?.(project.student_id)}>{authorName}</button> : <span className="author-profile-link">{authorName}</span>}
             <span style={{ color: 'var(--text-muted)' }}>•</span>
             <span style={{ color: 'var(--text-muted)', fontSize: '0.76rem' }}>{formattedDate}</span>
           </div>
@@ -73,23 +77,25 @@ export function ProjectCard({
       </div>
 
       {/* Description */}
-      <p className="card-description" onClick={() => onOpenDetails(project)}>
+      <div className="card-tech-stacks"><span className="tech-badge" aria-label="Project category">{project.category || 'Open Source & Developer Utilities'}</span><span className="tech-badge difficulty-badge">{project.difficulty || 'Intermediate'}</span></div>
+      {project.recommendation_reasons?.length > 0 && <ul className="recommendation-reasons" aria-label="Why this project was recommended">{project.recommendation_reasons.slice(0, 2).map((reason) => <li key={reason}>{reason}</li>)}</ul>}
+      <p className="card-description">
         {project.description || 'No description provided.'}
       </p>
 
-      {/* Prominent project demo link */}
+      {/* Prominent project website link */}
       {project.demo_url && (
         <div style={{ marginBottom: '0.85rem' }}>
           <a
             href={project.demo_url}
             target="_blank"
             rel="noopener noreferrer"
-            className="live-demo-banner"
-            title={`Open demo site: ${project.demo_url}`}
+            className="live-site-banner"
+            title={`Open project website: ${project.demo_url}`}
           >
-            <span className="live-demo-indicator"></span>
-            <span style={{ fontWeight: 600 }}>Demo site:</span>
-            <span className="live-demo-url-text">{project.demo_url.replace(/^https?:\/\//, '')}</span>
+            <span className="live-site-indicator"></span>
+            <span style={{ fontWeight: 600 }}>Website:</span>
+            <span className="live-site-url-text">{project.demo_url.replace(/^https?:\/\//, '')}</span>
             <ExternalLink size={13} style={{ marginLeft: 'auto', flexShrink: 0 }} />
           </a>
         </div>
@@ -106,13 +112,14 @@ export function ProjectCard({
 
       <div className="card-vote-row">
         <VoteControls project={project} onVote={onVote} isVoting={isUpvoting} />
+        <button className={`bookmark-button ${project.is_saved ? 'is-saved' : ''}`} onClick={() => onToggleBookmark?.(project)} aria-pressed={Boolean(project.is_saved)} aria-label={project.is_saved ? 'Remove saved project' : 'Save project'} title={project.is_saved ? 'Remove from saved projects' : 'Save for later'}><Bookmark size={15} fill={project.is_saved ? 'currentColor' : 'none'} /><span>{project.is_saved ? 'Saved' : 'Save'}</span></button>
         <button className="comments-badge" onClick={() => onOpenDetails(project)} title="View peer feedback and post comments">
           <MessageSquare size={14} />
           <span>{project.comment_count || 0} comments</span>
         </button>
       </div>
 
-      {/* Card Footer: GitHub Link, Live Demo URL, Comments Counter */}
+      {/* Card Footer: GitHub Link, Project Website, Comments Counter */}
       <div className="card-footer">
         <div className="card-links">
           {project.github_link && (
@@ -136,9 +143,10 @@ export function ProjectCard({
               title="Visit Live Application Website"
             >
               <ExternalLink size={13} />
-              <span>Demo</span>
+              <span>Website</span>
             </a>
           )}
+          {project.docs_url && <a href={project.docs_url} target="_blank" rel="noopener noreferrer" className="card-link-item" title="Project documentation"><ExternalLink size={13} /><span>Docs</span></a>}
         </div>
 
       </div>

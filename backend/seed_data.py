@@ -1,11 +1,10 @@
 """
-Seed Script for Student Project Showcase and Peer Gallery API
-Populates real open-source GitHub projects with REAL WORKING LIVE DEMO WEBSITES,
-attributed to student developers, with peer upvotes (enforcing 1 vote per student) and peer comments.
+Repeatable, additive development catalog seed for ProjectSpace.
+Retains existing upstream repository/demo URLs and adds clearly fictional examples
+without fabricated project links, votes, or peer comments.
 """
 import sys
 import os
-import random
 from datetime import datetime, timedelta, timezone
 
 # Add backend directory to sys.path
@@ -16,6 +15,7 @@ from app.models.student import Student
 from app.models.project import Project
 from app.models.upvote import Upvote
 from app.models.comment import Comment
+from app.catalog import CATEGORIES
 
 STUDENTS_DATA = [
     {"name": "Aarav Sharma", "email": "aarav.sharma@student.edu", "roll_number": "CS2026-001"},
@@ -289,31 +289,97 @@ REAL_PROJECTS_WITH_LIVE_DEMOS = [
     },
 ]
 
-FEEDBACK_COMMENTS = [
-    "Great UI! Tested the live website demo, it loaded instantly.",
-    "Very clean cloud architecture. Bookmarked the live demo for peer reference!",
-    "Tested the live demo, response times are lightning fast! Impressive work.",
-    "The Docker setup in the GitHub repository is really tidy. Great engineering!",
-    "Love the peer feedback mechanism. The live website design is very polished.",
-    "Really neat integration with FastAPI and PostgreSQL.",
-    "Are you planning to deploy this with AWS App Runner or Kubernetes next?",
-    "Awesome project! The single-upvote enforcement rule works as expected.",
-    "Clean code on GitHub and comprehensive documentation on the live demo site!",
-    "Tested the features on the live demo link. 10/10 presentation!",
-]
+def seed_category(project_info):
+    """Return intentional first-class labels for the existing upstream projects."""
+    title = project_info["title"].casefold()
+    if any(term in title for term in ("flowise", "langflow", "typebot")):
+        return "Generative AI & AI Agents"
+    if any(term in title for term in ("cyberchef", "infisical", "glitchtip")):
+        return "Cybersecurity"
+    if any(term in title for term in ("grafana", "posthog", "json crack", "dub.co")):
+        return "Data Science & Analytics"
+    if any(term in title for term in ("nocodb", "directus")):
+        return "Data Engineering & Big Data"
+    if any(term in title for term in ("supabase", "appwrite")):
+        return "Cloud Computing & DevOps"
+    if any(term in title for term in ("excalidraw", "penpot", "tldraw")):
+        return "Web Development & Full Stack"
+    if any(term in title for term in ("twenty", "hoppscotch", "drawsql", "shadcn", "plane", "fastapi", "novu")):
+        return "Software Engineering & Developer Tools"
+    if any(term in title for term in ("chatwoot", "strapi", "cal.com", "documenso", "formbricks")):
+        return "Open Source & Developer Utilities"
+    if "affine" in title:
+        return "Open Source & Developer Utilities"
+    return "Web Development & Full Stack"
 
 
-def seed_database(reset=True):
+SAMPLE_AUTHORS = (
+    "Community contributor · Alex Rivera", "Community contributor · Sam Okafor",
+    "Community contributor · Noor Patel", "Community contributor · Jordan Kim",
+    "Community contributor · Casey Morgan", "Community contributor · Taylor Brooks",
+    "Community contributor · Ari Chen", "Community contributor · Morgan Silva",
+    "Community contributor · Jamie Das", "Community contributor · Quinn Harper",
+)
+
+SAMPLE_DOMAIN_EXAMPLES = {
+    "AI & Machine Learning": ("Model Evaluation Notebook", ["Python", "scikit-learn"]),
+    "Data Science & Analytics": ("Community Data Explorer", ["Python", "Pandas"]),
+    "Cybersecurity": ("Phishing Awareness Analyzer", ["Python", "FastAPI"]),
+    "Cloud Computing & DevOps": ("Deployment Health Dashboard", ["Docker", "AWS"]),
+    "Web Development & Full Stack": ("Campus Event Planner", ["React", "TypeScript"]),
+    "Mobile App Development": ("Habit Tracker Prototype", ["Flutter", "Firebase"]),
+    "Internet of Things": ("Room Sensor Monitor", ["Python", "MQTT"]),
+    "Blockchain & Web3": ("Testnet Voting Explorer", ["Solidity", "TypeScript"]),
+    "Computer Vision": ("Image Labeling Workbench", ["Python", "OpenCV"]),
+    "Natural Language Processing": ("Text Topic Explorer", ["Python", "spaCy"]),
+    "Generative AI & AI Agents": ("Prompt Evaluation Studio", ["Python", "LangChain"]),
+    "Robotics & Automation": ("Robot Path Planner", ["Python", "ROS"]),
+    "Data Engineering & Big Data": ("Batch Pipeline Monitor", ["Python", "PostgreSQL"]),
+    "Software Engineering & Developer Tools": ("API Contract Inspector", ["TypeScript", "Node.js"]),
+    "FinTech": ("Budget Scenario Planner", ["Python", "PostgreSQL"]),
+    "HealthTech": ("Wellness Journal Prototype", ["React", "FastAPI"]),
+    "EdTech": ("Study Session Planner", ["React", "TypeScript"]),
+    "Game Development": ("Puzzle Mechanics Sandbox", ["JavaScript", "Canvas"]),
+    "AR/VR": ("Spatial Scene Prototype", ["Unity", "C#"]),
+    "Open Source & Developer Utilities": ("Configuration Diff Viewer", ["Python", "React"]),
+}
+
+
+def sample_catalog_records():
+    """Produce 90 deterministic fictional catalog examples with no fabricated links."""
+    samples = []
+    for index in range(90):
+        category = CATEGORIES[index % len(CATEGORIES)]
+        example, stacks = SAMPLE_DOMAIN_EXAMPLES[category]
+        samples.append({
+            "title": f"Community catalog · {example} {index + 1:03d}",
+            "description": f"Community catalog entry for exploring the {category} collection. Add your own project details when you are ready to share your work.",
+            "category": category,
+            "tech_stacks": stacks,
+            "difficulty": ("Beginner", "Intermediate", "Advanced")[index % 3],
+            "author_display_name": SAMPLE_AUTHORS[index % len(SAMPLE_AUTHORS)],
+            "author_profile_url": None,
+            "github_link": None,
+            "demo_url": None,
+            "docs_url": None,
+            "days_ago": index + 1,
+        })
+    return samples
+
+
+def seed_database(reset=False):
     print("[+] Initializing database tables...")
     if reset:
-        Base.metadata.drop_all(bind=engine)
+        raise ValueError("Reset seeding is disabled to protect existing database records. Use a disposable database if you need a clean fixture.")
     init_db()
 
     db = SessionLocal()
     try:
         print(f"[+] Seeding {len(STUDENTS_DATA)} student developers...")
-        students = []
+        students_by_email = {student.email: student for student in db.query(Student).all()}
         for s_info in STUDENTS_DATA:
+            if s_info["email"] in students_by_email:
+                continue
             student = Student(
                 name=s_info["name"],
                 email=s_info["email"],
@@ -321,23 +387,49 @@ def seed_database(reset=True):
                 avatar_seed=s_info["name"].replace(" ", "").lower(),
             )
             db.add(student)
-            students.append(student)
+            students_by_email[s_info["email"]] = student
         db.commit()
 
-        # Re-fetch students
-        students = db.query(Student).all()
-        student_ids = [s.id for s in students]
+        fictional_students = {}
+        for index, display in enumerate(SAMPLE_AUTHORS, start=1):
+            name = display.split("·", 1)[1].strip()
+            email = f"fictional-demo-author-{index:02d}@example.invalid"
+            student = students_by_email.get(email)
+            if not student:
+                student = Student(name=name, email=email, avatar_seed=f"sample-author-{index:02d}")
+                db.add(student)
+                students_by_email[email] = student
+            fictional_students[display] = student
+        db.commit()
+        students = list(students_by_email.values())
         print(f"[OK] Seeded {len(students)} student accounts.")
 
-        print(f"[+] Seeding {len(REAL_PROJECTS_WITH_LIVE_DEMOS)} projects with live website demos...")
+        print(f"[+] Seeding {len(REAL_PROJECTS_WITH_LIVE_DEMOS)} existing upstream reference projects...")
         now = datetime.now(timezone.utc)
-        projects = []
+        projects_by_github = {
+            project.github_link: project
+            for project in db.query(Project).filter(Project.github_link.isnot(None)).all()
+        }
         for idx, p_info in enumerate(REAL_PROJECTS_WITH_LIVE_DEMOS):
             assigned_student = students[p_info["student_idx"] % len(students)]
-            created_date = now - timedelta(days=idx, hours=random.randint(1, 23))
+            existing = projects_by_github.get(p_info["github_link"])
+            owner = p_info["github_link"].rstrip("/").split("/")[3]
+            attribution = f"{owner} contributors"
+            if existing:
+                if existing.category in (None, "", "Other", "Web Development", "Mobile Development", "Blockchain"):
+                    existing.category = seed_category(p_info)
+                existing.difficulty = existing.difficulty or "Intermediate"
+                existing.author_display_name = attribution
+                existing.author_profile_url = f"https://github.com/{owner}"
+                continue
+            created_date = now - timedelta(days=idx + 1)
             project = Project(
                 title=p_info["title"],
                 description=p_info["description"],
+                category=seed_category(p_info),
+                difficulty="Intermediate",
+                author_display_name=attribution,
+                author_profile_url=f"https://github.com/{owner}",
                 github_link=p_info["github_link"],
                 demo_url=p_info["demo_url"],
                 tech_stacks=p_info["tech_stacks"],
@@ -346,77 +438,40 @@ def seed_database(reset=True):
                 created_at=created_date,
             )
             db.add(project)
-            projects.append(project)
+            projects_by_github[p_info["github_link"]] = project
         db.commit()
 
-        # Re-fetch projects
+        projects = list(projects_by_github.values())
+        print(f"[OK] Preserved {len(projects)} existing upstream project records.")
+
+        for index, item in enumerate(sample_catalog_records()):
+            existing = db.query(Project).filter(
+                Project.title == item["title"], Project.author_display_name == item["author_display_name"]
+            ).first()
+            if existing:
+                continue
+            demo_student = fictional_students[item["author_display_name"]]
+            db.add(Project(
+                title=item["title"], description=item["description"], category=item["category"],
+                difficulty=item["difficulty"], tech_stacks=item["tech_stacks"],
+                author_display_name=item["author_display_name"], student_id=demo_student.id,
+                github_link=None, demo_url=None, docs_url=None, upvote_count=0,
+                created_at=now - timedelta(days=item["days_ago"]),
+            ))
+        db.commit()
+
+        # Existing votes/comments are preserved. No fabricated activity is added by reseeding.
         projects = db.query(Project).all()
-        print(f"[OK] Seeded {len(projects)} projects with verified live demo websites.")
-
-        # Seed authentic upvotes enforcing 1-student-1-vote constraint
-        print("[+] Seeding authentic peer upvotes with database constraint enforcement...")
-        total_upvotes_created = 0
-        for idx, project in enumerate(projects):
-            if idx == 0:  # Excalidraw
-                target_votes = min(24, len(students))
-            elif idx < 5:
-                target_votes = random.randint(16, min(22, len(students)))
-            elif idx < 15:
-                target_votes = random.randint(8, 15)
-            else:
-                target_votes = random.randint(3, 7)
-
-            voters = random.sample(student_ids, target_votes)
-            for voter_id in voters:
-                existing_vote = (
-                    db.query(Upvote)
-                    .filter(Upvote.project_id == project.id, Upvote.student_id == voter_id)
-                    .first()
-                )
-                if not existing_vote:
-                    vote = Upvote(project_id=project.id, student_id=voter_id)
-                    db.add(vote)
-                    total_upvotes_created += 1
-
-        db.commit()
-
-        # Synchronize stored upvote_count strictly with genuine upvotes rows
-        print("[+] Synchronizing project upvote_count strictly with stored upvote records...")
-        for project in projects:
-            actual_count = db.query(Upvote).filter(Upvote.project_id == project.id).count()
-            project.upvote_count = actual_count
-        db.commit()
-        print(f"[OK] Synced upvote counts for {len(projects)} projects ({total_upvotes_created} total upvotes).")
-
-        # Seed peer comments
-        print("[+] Seeding peer feedback comments...")
-        total_comments = 0
-        for idx, project in enumerate(projects):
-            num_comments = 3 if idx < 5 else (1 if idx < 15 else 0)
-            commenters = random.sample(students, num_comments) if num_comments > 0 else []
-            for commenter in commenters:
-                content = random.choice(FEEDBACK_COMMENTS)
-                comment = Comment(
-                    project_id=project.id,
-                    student_id=commenter.id,
-                    author_name=commenter.name,
-                    content=content,
-                    created_at=datetime.now(timezone.utc) - timedelta(hours=random.randint(1, 48)),
-                )
-                db.add(comment)
-                total_comments += 1
-        db.commit()
-        print(f"[OK] {total_comments} comments seeded.")
 
         print("\n================ SEEDING COMPLETE ================")
         print(f"Total Student Authors: {db.query(Student).count()}")
-        print(f"Total Projects (With Live Demos): {db.query(Project).count()}")
+        print(f"Total Projects (upstream references + clearly fictional samples): {db.query(Project).count()}")
         print(f"Total Upvotes Cast:    {db.query(Upvote).count()}")
         print(f"Total Peer Comments:   {db.query(Comment).count()}")
         top_project = db.query(Project).order_by(Project.upvote_count.desc()).first()
         if top_project:
-            author = top_project.student.name if top_project.student else "Student"
-            print(f"Top Ranked: '{top_project.title}' by {author} ({top_project.upvote_count} upvotes) -> Live Demo: {top_project.demo_url}")
+            author = top_project.author_display_name or (top_project.student.name if top_project.student else "Unknown author")
+            print(f"Top Ranked: '{top_project.title}' by {author} ({top_project.upvote_count} stored vote rows)")
         print("===================================================\n")
 
     except Exception as e:
@@ -428,4 +483,4 @@ def seed_database(reset=True):
 
 
 if __name__ == "__main__":
-    seed_database(reset=True)
+    seed_database()

@@ -1,5 +1,5 @@
 import React from 'react';
-import { ExternalLink, Trophy, ArrowRight } from 'lucide-react';
+import { ExternalLink, Trophy, ArrowRight, Bookmark } from 'lucide-react';
 import { VoteControls } from './VoteControls';
 
 const GithubIcon = ({ size = 15 }) => (
@@ -8,7 +8,7 @@ const GithubIcon = ({ size = 15 }) => (
   </svg>
 );
 
-export function FeaturedSpotlight({ project, onVote, onOpenDetails, isUpvoting }) {
+export function FeaturedSpotlight({ project, onVote, onOpenDetails, isUpvoting, onToggleBookmark }) {
   if (!project) return null;
 
   return (
@@ -22,17 +22,15 @@ export function FeaturedSpotlight({ project, onVote, onOpenDetails, isUpvoting }
               <span>Rank #1 Community Choice</span>
             </span>
             <span className="featured-tag">
-              <span>Top-ranked demo entry</span>
+              <span>Top-ranked community project</span>
             </span>
           </div>
 
           {/* Project Title & Author */}
-          <h2 className="featured-title" onClick={() => onOpenDetails(project)}>
-            {project.title}
-          </h2>
+          <h2 className="featured-title"><button className="featured-title-button" onClick={() => onOpenDetails(project)}>{project.title}<span className="sr-only"> — open project details</span></button></h2>
 
           <p className="featured-author-text">
-            Demo profile <strong>{project.student_name || 'Student Developer'}</strong>
+            By <strong>{project.author_display_name || project.student_name || 'Student Developer'}</strong>
           </p>
 
           {/* Project Description */}
@@ -49,7 +47,7 @@ export function FeaturedSpotlight({ project, onVote, onOpenDetails, isUpvoting }
             ))}
           </div>
 
-          {/* Actions: Live Demo + GitHub + Upvote + Details */}
+          {/* Project site + GitHub + vote + details */}
           <div className="featured-actions">
             {project.demo_url && (
               <a
@@ -57,10 +55,10 @@ export function FeaturedSpotlight({ project, onVote, onOpenDetails, isUpvoting }
                 target="_blank"
                 rel="noopener noreferrer"
                 className="featured-btn-live"
-                title={`Open demo site: ${project.demo_url}`}
+                title={`Open project website: ${project.demo_url}`}
               >
-                <span className="live-demo-indicator"></span>
-                <span>Open demo site ({project.demo_url.replace(/^https?:\/\//, '')})</span>
+                <span className="live-site-indicator"></span>
+                <span>Visit website ({project.demo_url.replace(/^https?:\/\//, '')})</span>
                 <ExternalLink size={14} />
               </a>
             )}
@@ -79,6 +77,7 @@ export function FeaturedSpotlight({ project, onVote, onOpenDetails, isUpvoting }
             )}
 
             <VoteControls project={project} onVote={onVote} isVoting={isUpvoting} />
+            <button className={`bookmark-button ${project.is_saved ? 'is-saved' : ''}`} onClick={() => onToggleBookmark?.(project)} aria-pressed={Boolean(project.is_saved)} aria-label={project.is_saved ? 'Remove saved project' : 'Save project'}><Bookmark size={15} fill={project.is_saved ? 'currentColor' : 'none'} />{project.is_saved ? 'Saved' : 'Save project'}</button>
 
             <button
               className="featured-btn-details"

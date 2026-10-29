@@ -1,6 +1,7 @@
 from datetime import datetime
 from typing import List, Optional
 from pydantic import BaseModel, Field, ConfigDict, field_validator
+from app.catalog import CATEGORIES, normalize_category
 
 
 class ProjectCreate(BaseModel):
@@ -15,6 +16,12 @@ class ProjectCreate(BaseModel):
         max_length=2000,
         json_schema_extra={"example": "An intelligent peer-to-peer revision and flashcard assistant for university exams."}
     )
+    category: str = Field(default="Other", min_length=2, max_length=80)
+    difficulty: str = Field(default="Intermediate")
+    docs_url: Optional[str] = Field(default=None, max_length=500)
+    author_display_name: Optional[str] = Field(default=None, max_length=120)
+    author_profile_url: Optional[str] = Field(default=None, max_length=500)
+    thumbnail_key: Optional[str] = Field(default=None, max_length=500)
     github_link: Optional[str] = Field(
         default=None,
         json_schema_extra={"example": "https://github.com/student/ai-study-assistant"}
@@ -39,6 +46,31 @@ class ProjectCreate(BaseModel):
             raise ValueError("Project title cannot be whitespace only")
         return clean
 
+    @field_validator("category")
+    def validate_category(cls, v: str) -> str:
+        clean = normalize_category(v)
+        if clean not in CATEGORIES:
+            raise ValueError("Choose one of the supported project categories")
+        return clean
+
+    @field_validator("difficulty")
+    @classmethod
+    def validate_difficulty(cls, value: str) -> str:
+        cleaned = value.strip().title()
+        if cleaned not in {"Beginner", "Intermediate", "Advanced"}:
+            raise ValueError("Difficulty must be Beginner, Intermediate, or Advanced")
+        return cleaned
+
+    @field_validator("docs_url", "author_profile_url")
+    @classmethod
+    def validate_optional_urls(cls, value: Optional[str]) -> Optional[str]:
+        if value is None or not value.strip():
+            return None
+        cleaned = value.strip()
+        if not cleaned.startswith(("https://", "http://")):
+            raise ValueError("URLs must start with http:// or https://")
+        return cleaned
+
     @field_validator("tech_stacks")
     def validate_tech_stacks(cls, v: List[str]) -> List[str]:
         seen = set()
@@ -57,6 +89,12 @@ class ProjectCreateResponse(BaseModel):
 
     id: str = Field(..., json_schema_extra={"example": "prj_9f8d7c6b"})
     title: str = Field(..., json_schema_extra={"example": "AI Study Assistant"})
+    category: str = "Other"
+    difficulty: str = "Intermediate"
+    docs_url: Optional[str] = None
+    author_display_name: Optional[str] = None
+    author_profile_url: Optional[str] = None
+    thumbnail_url: Optional[str] = None
     upvote_count: int = Field(default=0, json_schema_extra={"example": 0})
     downvote_count: int = Field(default=0, json_schema_extra={"example": 0})
     created_at: datetime = Field(..., json_schema_extra={"example": "2026-08-10T12:51:16Z"})
@@ -69,6 +107,11 @@ class ProjectItem(BaseModel):
     id: str = Field(..., json_schema_extra={"example": "prj_9f8d7c6b"})
     title: str = Field(..., json_schema_extra={"example": "AI Study Assistant"})
     description: Optional[str] = ""
+    category: str = "Other"
+    difficulty: str = "Intermediate"
+    docs_url: Optional[str] = None
+    author_display_name: Optional[str] = None
+    author_profile_url: Optional[str] = None
     github_link: Optional[str] = None
     demo_url: Optional[str] = None
     tech_stacks: List[str] = Field(default_factory=list)
@@ -77,10 +120,12 @@ class ProjectItem(BaseModel):
     comment_count: int = Field(default=0)
     created_at: datetime
     student_name: Optional[str] = None
+    student_id: Optional[str] = None
     has_voted: Optional[bool] = False
     has_liked: Optional[bool] = False
     has_disliked: Optional[bool] = False
     user_vote: Optional[str] = None
+    is_saved: bool = False
 
 
 class ProjectListResponse(BaseModel):

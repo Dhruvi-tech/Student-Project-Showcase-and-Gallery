@@ -1,47 +1,30 @@
 import React, { useState } from 'react';
-import { X, Plus, AlertCircle } from 'lucide-react';
+import { X, Plus, AlertCircle, Sparkles } from 'lucide-react';
 import { api } from '../services/api';
+import { COMMON_TECH_STACKS, PROJECT_CATEGORIES } from '../constants/catalog';
 
-const PRESET_STACKS = [
-  'React',
-  'Next.js',
-  'TypeScript',
-  'Tailwind CSS',
-  'FastAPI',
-  'Python',
-  'Node.js',
-  'Express',
-  'PostgreSQL',
-  'MongoDB',
-  'Redis',
-  'Docker',
-  'Kubernetes',
-  'Go',
-  'Rust',
-  'GraphQL',
-  'Prisma',
-  'Supabase',
-  'Firebase',
-  'AWS',
-  'Django',
-  'Vue.js',
-  'Svelte',
-  'Java',
-  'C++',
-];
+const PRESET_STACKS = COMMON_TECH_STACKS.filter((stack) => stack !== 'All');
 
 export function PublishProjectModal({
   currentStudentId,
   students = [],
   onClose,
   onProjectPublished,
+  initialProject = null,
+  onSaved,
 }) {
-  const [title, setTitle] = useState('');
-  const [description, setDescription] = useState('');
-  const [githubLink, setGithubLink] = useState('');
-  const [demoUrl, setDemoUrl] = useState('');
-  const [selectedStacks, setSelectedStacks] = useState(['React', 'TypeScript', 'FastAPI']);
+  const [title, setTitle] = useState(initialProject?.title || '');
+  const [description, setDescription] = useState(initialProject?.description || '');
+  const [category, setCategory] = useState(initialProject?.category || 'Web Development & Full Stack');
+  const [difficulty, setDifficulty] = useState(initialProject?.difficulty || 'Intermediate');
+  const [docsUrl, setDocsUrl] = useState(initialProject?.docs_url || '');
+  const [githubLink, setGithubLink] = useState(initialProject?.github_link || '');
+  const [websiteUrl, setWebsiteUrl] = useState(initialProject?.demo_url || '');
+  const [selectedStacks, setSelectedStacks] = useState(initialProject?.tech_stacks || ['React', 'TypeScript', 'FastAPI']);
   const [customStackInput, setCustomStackInput] = useState('');
+  const [thumbnailFile, setThumbnailFile] = useState(null);
+  const [assistant, setAssistant] = useState(null);
+  const [assistantLoading, setAssistantLoading] = useState(false);
 
   const [loading, setLoading] = useState(false);
   const [errorMessage, setErrorMessage] = useState('');
@@ -63,6 +46,18 @@ export function PublishProjectModal({
     }
   };
 
+  const handleDescriptionAssist = async () => {
+    setAssistantLoading(true);
+    setAssistant(null);
+    try {
+      setAssistant(await api.assistProjectDescription({ title, description, tech_stacks: selectedStacks }));
+    } catch (err) {
+      setErrorMessage(err.message || 'Writing suggestions are unavailable.');
+    } finally {
+      setAssistantLoading(false);
+    }
+  };
+
   const handleSubmit = async (e) => {
     e.preventDefault();
     setErrorMessage('');
@@ -77,24 +72,45 @@ export function PublishProjectModal({
       return;
     }
 
-    if (demoUrl.trim() && !demoUrl.startsWith('http://') && !demoUrl.startsWith('https://')) {
-      setErrorMessage('Demo URL must start with http:// or https://');
+    if (websiteUrl.trim() && !websiteUrl.startsWith('http://') && !websiteUrl.startsWith('https://')) {
+      setErrorMessage('Website URL must start with http:// or https://');
+      return;
+    }
+
+    let thumbnailKey = initialProject?.thumbnail_key || null;
+    try {
+      setLoading(true);
+      if (thumbnailFile) {
+        const upload = await api.uploadAsset(thumbnailFile, currentStudentId);
+        thumbnailKey = upload.thumbnail_key;
+      }
+    } catch (err) {
+      setErrorMessage(err.message || 'Project image upload failed.');
+      setLoading(false);
       return;
     }
 
     const payload = {
       title: title.trim(),
       description: description.trim(),
+      category,
+      difficulty,
+      docs_url: docsUrl.trim() || null,
       github_link: githubLink.trim() || null,
-      demo_url: demoUrl.trim() || null,
+      demo_url: websiteUrl.trim() || null,
       tech_stacks: selectedStacks,
       student_id: currentStudentId,
+      thumbnail_key: thumbnailKey,
     };
 
     try {
-      setLoading(true);
-      const createdProject = await api.publishProject(payload, currentStudentId);
-      onProjectPublished(createdProject);
+      if (initialProject?.id) {
+        await api.updateProject(initialProject.id, payload, currentStudentId);
+        onSaved?.();
+      } else {
+        const createdProject = await api.publishProject(payload, currentStudentId);
+        onProjectPublished(createdProject);
+      }
       onClose();
     } catch (err) {
       setErrorMessage(err.message);
@@ -112,7 +128,7 @@ export function PublishProjectModal({
         <div className="modal-header">
           <div>
             <h3 style={{ fontSize: '1.2rem', fontWeight: 700, color: 'var(--text-primary)' }}>
-              Publish Student Project
+              {initialProject ? 'Edit Project' : 'Publish Student Project'}
             </h3>
             <span style={{ fontSize: '0.8rem', color: 'var(--text-secondary)' }}>
               Author: <strong>{currentStudent ? currentStudent.name : 'Active Student'}</strong>
@@ -149,6 +165,21 @@ export function PublishProjectModal({
 
             {/* Description */}
             <div className="form-group">
+              <label htmlFor="proj-image" className="form-label">Project thumbnail (optional, JPEG/PNG/GIF/WebP, max 5 MiB)</label>
+              <input id="proj-image" className="form-input" type="file" accept="image/jpeg,image/png,image/gif,image/webp" onChange={(e) => setThumbnailFile(e.target.files?.[0] || null)} />
+              {initialProject?.thumbnail_url && !thumbnailFile && <img className="thumbnail-preview" src={initialProject.thumbnail_url} alt="Current project thumbnail" />}
+            </div>
+
+            {/* Description */}
+            <div className="form-group">
+              <label htmlFor="proj-category" className="form-label">Primary technology domain *</label>
+              <select id="proj-category" className="form-input" value={category} onChange={(e) => setCategory(e.target.value)} required>
+                {PROJECT_CATEGORIES.map((item) => <option key={item} value={item}>{item}</option>)}
+              </select>
+            </div>
+
+            {/* Description */}
+            <div className="form-group">
               <label htmlFor="proj-desc" className="form-label">Project Overview & Objectives</label>
               <textarea
                 id="proj-desc"
@@ -162,9 +193,31 @@ export function PublishProjectModal({
               <span style={{ fontSize: '0.75rem', color: 'var(--text-muted)', marginTop: '0.15rem' }}>
                 {2000 - description.length} characters remaining
               </span>
+              <button type="button" className="writing-assist-button" onClick={handleDescriptionAssist} disabled={assistantLoading || title.trim().length < 2}>
+                <Sparkles size={14} />{assistantLoading ? 'Finding suggestions…' : 'Suggest category, tags & difficulty'}
+              </button>
+              {assistant && <div className="assistant-suggestion" role="status">
+                <strong>Review these local suggestions</strong>
+                <span>{assistant.category ? `Category: ${assistant.category} · ` : ''}Difficulty: ${assistant.difficulty} · Tags: {assistant.tech_stacks.join(', ') || 'No additional tags detected'}</span>
+                <small>{assistant.notes}</small>
+                <button type="button" className="btn-secondary" onClick={() => { if (assistant.category) setCategory(assistant.category); setDifficulty(assistant.difficulty); setSelectedStacks(assistant.tech_stacks); }}>Apply suggestions</button>
+              </div>}
             </div>
 
-            {/* GitHub & Demo Links */}
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))', gap: '0.85rem' }}>
+              <div className="form-group">
+                <label htmlFor="proj-difficulty" className="form-label">Difficulty</label>
+                <select id="proj-difficulty" className="form-input" value={difficulty} onChange={(e) => setDifficulty(e.target.value)}>
+                  <option>Beginner</option><option>Intermediate</option><option>Advanced</option>
+                </select>
+              </div>
+              <div className="form-group">
+                <label htmlFor="proj-docs" className="form-label">Documentation URL (optional)</label>
+                <input id="proj-docs" className="form-input" type="url" placeholder="https://…" value={docsUrl} onChange={(e) => setDocsUrl(e.target.value)} />
+              </div>
+            </div>
+
+            {/* Repository and website links */}
             <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(240px, 1fr))', gap: '0.85rem' }}>
               <div className="form-group">
                 <label htmlFor="proj-github" className="form-label">GitHub Repository URL</label>
@@ -179,14 +232,14 @@ export function PublishProjectModal({
               </div>
 
               <div className="form-group">
-                <label htmlFor="proj-demo" className="form-label">Live Demo Website URL</label>
+                <label htmlFor="proj-website" className="form-label">Project Website URL</label>
                 <input
-                  id="proj-demo"
+                  id="proj-website"
                   className="form-input"
                   type="url"
-                  placeholder="https://project-demo.example.com"
-                  value={demoUrl}
-                  onChange={(e) => setDemoUrl(e.target.value)}
+                  placeholder="https://your-project.example.com"
+                  value={websiteUrl}
+                  onChange={(e) => setWebsiteUrl(e.target.value)}
                 />
               </div>
             </div>
@@ -238,7 +291,7 @@ export function PublishProjectModal({
             </button>
             <button type="submit" className="btn-primary" disabled={loading}>
               <Plus size={15} />
-              <span>{loading ? 'Publishing...' : 'Publish Project'}</span>
+              <span>{loading ? (initialProject ? 'Saving...' : 'Publishing...') : (initialProject ? 'Save Changes' : 'Publish Project')}</span>
             </button>
           </div>
         </form>

@@ -1,5 +1,6 @@
 import os
 import sys
+from contextlib import asynccontextmanager
 import pytest
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
@@ -11,6 +12,7 @@ sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), "..")
 
 from app.database import Base, get_db
 from app.main import app
+from app.routers import health
 from app.models.student import Student
 
 # Use an isolated in-memory SQLite database for all automated tests
@@ -22,6 +24,12 @@ test_engine = create_engine(
     poolclass=StaticPool,
 )
 TestingSessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=test_engine)
+
+
+@asynccontextmanager
+async def test_lifespan(_app):
+    """Keep app startup migrations away from the developer's local database."""
+    yield
 
 
 @pytest.fixture(scope="function")
@@ -60,7 +68,15 @@ def client(db_session):
         finally:
             pass
 
+    original_lifespan = app.router.lifespan_context
+    original_health_check = health.check_db_health
+    app.router.lifespan_context = test_lifespan
+    health.check_db_health = lambda: (True, "Connected to isolated SQLite test database", 0.0)
     app.dependency_overrides[get_db] = override_get_db
-    with TestClient(app) as test_client:
-        yield test_client
-    app.dependency_overrides.clear()
+    try:
+        with TestClient(app) as test_client:
+            yield test_client
+    finally:
+        app.dependency_overrides.clear()
+        app.router.lifespan_context = original_lifespan
+        health.check_db_health = original_health_check
