@@ -25,7 +25,7 @@
 [![Vite](https://img.shields.io/badge/Vite-5-646CFF?style=for-the-badge&logo=vite&logoColor=white)](https://vitejs.dev)
 [![FastAPI](https://img.shields.io/badge/FastAPI-0.110+-009688?style=for-the-badge&logo=fastapi&logoColor=white)](https://fastapi.tiangolo.com)
 [![Python](https://img.shields.io/badge/Python-3.11+-3776AB?style=for-the-badge&logo=python&logoColor=white)](https://python.org)
-[![SQLite](https://img.shields.io/badge/Database-SQLite-003B57?style=for-the-badge&logo=sqlite&logoColor=white)](https://sqlite.org)
+[![Live Demo](https://img.shields.io/badge/●%20Live%20Demo-GitHub%20Pages-22c55e?style=for-the-badge&logo=githubpages&logoColor=white)](https://dhruvi-tech.github.io/Student-Project-Showcase-and-Gallery/)
 [![Pytest](https://img.shields.io/badge/Pytest-30%20Passed-brightgreen?style=for-the-badge&logo=pytest&logoColor=white)](backend/tests)
 
 ![Status](https://img.shields.io/badge/●%20System-Verified%20%26%20Operational-22c55e?style=flat-square&labelColor=18181b)
@@ -37,6 +37,7 @@
 [![Issues](https://img.shields.io/github/issues/Dhruvi-tech/Student-Project-Showcase-and-Gallery?style=for-the-badge&color=f43f5e&labelColor=18181b)](https://github.com/Dhruvi-tech/Student-Project-Showcase-and-Gallery/issues)
 [![Last Commit](https://img.shields.io/github/last-commit/Dhruvi-tech/Student-Project-Showcase-and-Gallery?style=for-the-badge&color=22c55e&labelColor=18181b)](https://github.com/Dhruvi-tech/Student-Project-Showcase-and-Gallery/commits/main)
 
+<a href="https://dhruvi-tech.github.io/Student-Project-Showcase-and-Gallery/"><kbd>&nbsp;🌐 Live Website Demo&nbsp;</kbd></a>
 <a href="https://github.com/Dhruvi-tech/Student-Project-Showcase-and-Gallery"><kbd>&nbsp;📦 View Repository&nbsp;</kbd></a>
 <a href="https://github.com/Dhruvi-tech/Student-Project-Showcase-and-Gallery/issues"><kbd>&nbsp;🐞 Report Issue&nbsp;</kbd></a>
 <a href="https://github.com/Dhruvi-tech/Student-Project-Showcase-and-Gallery/fork"><kbd>&nbsp;🍴 Fork&nbsp;</kbd></a>
@@ -249,7 +250,8 @@ docker compose up --build
 
 | Service | URL | Purpose |
 | :--- | :--- | :--- |
-| 🖥️ **Web UI** | `http://localhost:5173` | Interactive student project gallery SPA |
+| 🌐 **Live Public Web App** | [`https://dhruvi-tech.github.io/Student-Project-Showcase-and-Gallery/`](https://dhruvi-tech.github.io/Student-Project-Showcase-and-Gallery/) | 24/7 Global permanent live showcase (GitHub Pages) |
+| 🖥️ **Local Web UI** | `http://localhost:5173` | Interactive student project gallery SPA |
 | 📘 **Swagger API Docs** | `http://127.0.0.1:8000/docs` | Interactive OpenAPI documentation & testing |
 | 📑 **OpenAPI Spec** | `http://127.0.0.1:8000/openapi.json` | Machine-readable API specification |
 | 💚 **Health Endpoint** | `http://127.0.0.1:8000/health` | Service liveness & database status probe |
