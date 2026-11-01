@@ -1,4 +1,7 @@
 import logging
+import json
+import time
+import uuid
 from contextlib import asynccontextmanager
 from fastapi import FastAPI, Request, status
 from fastapi.middleware.cors import CORSMiddleware
@@ -50,6 +53,32 @@ app.add_middleware(
     allow_methods=["*"],
     allow_headers=["*"],
 )
+
+
+@app.middleware("http")
+async def structured_request_log(request: Request, call_next):
+    """Emit CloudWatch-compatible JSON without logging secrets or request bodies."""
+    request_id = request.headers.get("X-Request-Id") or uuid.uuid4().hex
+    started = time.perf_counter()
+    try:
+        response = await call_next(request)
+    except Exception:
+        logger.exception("request_failed %s", json.dumps({
+            "request_id": request_id,
+            "method": request.method,
+            "path": request.url.path,
+        }))
+        raise
+    elapsed_ms = round((time.perf_counter() - started) * 1000, 2)
+    response.headers["X-Request-Id"] = request_id
+    logger.info("request_completed %s", json.dumps({
+        "request_id": request_id,
+        "method": request.method,
+        "path": request.url.path,
+        "status_code": response.status_code,
+        "duration_ms": elapsed_ms,
+    }))
+    return response
 
 # Include API Routers
 app.include_router(health_router)
