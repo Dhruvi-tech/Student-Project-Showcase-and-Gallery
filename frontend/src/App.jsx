@@ -753,9 +753,17 @@ export function App() {
           user={currentUser}
           onClose={() => setIsProfileEditorOpen(false)}
           onSaved={(user) => {
-            setCurrentUser(user);
-            setInterests(user.interests || []);
-            showToast('Profile updated.', 'success');
+            if (!user) return;
+            const updated = { ...currentUser, ...user };
+            setCurrentUser(updated);
+            setInterests(updated.interests || []);
+            try {
+              localStorage.setItem('showcase_user', JSON.stringify(updated));
+            } catch (e) {}
+            setStudents((prev) =>
+              prev.map((s) => (s.id === updated.id ? { ...s, name: updated.name, bio: updated.bio } : s))
+            );
+            showToast('Profile updated successfully! ✨', 'success');
           }}
         />
       )}

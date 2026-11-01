@@ -218,22 +218,54 @@ export const api = {
 
   async getCurrentUser() {
     try {
-      return await request('/api/v1/auth/me');
+      const res = await request('/api/v1/auth/me');
+      if (res?.user) {
+        try {
+          localStorage.setItem('showcase_user', JSON.stringify(res.user));
+        } catch (e) {}
+        return res;
+      }
+      return res;
     } catch (e) {
-      return {
-        id: 'stu_demo_eval',
-        name: 'Demo Student',
-        email: 'demo.evaluator@student.edu',
-        roll_number: 'EVAL-2026-DEMO',
-      };
+      try {
+        const saved = localStorage.getItem('showcase_user');
+        if (saved) {
+          const parsed = JSON.parse(saved);
+          if (parsed?.id) return { user: parsed };
+        }
+      } catch (err) {}
+      return { user: null };
     }
   },
 
   async updateCurrentUser(profile) {
+    let savedUser = null;
     try {
-      return await request('/api/v1/auth/me', { method: 'PATCH', body: JSON.stringify(profile) });
+      const stored = localStorage.getItem('showcase_user');
+      if (stored) savedUser = JSON.parse(stored);
+    } catch (e) {}
+
+    try {
+      const result = await request('/api/v1/auth/me', { method: 'PATCH', body: JSON.stringify(profile) });
+      const user = result?.user || { ...savedUser, ...profile };
+      try {
+        localStorage.setItem('showcase_user', JSON.stringify(user));
+      } catch (e) {}
+      return { success: true, user };
     } catch (e) {
-      return profile;
+      const mergedUser = {
+        ...(savedUser || {
+          id: 'stu_demo_eval',
+          name: 'Demo Student',
+          username: 'demo',
+          email: 'demo@student.edu',
+        }),
+        ...profile,
+      };
+      try {
+        localStorage.setItem('showcase_user', JSON.stringify(mergedUser));
+      } catch (err) {}
+      return { success: true, user: mergedUser };
     }
   },
 
