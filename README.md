@@ -104,9 +104,17 @@ Credentials are never stored in frontend code. Optional S3 support stays disable
 
 Full measured results are in [TEST_RESULTS.md](TEST_RESULTS.md). Load tests use a disposable database copy, not the preserved catalog.
 
-## Cloud and cost policy
+## Cloud Computing readiness and strict ₹0 policy
 
-The repository includes deployment-ready Docker and AWS templates for academic architecture evidence. They are **not deployed** because ECS, ALB, RDS, and related services have recurring-cost risk. Amplify/S3 eligibility, account credits, and overage exposure must be verified before any AWS resource can be created. See [docs/zero-cost-cloud-plan.md](docs/zero-cost-cloud-plan.md).
+The repository includes Docker, Compose, a secure optional S3 integration, a least-privilege S3 task-policy template, CloudWatch-compatible structured request logs, and AWS reference templates. They are **not deployed** because ECS, ALB, RDS, CloudFront, and related services have recurring-cost risk. Amplify/S3 eligibility, account credits, and overage exposure must be verified before any AWS resource can be created.
+
+The cloud package is deliberately honest about its status:
+
+- **Implemented locally:** health checks, structured safe logs, S3 validation/fail-safe behavior, Docker configuration, load tests, backup guidance.
+- **Cloud-ready:** IAM policy, private S3 design, CloudWatch dashboard template, deployment design, migration plan.
+- **Actually deployed:** none.
+
+Read the [zero-cost plan](docs/zero-cost-cloud-plan.md), [Cloud Computing package](submission/cloud-computing/README.md), [IAM policy template](infra/aws/iam-s3-task-policy.json), and [monitoring guide](submission/cloud-computing/CLOUDWATCH_MONITORING.md).
 
 ## Project structure
 
@@ -126,6 +134,12 @@ submission/     Presentation-document index
 - [Cloud computing 50-mark matrix](CLOUD_50_MARKS.md)
 - [Presentation guide](PRESENTATION_GUIDE.md)
 - [Demonstration script](DEMO_SCRIPT.md)
+- [Final submission checklist](FINAL_SUBMISSION_CHECKLIST.md)
+- [Final presentation script](FINAL_PRESENTATION_SCRIPT.md)
+- [Web Services submission package](submission/web-services/README.md)
+- [Cloud Computing submission package](submission/cloud-computing/README.md)
+- [Web viva questions](WEB_VIVA_QUESTIONS.md)
+- [Cloud viva questions](CLOUD_VIVA_QUESTIONS.md)
 - [Screenshot checklist](SCREENSHOT_CHECKLIST.md)
 
 ## Limitations and future work
