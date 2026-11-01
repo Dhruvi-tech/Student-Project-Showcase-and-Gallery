@@ -808,6 +808,7 @@ export function App() {
         <PublishProjectModal
           currentStudentId={currentStudentId}
           students={students}
+          currentUser={currentUser}
           onClose={() => {
             setIsPublishModalOpen(false);
             setProjectToEdit(null);

@@ -8,11 +8,18 @@ const PRESET_STACKS = COMMON_TECH_STACKS.filter((stack) => stack !== 'All');
 export function PublishProjectModal({
   currentStudentId,
   students = [],
+  currentUser = null,
   onClose,
   onProjectPublished,
   initialProject = null,
   onSaved,
 }) {
+  const [authorName, setAuthorName] = useState(
+    initialProject?.author_display_name ||
+    initialProject?.student_name ||
+    currentUser?.name ||
+    ''
+  );
   const [title, setTitle] = useState(initialProject?.title || '');
   const [description, setDescription] = useState(initialProject?.description || '');
   const [category, setCategory] = useState(initialProject?.category || 'Web Development & Full Stack');
@@ -90,6 +97,7 @@ export function PublishProjectModal({
       return;
     }
 
+    const finalAuthor = authorName.trim() || currentUser?.name || 'Student Developer';
     const payload = {
       title: title.trim(),
       description: description.trim(),
@@ -99,7 +107,9 @@ export function PublishProjectModal({
       github_link: githubLink.trim() || null,
       demo_url: websiteUrl.trim() || null,
       tech_stacks: selectedStacks,
-      student_id: currentStudentId,
+      student_id: currentUser?.id || currentStudentId,
+      author_display_name: finalAuthor,
+      student_name: finalAuthor,
       thumbnail_key: thumbnailKey,
     };
 
@@ -130,8 +140,8 @@ export function PublishProjectModal({
             <h3 style={{ fontSize: '1.2rem', fontWeight: 700, color: 'var(--text-primary)' }}>
               {initialProject ? 'Edit Project' : 'Publish Student Project'}
             </h3>
-            <span style={{ fontSize: '0.8rem', color: 'var(--text-secondary)' }}>
-              Author: <strong>{currentStudent ? currentStudent.name : 'Active Student'}</strong>
+            <span style={{ fontSize: '0.82rem', color: 'var(--text-secondary)' }}>
+              Author: <strong style={{ color: 'var(--accent-cobalt)' }}>{authorName.trim() || currentUser?.name || 'You (Student Creator)'}</strong>
             </span>
           </div>
           <button className="modal-close-btn" onClick={onClose} aria-label="Close modal">
@@ -149,18 +159,36 @@ export function PublishProjectModal({
               </div>
             )}
 
-            {/* Title */}
-            <div className="form-group">
-              <label htmlFor="proj-title" className="form-label">Project Title *</label>
-              <input
-                id="proj-title"
-                className="form-input"
-                type="text"
-                placeholder="e.g. Distributed Task Orchestrator"
-                value={title}
-                onChange={(e) => setTitle(e.target.value)}
-                required
-              />
+            {/* Title and Author Credit Row */}
+            <div className="auth-row-2col">
+              <div className="form-group">
+                <label htmlFor="proj-title" className="form-label">Project Title *</label>
+                <input
+                  id="proj-title"
+                  className="form-input"
+                  type="text"
+                  placeholder="e.g. Distributed Task Orchestrator"
+                  value={title}
+                  onChange={(e) => setTitle(e.target.value)}
+                  required
+                />
+              </div>
+
+              <div className="form-group">
+                <label htmlFor="proj-author" className="form-label" style={{ display: 'flex', justifyContent: 'space-between' }}>
+                  <span>Author / Creator Name *</span>
+                  <span style={{ fontSize: '0.72rem', color: 'var(--accent-cobalt)', fontWeight: 500 }}>You decide credit</span>
+                </label>
+                <input
+                  id="proj-author"
+                  className="form-input"
+                  type="text"
+                  placeholder={currentUser?.name || 'e.g. Your Name'}
+                  value={authorName}
+                  onChange={(e) => setAuthorName(e.target.value)}
+                  required
+                />
+              </div>
             </div>
 
             {/* Description */}

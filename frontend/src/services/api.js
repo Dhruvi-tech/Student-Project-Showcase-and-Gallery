@@ -390,7 +390,14 @@ export const api = {
     try {
       return await request(`/api/v1/students/${id}`);
     } catch (e) {
-      return { id, name: 'Aarav Sharma', email: 'aarav.sharma@student.edu', roll_number: 'CS2026-001' };
+      const match = (staticCatalog || []).find((p) => p.student_id === id);
+      const studentName = match?.author_display_name || match?.student_name || 'Student Creator';
+      return {
+        id,
+        name: studentName,
+        email: `${studentName.toLowerCase().replace(/[^a-z0-9]/g, '.')}@student.edu`,
+        roll_number: 'CS2026-DEV',
+      };
     }
   },
 
@@ -466,7 +473,7 @@ export const api = {
           {
             id: 'c_demo_2',
             text: 'Impressive live demo, runs smoothly without latency. Great capstone work!',
-            student_name: 'Aarav Sharma',
+            student_name: 'Peer Reviewer',
             created_at: new Date(Date.now() - 43200000).toISOString(),
             code_quality: 4,
             innovation: 5,
@@ -562,11 +569,20 @@ export const api = {
     try {
       return await request('/api/v1/students');
     } catch (e) {
-      return [
-        { id: 'stu_1', name: 'Aarav Sharma', email: 'aarav.sharma@student.edu', roll_number: 'CS2026-001' },
-        { id: 'stu_2', name: 'Ananya Rao', email: 'ananya.rao@student.edu', roll_number: 'CS2026-002' },
-        { id: 'stu_3', name: 'Karthik Iyer', email: 'karthik.iyer@student.edu', roll_number: 'CS2026-003' }
-      ];
+      const distinctAuthors = new Map();
+      (staticCatalog || []).forEach((p) => {
+        if (p.student_id && (p.student_name || p.author_display_name)) {
+          if (!distinctAuthors.has(p.student_id)) {
+            distinctAuthors.set(p.student_id, {
+              id: p.student_id,
+              name: p.author_display_name || p.student_name,
+              email: `${(p.author_display_name || p.student_name).toLowerCase().replace(/[^a-z0-9]/g, '.')}@student.edu`,
+              roll_number: 'CS2026-DEV',
+            });
+          }
+        }
+      });
+      return Array.from(distinctAuthors.values()).slice(0, 100);
     }
   },
 

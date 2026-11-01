@@ -68,12 +68,29 @@ export function AuthModal({ onClose, onAuthenticated }) {
   }
 
   async function submit(event) {
-    event.preventDefault();
+    if (event) event.preventDefault();
     setError('');
 
     if (mode === 'register') {
-      if (password.length < 6) {
+      if (!name.trim() || name.trim().length < 2) {
+        setError('Please enter your full name (at least 2 characters).');
+        return;
+      }
+      if (!email.trim() || !email.includes('@')) {
+        setError('Please enter a valid email address.');
+        return;
+      }
+      if (!password || password.length < 6) {
         setError('Password must be at least 6 characters.');
+        return;
+      }
+    } else {
+      if (!identifier.trim()) {
+        setError('Please enter your email or username.');
+        return;
+      }
+      if (!password) {
+        setError('Please enter your password.');
         return;
       }
     }
@@ -81,21 +98,27 @@ export function AuthModal({ onClose, onAuthenticated }) {
     setLoading(true);
     try {
       if (mode === 'login') {
-        const result = await api.login(identifier, password);
+        const result = await api.login(identifier.trim(), password);
         const user = result?.user || result?.student || {
           id: identifier.toLowerCase().includes('demo') ? 'stu_demo_eval' : `stu_${Date.now()}`,
           name: identifier.split('@')[0] || 'Student Evaluator',
-          username: identifier.split('@')[0] || 'student',
-          email: identifier,
+          username: identifier.split('@')[0].replace(/[^a-zA-Z0-9_]/g, '_') || 'student',
+          email: identifier.trim(),
         };
         onAuthenticated(user);
         onClose();
       } else {
-        // Sanitize username
-        const rawUsername = (username || name || email.split('@')[0] || 'student').trim();
-        const cleanUsername = rawUsername.replace(/[^A-Za-z0-9_]/g, '_').slice(0, 30) || `stu_${Date.now().toString().slice(-4)}`;
-        const cleanName = (name || cleanUsername).trim();
-        const cleanEmail = (email || `${cleanUsername}@student.edu`).trim().toLowerCase();
+        // Build valid sanitized username
+        let cleanUsername = (username || name || email.split('@')[0] || 'student')
+          .toLowerCase()
+          .replace(/[^a-z0-9_]/g, '_')
+          .trim();
+        while (cleanUsername.length < 3) {
+          cleanUsername += `_${Math.floor(Math.random() * 90 + 10)}`;
+        }
+        cleanUsername = cleanUsername.slice(0, 30);
+        const cleanName = name.trim();
+        const cleanEmail = email.trim().toLowerCase();
 
         const result = await api.registerAccount({
           name: cleanName,
@@ -184,7 +207,7 @@ export function AuthModal({ onClose, onAuthenticated }) {
         </div>
 
         {/* Auth Form with Bounded Flex Scrolling */}
-        <form onSubmit={submit} className="auth-form-content">
+        <form onSubmit={submit} className="auth-form-content" noValidate>
           <div className="modal-body auth-modal-body">
             {error && (
               <div className="auth-error-banner">
@@ -198,39 +221,30 @@ export function AuthModal({ onClose, onAuthenticated }) {
                 {/* 2-Column Responsive Name & Username Row */}
                 <div className="auth-row-2col">
                   <label className="form-group">
-                    <span className="form-label">Full Name</span>
+                    <span className="form-label">Full Name *</span>
                     <div className="input-with-icon">
                       <User size={15} className="input-icon" />
                       <input
                         className="form-input"
-                        placeholder="Alex Rivera"
+                        placeholder="e.g. Alex Rivera"
                         value={name}
-                        onChange={(e) => {
-                          setName(e.target.value);
-                          if (!username) {
-                            setUsername(e.target.value.toLowerCase().replace(/[^a-z0-9_]/g, '_'));
-                          }
-                        }}
+                        onChange={(e) => setName(e.target.value)}
                         autoComplete="name"
-                        required
-                        minLength={2}
                         maxLength={100}
                       />
                     </div>
                   </label>
 
                   <label className="form-group">
-                    <span className="form-label">Username</span>
+                    <span className="form-label">Username (optional)</span>
                     <div className="input-with-icon">
                       <AtSign size={15} className="input-icon" />
                       <input
                         className="form-input"
-                        placeholder="alex_dev"
+                        placeholder="e.g. alex_dev"
                         value={username}
-                        onChange={(e) => setUsername(e.target.value.toLowerCase().replace(/[^a-z0-9_]/g, ''))}
+                        onChange={(e) => setUsername(e.target.value.toLowerCase().replace(/[^a-z0-9_]/g, '_'))}
                         autoComplete="username"
-                        required
-                        minLength={3}
                         maxLength={30}
                       />
                     </div>
@@ -238,23 +252,22 @@ export function AuthModal({ onClose, onAuthenticated }) {
                 </div>
 
                 <label className="form-group">
-                  <span className="form-label">Email Address</span>
+                  <span className="form-label">Email Address *</span>
                   <div className="input-with-icon">
                     <Mail size={15} className="input-icon" />
                     <input
                       className="form-input"
                       type="email"
-                      placeholder="alex@rvu.edu.in"
+                      placeholder="e.g. student@rvu.edu.in"
                       value={email}
                       onChange={(e) => setEmail(e.target.value)}
                       autoComplete="email"
-                      required
                     />
                   </div>
                 </label>
 
                 <label className="form-group">
-                  <span className="form-label">Password</span>
+                  <span className="form-label">Password *</span>
                   <div className="input-with-icon">
                     <Lock size={15} className="input-icon" />
                     <input
@@ -264,8 +277,6 @@ export function AuthModal({ onClose, onAuthenticated }) {
                       value={password}
                       onChange={(e) => setPassword(e.target.value)}
                       autoComplete="new-password"
-                      required
-                      minLength={6}
                       maxLength={128}
                     />
                     <button
@@ -291,8 +302,6 @@ export function AuthModal({ onClose, onAuthenticated }) {
                       value={identifier}
                       onChange={(e) => setIdentifier(e.target.value)}
                       autoComplete="username"
-                      required
-                      minLength={3}
                       maxLength={150}
                     />
                   </div>
@@ -309,7 +318,6 @@ export function AuthModal({ onClose, onAuthenticated }) {
                       value={password}
                       onChange={(e) => setPassword(e.target.value)}
                       autoComplete="current-password"
-                      required
                       maxLength={128}
                     />
                     <button
