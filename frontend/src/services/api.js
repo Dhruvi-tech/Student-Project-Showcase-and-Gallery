@@ -238,16 +238,16 @@ export const api = {
     }
   },
 
-  async updateCurrentUser(profile) {
-    let savedUser = null;
+  async updateCurrentUser(profile, currentUserObj = null) {
+    let savedUser = currentUserObj || null;
     try {
       const stored = localStorage.getItem('showcase_user');
-      if (stored) savedUser = JSON.parse(stored);
+      if (stored) savedUser = { ...JSON.parse(stored), ...(currentUserObj || {}) };
     } catch (e) {}
 
     try {
       const result = await request('/api/v1/auth/me', { method: 'PATCH', body: JSON.stringify(profile) });
-      const user = result?.user || { ...savedUser, ...profile };
+      const user = { ...(savedUser || {}), ...profile, ...(result?.user || {}) };
       try {
         localStorage.setItem('showcase_user', JSON.stringify(user));
       } catch (e) {}

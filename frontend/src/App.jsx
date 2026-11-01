@@ -45,16 +45,43 @@ export function App() {
   const [selectedTech, setSelectedTech] = useState('All');
   const [sortOption, setSortOption] = useState('upvotes');
 
-  // Development Identity Personas
+  // Development Identity Personas with synchronous localStorage persistence
+  const [currentUser, setCurrentUser] = useState(() => {
+    try {
+      const saved = localStorage.getItem('showcase_user');
+      if (saved) {
+        const parsed = JSON.parse(saved);
+        if (parsed?.id) return parsed;
+      }
+    } catch (e) {}
+    return null;
+  });
+  const [currentStudentId, setCurrentStudentId] = useState(() => {
+    try {
+      const saved = localStorage.getItem('showcase_user');
+      if (saved) {
+        const parsed = JSON.parse(saved);
+        if (parsed?.id) return parsed.id;
+      }
+    } catch (e) {}
+    return '';
+  });
+  const [interests, setInterests] = useState(() => {
+    try {
+      const saved = localStorage.getItem('showcase_user');
+      if (saved) {
+        const parsed = JSON.parse(saved);
+        if (Array.isArray(parsed?.interests)) return parsed.interests;
+      }
+    } catch (e) {}
+    return [];
+  });
   const [students, setStudents] = useState([]);
-  const [currentStudentId, setCurrentStudentId] = useState('');
-  const [currentUser, setCurrentUser] = useState(null);
   const [isAuthModalOpen, setIsAuthModalOpen] = useState(false);
   const [myProjectsMode, setMyProjectsMode] = useState(false);
   const [savedProjectsMode, setSavedProjectsMode] = useState(false);
   const [recommendationsMode, setRecommendationsMode] = useState(false);
   const [followedCategories, setFollowedCategories] = useState([]);
-  const [interests, setInterests] = useState([]);
   const [technologyCatalog, setTechnologyCatalog] = useState([]);
   const [projectToEdit, setProjectToEdit] = useState(null);
   const [profileStudentId, setProfileStudentId] = useState(null);
@@ -131,20 +158,15 @@ export function App() {
           setTechnologyCatalog(technologyResult.value.data || []);
         }
 
-        if (studentsList.status === 'fulfilled' && studentsList.value.length > 0) {
-          setStudents(studentsList.value);
-          setCurrentStudentId(studentsList.value[0].id);
-          const [follows, profileInterests] = await Promise.allSettled([
-            api.getFollowedCategories(studentsList.value[0].id),
-            api.getInterests(studentsList.value[0].id),
-          ]);
-          if (follows.status === 'fulfilled') setFollowedCategories(follows.value.data || []);
-          if (profileInterests.status === 'fulfilled') setInterests(profileInterests.value.data || []);
-        }
+        let activeUserId = '';
         if (userResult.status === 'fulfilled' && userResult.value?.user) {
-          setCurrentUser(userResult.value.user);
-          setCurrentStudentId(userResult.value.user.id);
-          setInterests(userResult.value.user.interests || []);
+          const u = userResult.value.user;
+          setCurrentUser(u);
+          setCurrentStudentId(u.id);
+          activeUserId = u.id;
+          if (Array.isArray(u.interests) && u.interests.length > 0) {
+            setInterests(u.interests);
+          }
         } else {
           try {
             const saved = localStorage.getItem('showcase_user');
@@ -153,10 +175,22 @@ export function App() {
               if (parsed?.id) {
                 setCurrentUser(parsed);
                 setCurrentStudentId(parsed.id);
-                setInterests(parsed.interests || []);
+                activeUserId = parsed.id;
+                if (Array.isArray(parsed.interests) && parsed.interests.length > 0) {
+                  setInterests(parsed.interests);
+                }
               }
             }
           } catch (e) {}
+        }
+
+        if (studentsList.status === 'fulfilled' && studentsList.value.length > 0) {
+          setStudents(studentsList.value);
+          const targetId = activeUserId || studentsList.value[0].id;
+          setCurrentStudentId((prev) => prev || targetId);
+          api.getFollowedCategories(targetId).then((res) => {
+            if (res?.data) setFollowedCategories(res.data);
+          }).catch(() => {});
         }
       } catch (err) {
         console.error('System initialization error:', err);
@@ -756,6 +790,7 @@ export function App() {
             if (!user) return;
             const updated = { ...currentUser, ...user };
             setCurrentUser(updated);
+            setCurrentStudentId(updated.id);
             setInterests(updated.interests || []);
             try {
               localStorage.setItem('showcase_user', JSON.stringify(updated));

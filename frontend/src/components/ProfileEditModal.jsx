@@ -20,10 +20,11 @@ export function ProfileEditModal({ user, onClose, onSaved }) {
         bio: bio.trim(),
         interests,
       };
-      const result = await api.updateCurrentUser(payload);
-      const updatedUser = result?.user || result || {
+      const result = await api.updateCurrentUser(payload, user);
+      const updatedUser = {
         ...user,
         ...payload,
+        ...(result?.user || (result?.id ? result : {})),
       };
       onSaved(updatedUser);
       onClose();
