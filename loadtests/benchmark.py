@@ -5,12 +5,16 @@ Executes load profiles (10, 25, and 50 virtual users) and reports
 throughput (req/s), latency percentiles (P50, P95, P99), and error rates.
 """
 import asyncio
+from datetime import datetime, timezone
+import json
+import os
 import time
 import statistics
 import uuid
 import httpx
 
-BASE_URL = "http://127.0.0.1:8000"
+BASE_URL = os.getenv("PROJECTSPACE_BENCHMARK_URL", "http://127.0.0.1:8000")
+REPORT_PATH = os.getenv("PROJECTSPACE_BENCHMARK_REPORT", "artifacts/load-tests/local-benchmark.json")
 
 
 async def simulate_student_session(client: httpx.AsyncClient, user_idx: int, project_ids: list, metrics: list):
@@ -105,6 +109,7 @@ async def run_stage(concurrent_users: int, project_ids: list):
         "p95": p95,
         "p99": p99,
         "success_rate": (len(successful) / len(metrics)) * 100,
+        "error_count": len(errors),
     }
 
 
@@ -139,7 +144,19 @@ async def main():
     for r in results:
         print(f"{r['users']:<10} {r['throughput']:<12.1f} {r['p50']:<12.2f} {r['p95']:<12.2f} {r['success_rate']:<11.1f}%")
     print("===================================================\n")
+    os.makedirs(os.path.dirname(REPORT_PATH) or ".", exist_ok=True)
+    with open(REPORT_PATH, "w", encoding="utf-8") as report_file:
+        json.dump({
+            "executed_at": datetime.now(timezone.utc).isoformat(),
+            "target": BASE_URL,
+            "environment": "local only",
+            "note": "Run against a disposable database copy; results do not represent AWS-hosted performance.",
+            "profiles": results,
+        }, report_file, indent=2)
+    print(f"[OK] Saved machine-readable report: {REPORT_PATH}")
 
 
 if __name__ == "__main__":
     asyncio.run(main())
+
+

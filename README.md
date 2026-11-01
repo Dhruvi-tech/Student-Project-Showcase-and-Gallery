@@ -1,121 +1,135 @@
-<div align="center">
+# ProjectSpace
 
-# 🎓 Student Project Showcase
+**A student project showcase and peer-feedback platform built with React, FastAPI, and SQLAlchemy.**
 
-### A home for student projects, thoughtful feedback, and open-source discovery.
+ProjectSpace helps students publish work, discover projects across 20 engineering domains, save ideas, follow domains, exchange feedback, and learn from an active gallery. The preserved catalog contains **320 projects**, with real repository links where available.
 
-[![React](https://img.shields.io/badge/React-18-149eca?logo=react&logoColor=white)](https://react.dev/)
-[![Vite](https://img.shields.io/badge/Vite-5-646cff?logo=vite&logoColor=white)](https://vite.dev/)
-[![FastAPI](https://img.shields.io/badge/API-FastAPI-009688?logo=fastapi&logoColor=white)](https://fastapi.tiangolo.com/)
-[![Python](https://img.shields.io/badge/Python-3.10%2B-3776ab?logo=python&logoColor=white)](https://www.python.org/)
-[![Database](https://img.shields.io/badge/Database-SQLite%20%7C%20PostgreSQL-4169e1?logo=postgresql&logoColor=white)](https://www.postgresql.org/)
+> Cloud status: the application is fully verified for local demonstration. AWS deployment is deliberately unprovisioned under the strict ₹0 policy; no AWS resource or public deployment URL is claimed.
 
-[Explore the app](http://localhost:5173/) · [API documentation](http://127.0.0.1:8000/docs) · [Architecture](docs/architecture.md)
+## Highlights
 
-</div>
+- Search, sort, and domain discovery across all 320 projects.
+- Separate **AI & Machine Learning** and **Data Science & Analytics** domains.
+- Project detail views, repository links, comments, voting, saved projects, and recommendations.
+- Account registration, login/logout, PBKDF2 password hashing, signed sessions, CSRF checks, and server-side ownership enforcement.
+- Author profiles, project publishing/editing/deletion, persistent category following, and local description suggestions.
+- Swagger/OpenAPI documentation, health checks, Docker configuration, optional private S3 asset integration, and AWS infrastructure templates.
 
----
+## Supported domains
 
-## ✨ The project
+AI & Machine Learning · Data Science & Analytics · Cybersecurity · Cloud Computing · Web Development & Full Stack · Mobile App Development · DevOps & Automation · Computer Vision · Internet of Things · Blockchain & Web3 · AR/VR & Game Development · HealthTech · FinTech · EdTech · Robotics & Embedded Systems · Natural Language Processing · Networking & Distributed Systems · UI/UX & Product Design · Open Source & Developer Utilities · Sustainability & Social Impact.
 
-A full-stack gallery where students can publish their work, browse projects across technical domains, and exchange constructive feedback. Search matches project titles, descriptions, and technology stacks. The gallery loads the complete **320-project catalog** in one view.
+## Stack
 
-| **20 domains** | **320 projects** | **Community feedback** |
-|:--:|:--:|:--:|
-| From cybersecurity to robotics | Open-source projects and community entries | Likes, dislikes, and comments |
+| Layer | Technology |
+|---|---|
+| Frontend | React, Vite, CSS, Lucide icons |
+| API | FastAPI, Pydantic, Uvicorn, OpenAPI |
+| Data | SQLAlchemy and SQLite; PostgreSQL-ready configuration |
+| Security | PBKDF2 hashing, signed HttpOnly sessions, CSRF, validation, owner checks |
+| Quality | Pytest, Locust, async benchmark, health endpoint |
+| Cloud readiness | Docker, Compose, S3 integration, ECR/ECS/RDS/S3/CloudFront templates |
 
-### Browse every domain
+## Architecture
 
-| | | | |
-|:--|:--|:--|:--|
-| AI & Machine Learning | Data Science & Analytics | Cybersecurity | Cloud Computing & DevOps |
-| Web Development & Full Stack | Mobile App Development | Internet of Things | Blockchain & Web3 |
-| Computer Vision | Natural Language Processing | Generative AI & AI Agents | Robotics & Automation |
-| Data Engineering & Big Data | Software Engineering & Developer Tools | FinTech | HealthTech |
-| EdTech | Game Development | AR/VR | Open Source & Developer Utilities |
+```mermaid
+flowchart LR
+  Browser --> React[React + Vite]
+  React -->|/api/v1 JSON| API[FastAPI]
+  API --> ORM[SQLAlchemy]
+  ORM --> DB[(SQLite)]
+  API -. optional private assets .-> S3[S3]
+```
 
-The catalog includes **230 attributed open-source projects** and **90 clearly identified community entries**. The latest 200 additions were selected from GitHub's topic search by star count, exclude forks and archived repositories, and add 10 repositories in each domain. They link directly to their source repositories; community entries have no invented repository or website links.
+The demonstrated configuration is React + FastAPI + the preserved local SQLite database. See [ARCHITECTURE.md](ARCHITECTURE.md) and [DEPLOYMENT_GUIDE.md](DEPLOYMENT_GUIDE.md) for the cloud-ready design and zero-cost constraints.
 
-## 🧩 Features
+## Run on Windows
 
-- Search projects by title, description, or technology stack; filter by any of the 20 domains.
-- View project details, difficulty, stack, source repository, and available website.
-- Create an account, sign in, manage a profile, and edit your own projects.
-- Like or dislike a project, comment, bookmark projects, and follow domains.
-- Explore personalized recommendations and switch between light and dark themes.
-- Use a responsive React interface backed by a FastAPI REST API.
+Requirements: Python 3.11+ (tested with Python 3.13), Node.js 20+, npm.
 
-## 🛠 Built with
-
-| Frontend | Backend | Data & deployment |
-|:--|:--|:--|
-| React 18 · Vite · Lucide · CSS | Python · FastAPI · SQLAlchemy · Pydantic | SQLite · PostgreSQL · Docker Compose |
-
-## 🚀 Run locally
-
-**Requirements:** Python 3.10+, Node.js 18+, and npm.
-
-### 1. Start the API
-
-From the repository root, in PowerShell:
+Install dependencies once:
 
 ```powershell
-python -m venv .venv
-.\.venv\Scripts\Activate.ps1
 pip install -r backend/requirements.txt
-python -m uvicorn app.main:app --app-dir backend --host 127.0.0.1 --port 8000 --reload
+cd frontend
+npm install
+cd ..
 ```
 
-API docs: <http://127.0.0.1:8000/docs>
-
-### 2. Start the web app
-
-In a second terminal:
+Start the API in one PowerShell window:
 
 ```powershell
-npm install --prefix frontend
-npm run dev --prefix frontend
+.\scripts\start-backend.ps1
 ```
 
-Open <http://localhost:5173/>.
-
-### Or use Docker Compose
+Start the frontend in a second window:
 
 ```powershell
-docker compose up --build
+.\scripts\start-frontend.ps1
 ```
 
-Stop with `Ctrl+C`. Run `docker compose down` to remove the containers while retaining the named database volume.
+Open:
 
-## ✅ Build & checks
+- Application: http://127.0.0.1:5173
+- API documentation: http://127.0.0.1:8000/docs
+- Health check: http://127.0.0.1:8000/health
 
-```powershell
-npm run build --prefix frontend
-python -m pytest backend/tests/test_api.py -v
-```
+The startup script explicitly selects the preserved root `showcase.db`, rather than the older backend-local sample database.
 
-The additive database migration check is in `backend/tests/test_migrations.py`.
+## API overview
 
-## 🗂 Repository map
+| Area | Examples |
+|---|---|
+| Projects | `GET/POST /api/v1/projects`, `GET/PUT/DELETE /api/v1/projects/{id}` |
+| Engagement | votes, comments, bookmarks, category preferences, recommendations |
+| Accounts | register, login, logout, current profile, profile update |
+| Operations | `/health`, `/docs`, `/redoc` |
+
+Open `/docs` for the live generated contract and request schemas.
+
+## Data and security
+
+The primary local database is preserved and checkpointed before implementation. Record-level verification confirms 320 projects, 120 users, 110 comments, 374 votes, 20 categories, and no missing project IDs, user IDs, or GitHub links.
+
+Credentials are never stored in frontend code. Optional S3 support stays disabled until `S3_BUCKET_NAME` is configured. Cloud credentials belong only in local credential profiles or managed secret stores, never in Git.
+
+## Testing results
+
+| Check | Result |
+|---|---|
+| Backend/API/migration suite | 30 passed |
+| Frontend production build | Passed |
+| Isolated async benchmark | 10, 25, 50 users; 100% successful requests |
+| Isolated Locust stages | 10, 25, 50 users; 0 reported failures |
+
+Full measured results are in [TEST_RESULTS.md](TEST_RESULTS.md). Load tests use a disposable database copy, not the preserved catalog.
+
+## Cloud and cost policy
+
+The repository includes deployment-ready Docker and AWS templates for academic architecture evidence. They are **not deployed** because ECS, ALB, RDS, and related services have recurring-cost risk. Amplify/S3 eligibility, account credits, and overage exposure must be verified before any AWS resource can be created. See [docs/zero-cost-cloud-plan.md](docs/zero-cost-cloud-plan.md).
+
+## Project structure
 
 ```text
-backend/       FastAPI app, database models, services, and tests
-frontend/      React app, components, and styles
-docs/          Requirements, architecture, and deployment notes
-infra/aws/     AWS infrastructure templates
-loadtests/     Locust and standalone benchmark scripts
+backend/        FastAPI application, models, API tests, seed tools
+frontend/       React/Vite interface
+infra/aws/      CloudFormation reference templates
+loadtests/      Locust and async benchmark tools
+scripts/        Windows startup scripts
+docs/           Architecture, deployment, cloud and testing documentation
+submission/     Presentation-document index
 ```
 
-## ☁️ Deployment status
+## Academic evidence
 
-AWS templates are included for a possible CloudFront/S3, ECS Fargate, load balancer, and RDS deployment. **These resources have not been deployed or verified.** See the [deployment notes](docs/aws-deployment.md) and [project completion matrix](docs/50-50-completion-matrix.md) for current status and outstanding work.
+- [Web application 50-mark matrix](WEB_50_MARKS.md)
+- [Cloud computing 50-mark matrix](CLOUD_50_MARKS.md)
+- [Presentation guide](PRESENTATION_GUIDE.md)
+- [Demonstration script](DEMO_SCRIPT.md)
+- [Screenshot checklist](SCREENSHOT_CHECKLIST.md)
 
-Local settings can be configured with environment variables or `backend/.env`; see [`backend/.env.example`](backend/.env.example). Configure a unique `AUTH_SECRET` and production CORS origins before any production deployment.
+## Limitations and future work
 
----
+The local SQLite configuration is ideal for the academic demo but is not a multi-instance production database. A future approved deployment would use a verified data migration, private object storage, managed secrets, and an account-approved hosting plan. No such deployment is claimed here.
 
-<div align="center">
 
-Made for sharing what you build — and learning from what others create.
-
-</div>
