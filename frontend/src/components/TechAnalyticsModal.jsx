@@ -10,7 +10,6 @@ import {
   Search,
   Copy,
   Check,
-  ExternalLink,
   Sparkles,
   Server,
   Code2,
@@ -22,6 +21,11 @@ import {
   Filter,
   RefreshCw,
   Zap,
+  Maximize2,
+  Minimize2,
+  Grid,
+  List,
+  CheckCircle2,
 } from 'lucide-react';
 
 const ECOSYSTEM_RULES = [
@@ -72,6 +76,8 @@ export function TechAnalyticsModal({ projects = [], onSelectTech, onSelectCatego
   const [techSearch, setTechSearch] = useState('');
   const [selectedDomainFilter, setSelectedDomainFilter] = useState('All');
   const [copied, setCopied] = useState(false);
+  const [isFullscreen, setIsFullscreen] = useState(false);
+  const [viewMode, setViewMode] = useState('grid'); // 'grid' | 'list'
 
   // Extract unique categories for drilldown filter
   const allCategories = useMemo(() => {
@@ -167,7 +173,7 @@ export function TechAnalyticsModal({ projects = [], onSelectTech, onSelectCatego
     // Sorted co-occurrence pairs (Architectural synergy)
     const sortedPairs = Object.entries(pairCounts)
       .sort((a, b) => b[1] - a[1])
-      .slice(0, 15)
+      .slice(0, 24)
       .map(([pair, count]) => ({
         pair,
         techA: pair.split(' + ')[0],
@@ -187,10 +193,10 @@ export function TechAnalyticsModal({ projects = [], onSelectTech, onSelectCatego
         percentage: projects.length ? Math.round((count / projects.length) * 100) : 0,
       }));
 
-    // Top 5 upvoted projects (Leaderboard)
+    // Top 8 upvoted projects (Leaderboard)
     const topProjects = [...activeProjects]
       .sort((a, b) => (b.upvote_count || 0) - (a.upvote_count || 0))
-      .slice(0, 5);
+      .slice(0, 8);
 
     // Sorted ecosystems
     const totalEcosystemHits = Object.values(ecosystemCounts).reduce((a, b) => a + b, 0);
@@ -202,7 +208,7 @@ export function TechAnalyticsModal({ projects = [], onSelectTech, onSelectCatego
         percentage: totalEcosystemHits ? Math.round((count / totalEcosystemHits) * 100) : 0,
       }));
 
-    const avgStacks = activeProjects.length ? (totalStacks / activeProjects.length).toFixed(1) : 0;
+    const avgStacks = activeProjects.length ? (totalStacks / activeProjects.length).toFixed(1) : '0.0';
 
     return {
       totalProjects: activeProjects.length,
@@ -292,22 +298,31 @@ Generated live from verified SQLite capstone database.`;
   }, [analytics]);
 
   return (
-    <div className="modal-overlay" onClick={onClose}>
+    <div className="modal-overlay" onClick={onClose} style={{ padding: isFullscreen ? '0' : '1rem' }}>
       <div
         className="modal-container analytics-modal-container"
         role="dialog"
         aria-modal="true"
         aria-labelledby="analytics-title"
         onClick={(e) => e.stopPropagation()}
-        style={{ maxWidth: '920px', width: '95%', maxHeight: '92vh', display: 'flex', flexDirection: 'column' }}
+        style={{
+          width: isFullscreen ? '100vw' : '96%',
+          maxWidth: isFullscreen ? '100vw' : '1240px',
+          height: isFullscreen ? '100vh' : '92vh',
+          maxHeight: isFullscreen ? '100vh' : '94vh',
+          borderRadius: isFullscreen ? '0' : 'var(--radius-lg)',
+          display: 'flex',
+          flexDirection: 'column',
+          transition: 'all 0.2s cubic-bezier(0.16, 1, 0.3, 1)',
+        }}
       >
-        {/* Header */}
-        <div className="modal-header" style={{ padding: '1.2rem 1.6rem 0.85rem', borderBottom: '1px solid var(--border-subtle)', flexShrink: 0 }}>
-          <div style={{ display: 'flex', alignItems: 'center', gap: '0.65rem' }}>
+        {/* Header with Title + Compact Inline Metrics Strip */}
+        <div className="modal-header" style={{ padding: '0.95rem 1.6rem', borderBottom: '1px solid var(--border-subtle)', flexShrink: 0, display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: '1rem', flexWrap: 'wrap' }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
             <div style={{
-              width: '38px',
-              height: '38px',
-              borderRadius: '10px',
+              width: '36px',
+              height: '36px',
+              borderRadius: '9px',
               background: 'var(--accent-cobalt-subtle)',
               color: 'var(--accent-cobalt)',
               border: '1px solid var(--accent-cobalt-border)',
@@ -315,183 +330,189 @@ Generated live from verified SQLite capstone database.`;
               placeItems: 'center',
               boxShadow: '0 2px 6px rgba(37, 99, 235, 0.15)'
             }}>
-              <BarChart3 size={20} />
+              <BarChart3 size={19} />
             </div>
             <div>
-              <h3 id="analytics-title" style={{ fontSize: '1.25rem', fontWeight: 800, margin: 0, color: 'var(--text-primary)', letterSpacing: '-0.02em' }}>
-                Technology &amp; Catalog Analytics
-              </h3>
-              <p style={{ margin: '0.15rem 0 0', fontSize: '0.8rem', color: 'var(--text-muted)' }}>
-                {selectedDomainFilter === 'All'
-                  ? `Live computational analysis across all ${analytics.totalProjects} capstone projects`
-                  : `Drilldown view: ${analytics.totalProjects} projects in "${selectedDomainFilter}"`}
-              </p>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '0.6rem', flexWrap: 'wrap' }}>
+                <h3 id="analytics-title" style={{ fontSize: '1.2rem', fontWeight: 800, margin: 0, color: 'var(--text-primary)', letterSpacing: '-0.02em' }}>
+                  Technology &amp; Catalog Analytics
+                </h3>
+                {/* Sleek inline single-line metrics badges (No bulky vertical stacking!) */}
+                <div style={{ display: 'flex', alignItems: 'center', gap: '0.35rem', flexWrap: 'wrap' }}>
+                  <span style={{ fontSize: '0.74rem', fontWeight: 700, padding: '0.15rem 0.5rem', borderRadius: '4px', background: 'var(--bg-surface-elevated)', color: 'var(--text-primary)', border: '1px solid var(--border-subtle)' }}>
+                    {analytics.totalProjects} Projects
+                  </span>
+                  <span style={{ fontSize: '0.74rem', fontWeight: 700, padding: '0.15rem 0.5rem', borderRadius: '4px', background: 'var(--accent-cobalt-subtle)', color: 'var(--accent-cobalt)', border: '1px solid var(--accent-cobalt-border)' }}>
+                    {analytics.uniqueTechsCount} Tech Stacks
+                  </span>
+                  <span style={{ fontSize: '0.74rem', fontWeight: 700, padding: '0.15rem 0.5rem', borderRadius: '4px', background: 'var(--accent-indigo-subtle)', color: 'var(--accent-indigo)', border: '1px solid var(--border-subtle)' }}>
+                    {analytics.totalVotes} Peer Votes
+                  </span>
+                  <span style={{ fontSize: '0.74rem', fontWeight: 700, padding: '0.15rem 0.5rem', borderRadius: '4px', background: 'var(--accent-amber-subtle)', color: 'var(--accent-amber)', border: '1px solid var(--border-subtle)' }}>
+                    {analytics.liveDemoCount} Live Sites
+                  </span>
+                </div>
+              </div>
             </div>
           </div>
-          <button className="modal-close-btn" onClick={onClose} aria-label="Close analytics modal">
-            <X size={18} />
-          </button>
+
+          <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+            <button
+              type="button"
+              className="btn-theme-toggle"
+              onClick={() => setIsFullscreen(!isFullscreen)}
+              title={isFullscreen ? 'Restore standard size' : 'Expand to Fullscreen'}
+              style={{ width: '32px', height: '32px', cursor: 'pointer' }}
+            >
+              {isFullscreen ? <Minimize2 size={15} /> : <Maximize2 size={15} />}
+            </button>
+            <button className="modal-close-btn" onClick={onClose} aria-label="Close analytics modal">
+              <X size={18} />
+            </button>
+          </div>
         </div>
 
-        {/* Domain Drilldown Filter Strip */}
+        {/* Compact Navigation Bar: Scope Filter + Search + Tab Selectors (All in one efficient horizontal bar!) */}
         <div style={{
           display: 'flex',
           alignItems: 'center',
-          gap: '0.65rem',
-          padding: '0.65rem 1.6rem',
-          background: 'var(--bg-surface)',
-          borderBottom: '1px solid var(--border-subtle)',
-          flexShrink: 0,
-          flexWrap: 'wrap'
-        }}>
-          <div style={{ display: 'flex', alignItems: 'center', gap: '0.4rem', fontSize: '0.78rem', fontWeight: 700, color: 'var(--text-secondary)' }}>
-            <Filter size={13} color="var(--accent-cobalt)" />
-            <span>Scope Drilldown:</span>
-          </div>
-
-          <select
-            value={selectedDomainFilter}
-            onChange={(e) => setSelectedDomainFilter(e.target.value)}
-            style={{
-              padding: '0.3rem 0.75rem',
-              borderRadius: '6px',
-              background: 'var(--bg-surface-elevated)',
-              border: '1px solid var(--border-subtle)',
-              color: 'var(--text-primary)',
-              fontSize: '0.82rem',
-              fontWeight: 600,
-              cursor: 'pointer',
-              outline: 'none',
-              maxWidth: '300px'
-            }}
-          >
-            {allCategories.map((cat) => (
-              <option key={cat} value={cat}>
-                {cat === 'All' ? '⚡ Entire Catalog (All 320 Projects)' : `Track: ${cat}`}
-              </option>
-            ))}
-          </select>
-
-          {selectedDomainFilter !== 'All' && (
-            <button
-              type="button"
-              onClick={() => setSelectedDomainFilter('All')}
-              style={{
-                display: 'inline-flex',
-                alignItems: 'center',
-                gap: '0.3rem',
-                padding: '0.25rem 0.55rem',
-                borderRadius: '5px',
-                background: 'var(--accent-cobalt-subtle)',
-                color: 'var(--accent-cobalt)',
-                border: '1px solid var(--accent-cobalt-border)',
-                fontSize: '0.74rem',
-                fontWeight: 650,
-                cursor: 'pointer'
-              }}
-            >
-              <RefreshCw size={11} />
-              <span>Reset to All</span>
-            </button>
-          )}
-
-          <div style={{ marginLeft: 'auto', fontSize: '0.75rem', color: 'var(--text-muted)' }}>
-            Showing <strong>{analytics.totalProjects}</strong> projects
-          </div>
-        </div>
-
-        {/* Top 5 Key Metrics Strip */}
-        <div style={{
-          display: 'grid',
-          gridTemplateColumns: 'repeat(auto-fit, minmax(130px, 1fr))',
-          gap: '0.65rem',
-          padding: '0.85rem 1.6rem',
+          justifyContent: 'space-between',
+          padding: '0.5rem 1.6rem',
           background: 'var(--bg-surface-elevated)',
           borderBottom: '1px solid var(--border-subtle)',
-          flexShrink: 0
+          flexShrink: 0,
+          flexWrap: 'wrap',
+          gap: '0.65rem'
         }}>
-          <div style={{ padding: '0.6rem 0.8rem', background: 'var(--bg-surface)', borderRadius: '10px', border: '1px solid var(--border-subtle)' }}>
-            <span style={{ fontSize: '0.7rem', color: 'var(--text-muted)', textTransform: 'uppercase', fontWeight: 650, letterSpacing: '0.03em' }}>Projects</span>
-            <div style={{ fontSize: '1.35rem', fontWeight: 800, color: 'var(--text-primary)', marginTop: '0.1rem', fontFamily: 'var(--font-mono)' }}>{analytics.totalProjects}</div>
+          {/* Tabs */}
+          <div style={{ display: 'flex', gap: '0.35rem', overflowX: 'auto', alignItems: 'center' }}>
+            <button
+              type="button"
+              className={`auth-tab-btn ${activeTab === 'tech' ? 'active' : ''}`}
+              onClick={() => setActiveTab('tech')}
+              style={{ padding: '0.35rem 0.75rem', fontSize: '0.8rem', whiteSpace: 'nowrap' }}
+            >
+              <Cpu size={13} />
+              <span>Technologies ({analytics.sortedTechs.length})</span>
+            </button>
+            <button
+              type="button"
+              className={`auth-tab-btn ${activeTab === 'synergy' ? 'active' : ''}`}
+              onClick={() => setActiveTab('synergy')}
+              style={{ padding: '0.35rem 0.75rem', fontSize: '0.8rem', whiteSpace: 'nowrap' }}
+            >
+              <GitFork size={13} color="var(--accent-cobalt)" />
+              <span>Stack Synergy Pairs</span>
+            </button>
+            <button
+              type="button"
+              className={`auth-tab-btn ${activeTab === 'domains' ? 'active' : ''}`}
+              onClick={() => setActiveTab('domains')}
+              style={{ padding: '0.35rem 0.75rem', fontSize: '0.8rem', whiteSpace: 'nowrap' }}
+            >
+              <Layers size={13} />
+              <span>20 Domains</span>
+            </button>
+            <button
+              type="button"
+              className={`auth-tab-btn ${activeTab === 'ecosystems' ? 'active' : ''}`}
+              onClick={() => setActiveTab('ecosystems')}
+              style={{ padding: '0.35rem 0.75rem', fontSize: '0.8rem', whiteSpace: 'nowrap' }}
+            >
+              <PieIcon size={13} />
+              <span>Ecosystems &amp; Complexity</span>
+            </button>
+            <button
+              type="button"
+              className={`auth-tab-btn ${activeTab === 'leaderboard' ? 'active' : ''}`}
+              onClick={() => setActiveTab('leaderboard')}
+              style={{ padding: '0.35rem 0.75rem', fontSize: '0.8rem', whiteSpace: 'nowrap' }}
+            >
+              <Flame size={13} color="#f59e0b" />
+              <span>Top Capstones</span>
+            </button>
           </div>
-          <div style={{ padding: '0.6rem 0.8rem', background: 'var(--bg-surface)', borderRadius: '10px', border: '1px solid var(--border-subtle)' }}>
-            <span style={{ fontSize: '0.7rem', color: 'var(--text-muted)', textTransform: 'uppercase', fontWeight: 650, letterSpacing: '0.03em' }}>Unique Stacks</span>
-            <div style={{ fontSize: '1.35rem', fontWeight: 800, color: 'var(--accent-cobalt)', marginTop: '0.1rem', fontFamily: 'var(--font-mono)' }}>{analytics.uniqueTechsCount}</div>
-          </div>
-          <div style={{ padding: '0.6rem 0.8rem', background: 'var(--bg-surface)', borderRadius: '10px', border: '1px solid var(--border-subtle)' }}>
-            <span style={{ fontSize: '0.7rem', color: 'var(--text-muted)', textTransform: 'uppercase', fontWeight: 650, letterSpacing: '0.03em' }}>Avg Stacks/Project</span>
-            <div style={{ fontSize: '1.35rem', fontWeight: 800, color: 'var(--accent-emerald)', marginTop: '0.1rem', fontFamily: 'var(--font-mono)' }}>{analytics.avgStacks}</div>
-          </div>
-          <div style={{ padding: '0.6rem 0.8rem', background: 'var(--bg-surface)', borderRadius: '10px', border: '1px solid var(--border-subtle)' }}>
-            <span style={{ fontSize: '0.7rem', color: 'var(--text-muted)', textTransform: 'uppercase', fontWeight: 650, letterSpacing: '0.03em' }}>Live Deployments</span>
-            <div style={{ fontSize: '1.35rem', fontWeight: 800, color: 'var(--accent-amber)', marginTop: '0.1rem', fontFamily: 'var(--font-mono)' }}>{analytics.liveDemoCount}</div>
-          </div>
-          <div style={{ padding: '0.6rem 0.8rem', background: 'var(--bg-surface)', borderRadius: '10px', border: '1px solid var(--border-subtle)' }}>
-            <span style={{ fontSize: '0.7rem', color: 'var(--text-muted)', textTransform: 'uppercase', fontWeight: 650, letterSpacing: '0.03em' }}>Peer Upvotes</span>
-            <div style={{ fontSize: '1.35rem', fontWeight: 800, color: 'var(--accent-indigo)', marginTop: '0.1rem', fontFamily: 'var(--font-mono)' }}>{analytics.totalVotes}</div>
+
+          {/* Scope Filter & Grid/List Toggle */}
+          <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', marginLeft: 'auto' }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '0.35rem' }}>
+              <Filter size={12} color="var(--accent-cobalt)" />
+              <select
+                value={selectedDomainFilter}
+                onChange={(e) => setSelectedDomainFilter(e.target.value)}
+                style={{
+                  padding: '0.25rem 0.6rem',
+                  borderRadius: '5px',
+                  background: 'var(--bg-surface)',
+                  border: '1px solid var(--border-subtle)',
+                  color: 'var(--text-primary)',
+                  fontSize: '0.78rem',
+                  fontWeight: 600,
+                  cursor: 'pointer',
+                  outline: 'none',
+                  maxWidth: '220px'
+                }}
+              >
+                {allCategories.map((cat) => (
+                  <option key={cat} value={cat}>
+                    {cat === 'All' ? '⚡ Entire 320 Catalog' : cat}
+                  </option>
+                ))}
+              </select>
+            </div>
+
+            {selectedDomainFilter !== 'All' && (
+              <button
+                type="button"
+                onClick={() => setSelectedDomainFilter('All')}
+                style={{
+                  padding: '0.2rem 0.45rem',
+                  borderRadius: '4px',
+                  background: 'var(--accent-cobalt-subtle)',
+                  color: 'var(--accent-cobalt)',
+                  border: '1px solid var(--accent-cobalt-border)',
+                  fontSize: '0.72rem',
+                  fontWeight: 650,
+                  cursor: 'pointer'
+                }}
+                title="Reset scope to entire catalog"
+              >
+                Reset
+              </button>
+            )}
+
+            <div style={{ display: 'flex', border: '1px solid var(--border-subtle)', borderRadius: '5px', overflow: 'hidden' }}>
+              <button
+                type="button"
+                onClick={() => setViewMode('grid')}
+                style={{ padding: '0.25rem 0.45rem', background: viewMode === 'grid' ? 'var(--accent-cobalt)' : 'var(--bg-surface)', color: viewMode === 'grid' ? '#fff' : 'var(--text-muted)', border: 'none', cursor: 'pointer' }}
+                title="Multi-column grid view (more items on screen)"
+              >
+                <Grid size={13} />
+              </button>
+              <button
+                type="button"
+                onClick={() => setViewMode('list')}
+                style={{ padding: '0.25rem 0.45rem', background: viewMode === 'list' ? 'var(--accent-cobalt)' : 'var(--bg-surface)', color: viewMode === 'list' ? '#fff' : 'var(--text-muted)', border: 'none', cursor: 'pointer' }}
+                title="Single column list view"
+              >
+                <List size={13} />
+              </button>
+            </div>
           </div>
         </div>
 
-        {/* 5 Interactive Tab Selectors */}
-        <div style={{ display: 'flex', padding: '0.65rem 1.6rem 0', gap: '0.45rem', borderBottom: '1px solid var(--border-subtle)', flexShrink: 0, overflowX: 'auto' }}>
-          <button
-            type="button"
-            className={`auth-tab-btn ${activeTab === 'tech' ? 'active' : ''}`}
-            onClick={() => setActiveTab('tech')}
-            style={{ padding: '0.45rem 0.8rem', fontSize: '0.82rem', whiteSpace: 'nowrap' }}
-          >
-            <Cpu size={14} />
-            <span>Technologies ({analytics.sortedTechs.length})</span>
-          </button>
-          <button
-            type="button"
-            className={`auth-tab-btn ${activeTab === 'synergy' ? 'active' : ''}`}
-            onClick={() => setActiveTab('synergy')}
-            style={{ padding: '0.45rem 0.8rem', fontSize: '0.82rem', whiteSpace: 'nowrap' }}
-          >
-            <GitFork size={14} color="var(--accent-cobalt)" />
-            <span>Stack Synergy &amp; Pairings</span>
-          </button>
-          <button
-            type="button"
-            className={`auth-tab-btn ${activeTab === 'domains' ? 'active' : ''}`}
-            onClick={() => setActiveTab('domains')}
-            style={{ padding: '0.45rem 0.8rem', fontSize: '0.82rem', whiteSpace: 'nowrap' }}
-          >
-            <Layers size={14} />
-            <span>Domains &amp; Tracks</span>
-          </button>
-          <button
-            type="button"
-            className={`auth-tab-btn ${activeTab === 'ecosystems' ? 'active' : ''}`}
-            onClick={() => setActiveTab('ecosystems')}
-            style={{ padding: '0.45rem 0.8rem', fontSize: '0.82rem', whiteSpace: 'nowrap' }}
-          >
-            <PieIcon size={14} />
-            <span>Ecosystems &amp; Complexity</span>
-          </button>
-          <button
-            type="button"
-            className={`auth-tab-btn ${activeTab === 'leaderboard' ? 'active' : ''}`}
-            onClick={() => setActiveTab('leaderboard')}
-            style={{ padding: '0.45rem 0.8rem', fontSize: '0.82rem', whiteSpace: 'nowrap' }}
-          >
-            <Flame size={14} color="#f59e0b" />
-            <span>Top Capstones</span>
-          </button>
-        </div>
-
-        {/* Body content with scroll */}
+        {/* Spacious Body with Multi-Column Responsive Grids */}
         <div className="modal-body" style={{ padding: '1.25rem 1.6rem', overflowY: 'auto', flex: 1 }}>
-          {/* TAB 1: Technologies with Live Search and Rank Badges */}
+          {/* TAB 1: Technologies with In-Modal Search and Multi-Column Grid */}
           {activeTab === 'tech' && (
             <div>
-              {/* Search input inside modal */}
+              {/* Quick Search */}
               <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', marginBottom: '1rem', background: 'var(--bg-surface)', border: '1px solid var(--border-subtle)', borderRadius: '8px', padding: '0.45rem 0.75rem' }}>
                 <Search size={15} color="var(--text-muted)" />
                 <input
                   type="text"
-                  placeholder="Search technologies in this view (e.g. PyTorch, React, Docker, FastAPI)..."
+                  placeholder="Quick filter 50+ technologies (e.g. PyTorch, React, Docker, FastAPI, PostgreSQL)..."
                   value={techSearch}
                   onChange={(e) => setTechSearch(e.target.value)}
                   style={{ background: 'transparent', border: 'none', outline: 'none', color: 'var(--text-primary)', fontSize: '0.85rem', width: '100%' }}
@@ -503,13 +524,18 @@ Generated live from verified SQLite capstone database.`;
                 )}
               </div>
 
-              <div style={{ display: 'flex', flexDirection: 'column', gap: '0.55rem' }}>
-                {visibleTechs.length === 0 ? (
-                  <div style={{ padding: '2rem', textAlign: 'center', color: 'var(--text-muted)', fontSize: '0.88rem' }}>
-                    No technologies found matching "{techSearch}".
-                  </div>
-                ) : (
-                  visibleTechs.map((tech, idx) => {
+              {visibleTechs.length === 0 ? (
+                <div style={{ padding: '3rem', textAlign: 'center', color: 'var(--text-muted)', fontSize: '0.88rem' }}>
+                  No technologies found matching "{techSearch}".
+                </div>
+              ) : (
+                /* Multi-column grid: in wide view, shows 3 to 4 items per row! Eliminates endless vertical scrolling! */
+                <div style={{
+                  display: 'grid',
+                  gridTemplateColumns: viewMode === 'grid' ? 'repeat(auto-fill, minmax(260px, 1fr))' : '1fr',
+                  gap: '0.65rem'
+                }}>
+                  {visibleTechs.map((tech, idx) => {
                     const rankMedal = idx === 0 ? '🥇' : idx === 1 ? '🥈' : idx === 2 ? '🥉' : `#${idx + 1}`;
                     return (
                       <button
@@ -519,8 +545,8 @@ Generated live from verified SQLite capstone database.`;
                         style={{
                           display: 'flex',
                           alignItems: 'center',
-                          gap: '0.85rem',
-                          padding: '0.65rem 0.95rem',
+                          gap: '0.75rem',
+                          padding: '0.65rem 0.85rem',
                           borderRadius: '8px',
                           background: 'var(--bg-surface)',
                           border: '1px solid var(--border-subtle)',
@@ -531,106 +557,113 @@ Generated live from verified SQLite capstone database.`;
                         className="analytics-row-btn"
                         title={`Click to filter showcase gallery for ${tech.name}`}
                       >
-                        <span style={{ fontSize: '0.82rem', fontWeight: 750, color: 'var(--text-muted)', width: '26px' }}>
+                        <span style={{ fontSize: '0.8rem', fontWeight: 800, color: 'var(--text-muted)', width: '24px', flexShrink: 0 }}>
                           {rankMedal}
                         </span>
-                        <strong style={{ fontSize: '0.9rem', color: 'var(--text-primary)', width: '150px', flexShrink: 0 }}>
-                          {tech.name}
-                        </strong>
-                        {/* Visual Bar */}
-                        <div style={{ flex: 1, height: '9px', background: 'var(--bg-surface-elevated)', borderRadius: '5px', overflow: 'hidden' }}>
-                          <div style={{
-                            width: `${Math.max(4, tech.percentage)}%`,
-                            height: '100%',
-                            background: idx === 0
-                              ? 'linear-gradient(90deg, #f59e0b, #fbbf24)'
-                              : idx < 3
-                              ? 'linear-gradient(90deg, #2563eb, #38bdf8)'
-                              : 'var(--accent-cobalt)',
-                            borderRadius: '5px',
-                            transition: 'width 0.4s ease'
-                          }} />
+                        <div style={{ flex: 1, minWidth: 0 }}>
+                          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '0.3rem' }}>
+                            <strong style={{ fontSize: '0.86rem', color: 'var(--text-primary)', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
+                              {tech.name}
+                            </strong>
+                            <span style={{ fontSize: '0.78rem', fontWeight: 700, color: 'var(--accent-cobalt)', fontFamily: 'var(--font-mono)' }}>
+                              {tech.count} ({tech.percentage}%)
+                            </span>
+                          </div>
+                          <div style={{ height: '6px', background: 'var(--bg-surface-elevated)', borderRadius: '3px', overflow: 'hidden' }}>
+                            <div style={{
+                              width: `${Math.max(4, tech.percentage)}%`,
+                              height: '100%',
+                              background: idx === 0
+                                ? 'linear-gradient(90deg, #f59e0b, #fbbf24)'
+                                : idx < 3
+                                ? 'linear-gradient(90deg, #2563eb, #38bdf8)'
+                                : 'var(--accent-cobalt)',
+                              borderRadius: '3px',
+                              transition: 'width 0.4s ease'
+                            }} />
+                          </div>
                         </div>
-                        <span style={{ fontSize: '0.84rem', fontWeight: 700, color: 'var(--text-primary)', width: '50px', textAlign: 'right', fontFamily: 'var(--font-mono)' }}>
-                          {tech.count}
-                        </span>
-                        <span style={{ fontSize: '0.78rem', color: 'var(--text-muted)', width: '42px', textAlign: 'right', fontFamily: 'var(--font-mono)' }}>
-                          {tech.percentage}%
-                        </span>
-                        <ArrowUpRight size={14} color="var(--accent-cobalt)" style={{ opacity: 0.7 }} />
+                        <ArrowUpRight size={13} color="var(--accent-cobalt)" style={{ opacity: 0.6, flexShrink: 0 }} />
                       </button>
                     );
-                  })
-                )}
-              </div>
+                  })}
+                </div>
+              )}
             </div>
           )}
 
-          {/* TAB 2: Architectural Synergy & Tech Pairings (NEW) */}
+          {/* TAB 2: Architectural Synergy & Tech Pairings (Multi-Column Grid) */}
           {activeTab === 'synergy' && (
             <div>
-              <div style={{ padding: '0.85rem 1rem', background: 'var(--accent-cobalt-subtle)', border: '1px solid var(--accent-cobalt-border)', borderRadius: '10px', marginBottom: '1rem' }}>
-                <h4 style={{ margin: 0, fontSize: '0.88rem', fontWeight: 750, color: 'var(--accent-cobalt)', display: 'flex', alignItems: 'center', gap: '0.4rem' }}>
+              <div style={{ padding: '0.75rem 1rem', background: 'var(--accent-cobalt-subtle)', border: '1px solid var(--accent-cobalt-border)', borderRadius: '8px', marginBottom: '1rem' }}>
+                <h4 style={{ margin: 0, fontSize: '0.86rem', fontWeight: 750, color: 'var(--accent-cobalt)', display: 'flex', alignItems: 'center', gap: '0.4rem' }}>
                   <Zap size={15} />
                   <span>Architectural Technology Synergy Matrix</span>
                 </h4>
-                <p style={{ margin: '0.2rem 0 0', fontSize: '0.78rem', color: 'var(--text-secondary)' }}>
-                  Discovers which tools and frameworks student developers pair together in their capstone architectures:
+                <p style={{ margin: '0.15rem 0 0', fontSize: '0.76rem', color: 'var(--text-secondary)' }}>
+                  Discovers which tools and frameworks student developers pair together in their capstones:
                 </p>
               </div>
 
-              <div style={{ display: 'flex', flexDirection: 'column', gap: '0.65rem' }}>
+              <div style={{
+                display: 'grid',
+                gridTemplateColumns: viewMode === 'grid' ? 'repeat(auto-fill, minmax(320px, 1fr))' : '1fr',
+                gap: '0.65rem'
+              }}>
                 {analytics.sortedPairs.map((p, idx) => (
                   <div
                     key={p.pair}
                     style={{
                       display: 'flex',
                       alignItems: 'center',
-                      gap: '0.85rem',
-                      padding: '0.75rem 1rem',
-                      borderRadius: '10px',
+                      gap: '0.75rem',
+                      padding: '0.65rem 0.85rem',
+                      borderRadius: '8px',
                       background: 'var(--bg-surface)',
                       border: '1px solid var(--border-subtle)',
                     }}
                   >
-                    <span style={{ fontSize: '0.82rem', fontWeight: 800, color: 'var(--text-muted)', width: '28px' }}>
+                    <span style={{ fontSize: '0.78rem', fontWeight: 800, color: 'var(--text-muted)', width: '24px', flexShrink: 0 }}>
                       #{idx + 1}
                     </span>
 
-                    <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', width: '260px', flexShrink: 0 }}>
-                      <span className="tech-badge" style={{ margin: 0, fontWeight: 700 }}>{p.techA}</span>
-                      <span style={{ color: 'var(--text-muted)', fontSize: '0.8rem', fontWeight: 800 }}>+</span>
-                      <span className="tech-badge" style={{ margin: 0, fontWeight: 700 }}>{p.techB}</span>
+                    <div style={{ flex: 1, minWidth: 0 }}>
+                      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: '0.35rem', marginBottom: '0.3rem' }}>
+                        <div style={{ display: 'flex', alignItems: 'center', gap: '0.35rem', flexWrap: 'wrap' }}>
+                          <span className="tech-badge" style={{ margin: 0, fontWeight: 700, fontSize: '0.72rem', padding: '0.15rem 0.45rem' }}>{p.techA}</span>
+                          <span style={{ color: 'var(--text-muted)', fontSize: '0.74rem', fontWeight: 800 }}>+</span>
+                          <span className="tech-badge" style={{ margin: 0, fontWeight: 700, fontSize: '0.72rem', padding: '0.15rem 0.45rem' }}>{p.techB}</span>
+                        </div>
+                        <span style={{ fontSize: '0.78rem', fontWeight: 700, color: '#a855f7', fontFamily: 'var(--font-mono)', whiteSpace: 'nowrap' }}>
+                          {p.count} proj ({p.percentage}%)
+                        </span>
+                      </div>
+                      <div style={{ height: '5px', background: 'var(--bg-surface-elevated)', borderRadius: '3px', overflow: 'hidden' }}>
+                        <div style={{
+                          width: `${Math.min(100, p.percentage * 2.5)}%`,
+                          height: '100%',
+                          background: 'linear-gradient(90deg, #6366f1, #a855f7)',
+                          borderRadius: '3px'
+                        }} />
+                      </div>
                     </div>
-
-                    <div style={{ flex: 1, height: '8px', background: 'var(--bg-surface-elevated)', borderRadius: '4px', overflow: 'hidden' }}>
-                      <div style={{
-                        width: `${Math.min(100, p.percentage * 2.5)}%`,
-                        height: '100%',
-                        background: 'linear-gradient(90deg, #6366f1, #a855f7)',
-                        borderRadius: '4px'
-                      }} />
-                    </div>
-
-                    <span style={{ fontSize: '0.84rem', fontWeight: 700, color: 'var(--text-primary)', width: '80px', textAlign: 'right', fontFamily: 'var(--font-mono)' }}>
-                      {p.count} projects
-                    </span>
-                    <span style={{ fontSize: '0.78rem', color: 'var(--text-muted)', width: '42px', textAlign: 'right', fontFamily: 'var(--font-mono)' }}>
-                      {p.percentage}%
-                    </span>
                   </div>
                 ))}
               </div>
             </div>
           )}
 
-          {/* TAB 3: Specialization Domains */}
+          {/* TAB 3: Specialization Domains (Multi-Column Grid) */}
           {activeTab === 'domains' && (
             <div>
-              <p style={{ fontSize: '0.82rem', color: 'var(--text-muted)', marginBottom: '0.85rem' }}>
-                All engineering specialization tracks sorted by project distribution:
+              <p style={{ fontSize: '0.8rem', color: 'var(--text-muted)', marginBottom: '0.85rem' }}>
+                All 20 engineering specialization tracks sorted by capstone project distribution:
               </p>
-              <div style={{ display: 'flex', flexDirection: 'column', gap: '0.6rem' }}>
+              <div style={{
+                display: 'grid',
+                gridTemplateColumns: viewMode === 'grid' ? 'repeat(auto-fill, minmax(320px, 1fr))' : '1fr',
+                gap: '0.65rem'
+              }}>
                 {analytics.sortedCategories.map((cat, idx) => (
                   <button
                     key={cat.name}
@@ -639,8 +672,8 @@ Generated live from verified SQLite capstone database.`;
                     style={{
                       display: 'flex',
                       alignItems: 'center',
-                      gap: '0.85rem',
-                      padding: '0.65rem 0.95rem',
+                      gap: '0.75rem',
+                      padding: '0.65rem 0.85rem',
                       borderRadius: '8px',
                       background: 'var(--bg-surface)',
                       border: '1px solid var(--border-subtle)',
@@ -651,54 +684,49 @@ Generated live from verified SQLite capstone database.`;
                     className="analytics-row-btn"
                     title={`Click to filter showcase gallery for ${cat.name}`}
                   >
-                    <span style={{ fontSize: '0.8rem', fontWeight: 700, color: 'var(--text-muted)', width: '24px' }}>
+                    <span style={{ fontSize: '0.78rem', fontWeight: 750, color: 'var(--text-muted)', width: '24px', flexShrink: 0 }}>
                       #{idx + 1}
                     </span>
-                    <strong style={{ fontSize: '0.88rem', color: 'var(--text-primary)', width: '250px', flexShrink: 0 }}>
-                      {cat.name}
-                    </strong>
-                    <div style={{ flex: 1, height: '8px', background: 'var(--bg-surface-elevated)', borderRadius: '4px', overflow: 'hidden' }}>
-                      <div style={{
-                        width: `${Math.min(100, cat.percentage * 3.5)}%`,
-                        height: '100%',
-                        background: 'linear-gradient(90deg, #10b981, #059669)',
-                        borderRadius: '4px'
-                      }} />
+                    <div style={{ flex: 1, minWidth: 0 }}>
+                      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '0.25rem' }}>
+                        <strong style={{ fontSize: '0.85rem', color: 'var(--text-primary)', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
+                          {cat.name}
+                        </strong>
+                        <span style={{ fontSize: '0.78rem', fontWeight: 700, color: 'var(--accent-emerald)', fontFamily: 'var(--font-mono)' }}>
+                          {cat.count} ({cat.percentage}%)
+                        </span>
+                      </div>
+                      <div style={{ height: '5px', background: 'var(--bg-surface-elevated)', borderRadius: '3px', overflow: 'hidden' }}>
+                        <div style={{
+                          width: `${Math.min(100, cat.percentage * 3.5)}%`,
+                          height: '100%',
+                          background: 'linear-gradient(90deg, #10b981, #059669)',
+                          borderRadius: '3px'
+                        }} />
+                      </div>
                     </div>
-                    <span style={{ fontSize: '0.8rem', color: 'var(--text-muted)', width: '85px', textAlign: 'right' }}>
-                      {cat.avgVotes}★ avg
-                    </span>
-                    <span style={{ fontSize: '0.84rem', fontWeight: 700, color: 'var(--text-primary)', width: '50px', textAlign: 'right', fontFamily: 'var(--font-mono)' }}>
-                      {cat.count}
-                    </span>
-                    <span style={{ fontSize: '0.78rem', color: 'var(--text-muted)', width: '42px', textAlign: 'right', fontFamily: 'var(--font-mono)' }}>
-                      {cat.percentage}%
-                    </span>
-                    <ArrowUpRight size={14} color="var(--accent-emerald)" style={{ opacity: 0.7 }} />
+                    <ArrowUpRight size={13} color="var(--accent-emerald)" style={{ opacity: 0.6, flexShrink: 0 }} />
                   </button>
                 ))}
               </div>
             </div>
           )}
 
-          {/* TAB 4: Ecosystems & Difficulty (Donut Chart + Engineering Layers) */}
+          {/* TAB 4: Ecosystems & Difficulty (Side-by-Side 2-Column Split) */}
           {activeTab === 'ecosystems' && (
-            <div style={{ display: 'grid', gap: '1.25rem' }}>
-              {/* Difficulty Donut Chart & Cards */}
-              <div style={{ background: 'var(--bg-surface)', border: '1px solid var(--border-subtle)', borderRadius: '12px', padding: '1.2rem' }}>
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(360px, 1fr))', gap: '1.25rem' }}>
+              {/* Left Column: Difficulty Donut Chart */}
+              <div style={{ background: 'var(--bg-surface)', border: '1px solid var(--border-subtle)', borderRadius: '12px', padding: '1.2rem', display: 'flex', flexDirection: 'column', justifyContent: 'space-between' }}>
                 <h4 style={{ fontSize: '0.92rem', fontWeight: 750, color: 'var(--text-primary)', margin: '0 0 1rem' }}>
-                  Project Complexity &amp; Difficulty Distribution ({selectedDomainFilter})
+                  Project Complexity &amp; Difficulty Breakdown
                 </h4>
-                <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-around', flexWrap: 'wrap', gap: '1.5rem' }}>
+                <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '1.5rem', flexWrap: 'wrap', margin: 'auto 0' }}>
                   {/* SVG Donut Chart */}
                   <div style={{ position: 'relative', width: '130px', height: '130px', display: 'grid', placeItems: 'center' }}>
                     <svg width="130" height="130" viewBox="0 0 100 100" style={{ transform: 'rotate(-90deg)' }}>
                       <circle cx="50" cy="50" r="40" fill="transparent" stroke="var(--bg-surface-elevated)" strokeWidth="12" />
-                      {/* Advanced Arc */}
                       <circle cx="50" cy="50" r="40" fill="transparent" stroke="#f43f5e" strokeWidth="12" strokeDasharray={donutData.advStroke} strokeDashoffset={donutData.advOffset} />
-                      {/* Intermediate Arc */}
                       <circle cx="50" cy="50" r="40" fill="transparent" stroke="#2563eb" strokeWidth="12" strokeDasharray={donutData.intStroke} strokeDashoffset={donutData.intOffset} />
-                      {/* Beginner Arc */}
                       <circle cx="50" cy="50" r="40" fill="transparent" stroke="#10b981" strokeWidth="12" strokeDasharray={donutData.begStroke} strokeDashoffset={donutData.begOffset} />
                     </svg>
                     <div style={{ position: 'absolute', textAlign: 'center' }}>
@@ -708,32 +736,29 @@ Generated live from verified SQLite capstone database.`;
                   </div>
 
                   {/* Legend Cards */}
-                  <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(130px, 1fr))', gap: '0.75rem', flex: 1 }}>
-                    <div style={{ padding: '0.75rem 1rem', background: 'var(--bg-surface-elevated)', borderRadius: '10px', borderLeft: '4px solid #f43f5e' }}>
-                      <span style={{ fontSize: '0.74rem', fontWeight: 700, color: '#f43f5e' }}>Advanced</span>
-                      <div style={{ fontSize: '1.25rem', fontWeight: 800, color: 'var(--text-primary)', margin: '0.1rem 0' }}>{donutData.adv}</div>
-                      <span style={{ fontSize: '0.72rem', color: 'var(--text-muted)' }}>{donutData.advPct}% of catalog</span>
+                  <div style={{ display: 'grid', gap: '0.5rem', minWidth: '150px' }}>
+                    <div style={{ padding: '0.55rem 0.85rem', background: 'var(--bg-surface-elevated)', borderRadius: '8px', borderLeft: '4px solid #f43f5e' }}>
+                      <div style={{ fontSize: '0.72rem', fontWeight: 700, color: '#f43f5e' }}>Advanced: {donutData.adv}</div>
+                      <div style={{ fontSize: '0.68rem', color: 'var(--text-muted)' }}>{donutData.advPct}% of catalog</div>
                     </div>
-                    <div style={{ padding: '0.75rem 1rem', background: 'var(--bg-surface-elevated)', borderRadius: '10px', borderLeft: '4px solid #2563eb' }}>
-                      <span style={{ fontSize: '0.74rem', fontWeight: 700, color: '#2563eb' }}>Intermediate</span>
-                      <div style={{ fontSize: '1.25rem', fontWeight: 800, color: 'var(--text-primary)', margin: '0.1rem 0' }}>{donutData.int}</div>
-                      <span style={{ fontSize: '0.72rem', color: 'var(--text-muted)' }}>{donutData.intPct}% of catalog</span>
+                    <div style={{ padding: '0.55rem 0.85rem', background: 'var(--bg-surface-elevated)', borderRadius: '8px', borderLeft: '4px solid #2563eb' }}>
+                      <div style={{ fontSize: '0.72rem', fontWeight: 700, color: '#2563eb' }}>Intermediate: {donutData.int}</div>
+                      <div style={{ fontSize: '0.68rem', color: 'var(--text-muted)' }}>{donutData.intPct}% of catalog</div>
                     </div>
-                    <div style={{ padding: '0.75rem 1rem', background: 'var(--bg-surface-elevated)', borderRadius: '10px', borderLeft: '4px solid #10b981' }}>
-                      <span style={{ fontSize: '0.74rem', fontWeight: 700, color: '#10b981' }}>Beginner</span>
-                      <div style={{ fontSize: '1.25rem', fontWeight: 800, color: 'var(--text-primary)', margin: '0.1rem 0' }}>{donutData.beg}</div>
-                      <span style={{ fontSize: '0.72rem', color: 'var(--text-muted)' }}>{donutData.begPct}% of catalog</span>
+                    <div style={{ padding: '0.55rem 0.85rem', background: 'var(--bg-surface-elevated)', borderRadius: '8px', borderLeft: '4px solid #10b981' }}>
+                      <div style={{ fontSize: '0.72rem', fontWeight: 700, color: '#10b981' }}>Beginner: {donutData.beg}</div>
+                      <div style={{ fontSize: '0.68rem', color: 'var(--text-muted)' }}>{donutData.begPct}% of catalog</div>
                     </div>
                   </div>
                 </div>
               </div>
 
-              {/* Engineering Ecosystem Share */}
-              <div>
-                <h4 style={{ fontSize: '0.92rem', fontWeight: 750, color: 'var(--text-primary)', marginBottom: '0.65rem' }}>
-                  Engineering Ecosystem Share Breakdown
+              {/* Right Column: Engineering Ecosystem Share */}
+              <div style={{ background: 'var(--bg-surface)', border: '1px solid var(--border-subtle)', borderRadius: '12px', padding: '1.2rem' }}>
+                <h4 style={{ fontSize: '0.92rem', fontWeight: 750, color: 'var(--text-primary)', margin: '0 0 0.85rem' }}>
+                  Engineering Ecosystem Share
                 </h4>
-                <div style={{ display: 'grid', gap: '0.6rem' }}>
+                <div style={{ display: 'grid', gap: '0.55rem' }}>
                   {analytics.sortedEcosystems.map((eco) => {
                     const rule = ECOSYSTEM_RULES.find((r) => r.name === eco.name) || {
                       color: 'var(--text-muted)',
@@ -746,29 +771,26 @@ Generated live from verified SQLite capstone database.`;
                         style={{
                           display: 'flex',
                           alignItems: 'center',
-                          gap: '0.85rem',
-                          padding: '0.75rem 1rem',
-                          borderRadius: '10px',
-                          background: 'var(--bg-surface)',
+                          gap: '0.75rem',
+                          padding: '0.6rem 0.85rem',
+                          borderRadius: '8px',
+                          background: 'var(--bg-surface-elevated)',
                           border: '1px solid var(--border-subtle)'
                         }}
                       >
-                        <strong style={{ fontSize: '0.88rem', color: 'var(--text-primary)', width: '230px', flexShrink: 0 }}>
+                        <strong style={{ fontSize: '0.84rem', color: 'var(--text-primary)', width: '180px', flexShrink: 0 }}>
                           {eco.name}
                         </strong>
-                        <div style={{ flex: 1, height: '8px', background: 'var(--bg-surface-elevated)', borderRadius: '4px', overflow: 'hidden' }}>
+                        <div style={{ flex: 1, height: '6px', background: 'var(--bg-surface)', borderRadius: '3px', overflow: 'hidden' }}>
                           <div style={{
                             width: `${eco.percentage}%`,
                             height: '100%',
                             background: rule.color,
-                            borderRadius: '4px'
+                            borderRadius: '3px'
                           }} />
                         </div>
-                        <span style={{ fontSize: '0.82rem', fontWeight: 700, color: 'var(--text-primary)', width: '60px', textAlign: 'right', fontFamily: 'var(--font-mono)' }}>
-                          {eco.count} tags
-                        </span>
-                        <span style={{ fontSize: '0.78rem', color: 'var(--text-muted)', width: '40px', textAlign: 'right', fontFamily: 'var(--font-mono)' }}>
-                          {eco.percentage}%
+                        <span style={{ fontSize: '0.78rem', fontWeight: 700, color: 'var(--text-primary)', width: '65px', textAlign: 'right', fontFamily: 'var(--font-mono)' }}>
+                          {eco.count} ({eco.percentage}%)
                         </span>
                       </div>
                     );
@@ -778,13 +800,17 @@ Generated live from verified SQLite capstone database.`;
             </div>
           )}
 
-          {/* TAB 5: Top 5 Highest-Rated Capstones Leaderboard */}
+          {/* TAB 5: Top 8 Highest-Rated Capstones Leaderboard (Multi-Column Grid) */}
           {activeTab === 'leaderboard' && (
             <div>
-              <p style={{ fontSize: '0.82rem', color: 'var(--text-muted)', marginBottom: '0.85rem' }}>
+              <p style={{ fontSize: '0.8rem', color: 'var(--text-muted)', marginBottom: '0.85rem' }}>
                 Highest-appreciated student projects ranked by peer upvotes:
               </p>
-              <div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
+              <div style={{
+                display: 'grid',
+                gridTemplateColumns: viewMode === 'grid' ? 'repeat(auto-fill, minmax(360px, 1fr))' : '1fr',
+                gap: '0.75rem'
+              }}>
                 {analytics.topProjects.map((p, idx) => (
                   <div
                     key={p.id}
@@ -792,40 +818,39 @@ Generated live from verified SQLite capstone database.`;
                       display: 'flex',
                       alignItems: 'center',
                       justifyContent: 'space-between',
-                      padding: '0.85rem 1.15rem',
+                      padding: '0.75rem 1rem',
                       background: 'var(--bg-surface)',
                       border: '1px solid var(--border-subtle)',
                       borderRadius: '10px',
-                      gap: '0.85rem',
-                      flexWrap: 'wrap'
+                      gap: '0.75rem',
                     }}
                   >
-                    <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', flex: 1, minWidth: '240px' }}>
-                      <span style={{ fontSize: '1.1rem', fontWeight: 800, width: '28px' }}>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '0.65rem', flex: 1, minWidth: 0 }}>
+                      <span style={{ fontSize: '1rem', fontWeight: 800, width: '26px', flexShrink: 0 }}>
                         {idx === 0 ? '🥇' : idx === 1 ? '🥈' : idx === 2 ? '🥉' : `#${idx + 1}`}
                       </span>
-                      <div>
-                        <h4 style={{ margin: 0, fontSize: '0.92rem', fontWeight: 750, color: 'var(--text-primary)' }}>
+                      <div style={{ minWidth: 0, flex: 1 }}>
+                        <h4 style={{ margin: 0, fontSize: '0.88rem', fontWeight: 750, color: 'var(--text-primary)', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
                           {p.title}
                         </h4>
-                        <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', marginTop: '0.2rem', fontSize: '0.76rem', color: 'var(--text-muted)' }}>
-                          <span>By {p.author_display_name || p.student_name || 'Student Author'}</span>
+                        <div style={{ display: 'flex', alignItems: 'center', gap: '0.4rem', marginTop: '0.15rem', fontSize: '0.72rem', color: 'var(--text-muted)' }}>
+                          <span style={{ whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{p.author_display_name || p.student_name || 'Student Author'}</span>
                           <span>•</span>
-                          <span className="category-tag-badge" style={{ padding: '0.1rem 0.4rem', fontSize: '0.68rem' }}>{p.category}</span>
+                          <span className="category-tag-badge" style={{ padding: '0.05rem 0.35rem', fontSize: '0.65rem' }}>{p.category}</span>
                         </div>
                       </div>
                     </div>
 
-                    <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
-                      <div style={{ display: 'flex', alignItems: 'center', gap: '0.35rem', background: 'var(--accent-indigo-subtle)', color: 'var(--accent-indigo)', padding: '0.3rem 0.65rem', borderRadius: '6px', fontSize: '0.82rem', fontWeight: 700 }}>
-                        <Flame size={14} color="#f59e0b" />
-                        <span>{p.upvote_count || 0} votes</span>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', flexShrink: 0 }}>
+                      <div style={{ display: 'flex', alignItems: 'center', gap: '0.25rem', background: 'var(--accent-indigo-subtle)', color: 'var(--accent-indigo)', padding: '0.25rem 0.5rem', borderRadius: '5px', fontSize: '0.78rem', fontWeight: 700 }}>
+                        <Flame size={13} color="#f59e0b" />
+                        <span>{p.upvote_count || 0}</span>
                       </div>
                       <button
                         type="button"
                         className="btn-primary"
                         onClick={() => onOpenProject?.(p)}
-                        style={{ padding: '0.35rem 0.8rem', fontSize: '0.8rem' }}
+                        style={{ padding: '0.25rem 0.65rem', fontSize: '0.76rem' }}
                       >
                         Inspect
                       </button>
@@ -838,19 +863,19 @@ Generated live from verified SQLite capstone database.`;
         </div>
 
         {/* Modal Footer */}
-        <div className="modal-footer" style={{ padding: '0.85rem 1.6rem', display: 'flex', justifyContent: 'space-between', alignItems: 'center', borderTop: '1px solid var(--border-subtle)', flexShrink: 0 }}>
+        <div className="modal-footer" style={{ padding: '0.75rem 1.6rem', display: 'flex', justifyContent: 'space-between', alignItems: 'center', borderTop: '1px solid var(--border-subtle)', flexShrink: 0 }}>
           <button
             type="button"
             className="btn-secondary"
             onClick={handleCopySummary}
-            style={{ display: 'inline-flex', alignItems: 'center', gap: '0.4rem', fontSize: '0.78rem' }}
+            style={{ display: 'inline-flex', alignItems: 'center', gap: '0.4rem', fontSize: '0.76rem' }}
             title="Copy academic analytics summary to clipboard for reports or presentations"
           >
             {copied ? <Check size={14} color="var(--accent-emerald)" /> : <Copy size={14} />}
             <span>{copied ? 'Report Copied to Clipboard!' : 'Copy Evaluation Report'}</span>
           </button>
 
-          <button type="button" className="btn-secondary" onClick={onClose}>
+          <button type="button" className="btn-secondary" onClick={onClose} style={{ fontSize: '0.82rem' }}>
             Close
           </button>
         </div>

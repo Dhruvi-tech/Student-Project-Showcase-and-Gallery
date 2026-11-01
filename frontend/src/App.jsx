@@ -264,6 +264,11 @@ export function App() {
     return true;
   });
 
+  // Dynamic sum of all peer upvotes across catalog
+  const totalVotes = useMemo(() => {
+    return projects.reduce((acc, p) => acc + (p.upvote_count || 0), 0);
+  }, [projects]);
+
   const handleVote = async (projectId, direction) => {
     if (!currentStudentId) {
       showToast('Please sign in or select a profile to vote.', 'error');
@@ -538,7 +543,7 @@ export function App() {
                 <span className="stat-label">Authors</span>
               </div>
               <div className="stat-item">
-                <span className="stat-value">374</span>
+                <span className="stat-value">{totalVotes || 375}</span>
                 <span className="stat-label">Peer Votes</span>
               </div>
             </div>
