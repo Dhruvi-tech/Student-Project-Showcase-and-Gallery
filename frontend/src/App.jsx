@@ -48,19 +48,21 @@ export function App() {
   const [sortOption, setSortOption] = useState('upvotes');
 
   const handleSelectCategories = (cats) => {
-    const sanitized = !cats || cats.length === 0 ? ['All'] : cats;
-    setSelectedCategories(sanitized);
-    setSelectedCategory(sanitized.length === 1 ? sanitized[0] : (sanitized.includes('All') ? 'All' : sanitized[0]));
+    const next = Array.isArray(cats) ? cats : ['All'];
+    setSelectedCategories(next);
+    setSelectedCategory(next.length === 1 ? next[0] : (next.includes('All') ? 'All' : (next.length === 0 ? 'None' : next.join(', '))));
     setMyProjectsMode(false);
     setSavedProjectsMode(false);
     setRecommendationsMode(false);
 
-    if (sanitized.includes('All')) {
+    if (next.includes('All')) {
       showToast('Showing all 20 technical domains (320 projects)', 'info');
-    } else if (sanitized.length === 1) {
-      showToast(`Filtering by domain: ${sanitized[0]}`, 'info');
+    } else if (next.length === 0) {
+      showToast('All domains cleared. Select 1 or 2 options to filter.', 'info');
+    } else if (next.length === 1) {
+      showToast(`Filtering by domain: ${next[0]}`, 'info');
     } else {
-      showToast(`Filtering by ${sanitized.length} selected domains`, 'info');
+      showToast(`Filtering by ${next.length} selected domains`, 'info');
     }
 
     setTimeout(() => {
@@ -828,35 +830,64 @@ export function App() {
         {/* Empty State */}
         {!loading && !error && visibleProjects.length === 0 && (
           <div className="state-box empty-box">
-            <FolderSearch size={40} color="var(--text-muted)" />
-            <h3 className="state-title">No Projects Found</h3>
-            <p className="state-text">
-              {searchQuery
-                ? `No projects matched "${searchQuery}". Try a different keyword.`
-                : savedProjectsMode
-                ? 'You have not bookmarked any projects yet. Click the bookmark icon on any card to save it.'
-                : myProjectsMode
-                ? 'You have not published any projects yet. Click "Publish Project" to submit your capstone!'
-                : recommendationsMode
-                ? 'No projects matched this specific combination of likes. Click "Customize What I Like" above to add more topics!'
-                : selectedTech !== 'All'
-                ? `No projects found using "${selectedTech}".`
-                : 'No projects match the current criteria.'}
-            </p>
-            <button
-              className="btn-secondary"
-              onClick={() => {
-                setSelectedCategory('All');
-                setSelectedTech('All');
-                setSearchQuery('');
-                setMyProjectsMode(false);
-                setSavedProjectsMode(false);
-                setRecommendationsMode(false);
-              }}
-              style={{ marginTop: '1rem' }}
-            >
-              Reset Filters
-            </button>
+            {selectedCategories.length === 0 ? (
+              <>
+                <Layers size={42} color="var(--accent-cobalt)" />
+                <h3 className="state-title">All Domains Cleared (0 Selected)</h3>
+                <p className="state-text">
+                  You cleared all domain filters. Pick 1 or 2 domains from the top <strong>Domains</strong> menu or choose a quick 2-domain pair below:
+                </p>
+                <div style={{ display: 'flex', flexWrap: 'wrap', gap: '0.55rem', justifyContent: 'center', marginTop: '1rem' }}>
+                  <button className="btn-secondary btn-sm" onClick={() => handleSelectCategories(['Web Development & Full Stack', 'Cloud Computing & DevOps'])}>
+                    🌐 Web + Cloud (2)
+                  </button>
+                  <button className="btn-secondary btn-sm" onClick={() => handleSelectCategories(['AI & Machine Learning', 'Generative AI & AI Agents'])}>
+                    🤖 AI + GenAI (2)
+                  </button>
+                  <button className="btn-secondary btn-sm" onClick={() => handleSelectCategories(['Cybersecurity', 'Software Engineering & Developer Tools'])}>
+                    🛡️ Cyber + Systems (2)
+                  </button>
+                  <button className="btn-secondary btn-sm" onClick={() => handleSelectCategories(['Mobile App Development', 'Internet of Things'])}>
+                    📱 Mobile + IoT (2)
+                  </button>
+                  <button className="btn-primary btn-sm" onClick={() => handleSelectCategories(['All'])}>
+                    Select All 20 Domains (320 Projects)
+                  </button>
+                </div>
+              </>
+            ) : (
+              <>
+                <FolderSearch size={40} color="var(--text-muted)" />
+                <h3 className="state-title">No Projects Found</h3>
+                <p className="state-text">
+                  {searchQuery
+                    ? `No projects matched "${searchQuery}". Try a different keyword.`
+                    : savedProjectsMode
+                    ? 'You have not bookmarked any projects yet. Click the bookmark icon on any card to save it.'
+                    : myProjectsMode
+                    ? 'You have not published any projects yet. Click "Publish Project" to submit your capstone!'
+                    : recommendationsMode
+                    ? 'No projects matched this specific combination of likes. Click "Customize What I Like" above to add more topics!'
+                    : selectedTech !== 'All'
+                    ? `No projects found using "${selectedTech}".`
+                    : 'No projects match the current criteria.'}
+                </p>
+                <button
+                  className="btn-secondary"
+                  onClick={() => {
+                    handleSelectCategories(['All']);
+                    setSelectedTech('All');
+                    setSearchQuery('');
+                    setMyProjectsMode(false);
+                    setSavedProjectsMode(false);
+                    setRecommendationsMode(false);
+                  }}
+                  style={{ marginTop: '1rem' }}
+                >
+                  Reset Filters
+                </button>
+              </>
+            )}
           </div>
         )}
 

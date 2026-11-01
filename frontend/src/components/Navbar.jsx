@@ -167,9 +167,8 @@ export function Navbar({
     } else if (selectedCategories.includes(domainName)) {
       // Uncheck
       next = selectedCategories.filter((c) => c !== domainName);
-      if (next.length === 0) next = ['All'];
     } else {
-      // Check additional domain
+      // Check additional domain (supports 1, 2, or multiple options)
       next = [...selectedCategories, domainName];
       if (next.length === ALL_DOMAINS.length) next = ['All'];
     }
@@ -182,6 +181,25 @@ export function Navbar({
 
   const clearAllDomains = () => {
     onSelectCategories?.([]);
+  };
+
+  const getDomainsButtonLabel = () => {
+    if (selectedCategories.includes('All')) {
+      return 'Domains (All 20)';
+    }
+    if (selectedCategories.length === 0) {
+      return 'Domains (0 selected)';
+    }
+    if (selectedCategories.length === 1) {
+      const name = selectedCategories[0];
+      return name.length > 16 ? name.slice(0, 14) + '…' : name;
+    }
+    if (selectedCategories.length === 2) {
+      const short1 = selectedCategories[0].split(' ')[0];
+      const short2 = selectedCategories[1].split(' ')[0];
+      return `${short1} + ${short2} (2)`;
+    }
+    return `Domains (${selectedCategories.length})`;
   };
 
   const filteredDomains = ALL_DOMAINS.filter((d) =>
@@ -249,13 +267,7 @@ export function Navbar({
               title="Browse and tick any of the 20 technical domains"
             >
               <Layers size={14} />
-              <span>
-                {selectedCategories.length === 0 || selectedCategories.includes('All')
-                  ? 'Domains (All 20)'
-                  : selectedCategories.length === 1
-                  ? selectedCategories[0].length > 16 ? selectedCategories[0].slice(0, 14) + '…' : selectedCategories[0]
-                  : `Domains (${selectedCategories.length})`}
-              </span>
+              <span>{getDomainsButtonLabel()}</span>
               <ChevronDown size={13} className={`dropdown-caret ${isDomainsDropdownOpen ? 'open' : ''}`} />
             </button>
 
@@ -281,7 +293,7 @@ export function Navbar({
                     Tick the domains you want to view across our 320 peer projects:
                   </p>
 
-                  {/* Search inside popover */}
+                  {/* Search and Action Bar */}
                   <div className="popover-search-row">
                     <div className="popover-search-box">
                       <Search size={13} />
@@ -300,16 +312,59 @@ export function Navbar({
                     </div>
 
                     <div className="popover-quick-actions">
-                      <button type="button" className="quick-action-link" onClick={selectAllDomains}>
-                        <CheckSquare size={12} />
-                        <span>Select All 20</span>
-                      </button>
-                      <span className="dot-sep">•</span>
-                      <button type="button" className="quick-action-link" onClick={clearAllDomains}>
-                        <Square size={12} />
+                      <button
+                        type="button"
+                        className="quick-action-link btn-clear-pill"
+                        onClick={clearAllDomains}
+                        title="Clear all domain ticks so you can pick 1 or 2 options"
+                      >
+                        <Square size={13} />
                         <span>Clear All</span>
                       </button>
+                      <span className="dot-sep">•</span>
+                      <button
+                        type="button"
+                        className="quick-action-link btn-select-pill"
+                        onClick={selectAllDomains}
+                        title="Select all 20 domains"
+                      >
+                        <CheckSquare size={13} />
+                        <span>Select All 20</span>
+                      </button>
                     </div>
+                  </div>
+
+                  {/* Quick 2-Domain Options */}
+                  <div className="popover-presets-row">
+                    <span className="preset-row-label">Quick 2-Domain Picks:</span>
+                    <button
+                      type="button"
+                      className="preset-chip-btn"
+                      onClick={() => onSelectCategories?.(['Web Development & Full Stack', 'Cloud Computing & DevOps'])}
+                    >
+                      🌐 Web + Cloud (2)
+                    </button>
+                    <button
+                      type="button"
+                      className="preset-chip-btn"
+                      onClick={() => onSelectCategories?.(['AI & Machine Learning', 'Generative AI & AI Agents'])}
+                    >
+                      🤖 AI + GenAI (2)
+                    </button>
+                    <button
+                      type="button"
+                      className="preset-chip-btn"
+                      onClick={() => onSelectCategories?.(['Cybersecurity', 'Software Engineering & Developer Tools'])}
+                    >
+                      🛡️ Cyber + Systems (2)
+                    </button>
+                    <button
+                      type="button"
+                      className="preset-chip-btn"
+                      onClick={() => onSelectCategories?.(['Mobile App Development', 'Internet of Things'])}
+                    >
+                      📱 Mobile + IoT (2)
+                    </button>
                   </div>
                 </div>
 
@@ -317,19 +372,20 @@ export function Navbar({
                 <div className="popover-domains-grid">
                   {filteredDomains.map((domain) => {
                     const Icon = domain.icon;
-                    const isTicked = selectedCategories.includes('All') || selectedCategories.includes(domain.name);
-                    const isExplicitlyTicked = !selectedCategories.includes('All') && selectedCategories.includes(domain.name);
+                    const isAllSelected = selectedCategories.includes('All');
+                    const isExplicitlyTicked = !isAllSelected && selectedCategories.includes(domain.name);
+                    const isChecked = isAllSelected || isExplicitlyTicked;
 
                     return (
                       <div
                         key={domain.name}
-                        className={`domain-tick-row ${isExplicitlyTicked ? 'is-ticked' : selectedCategories.includes('All') ? 'is-all' : ''}`}
+                        className={`domain-tick-row ${isExplicitlyTicked ? 'is-ticked' : isAllSelected ? 'is-all' : ''}`}
                         onClick={() => handleToggleDomain(domain.name)}
                       >
                         <div className="tick-box-indicator">
                           {isExplicitlyTicked ? (
                             <CheckSquare size={16} className="tick-icon-checked" />
-                          ) : selectedCategories.includes('All') ? (
+                          ) : isAllSelected ? (
                             <CheckSquare size={16} className="tick-icon-all" />
                           ) : (
                             <Square size={16} className="tick-icon-empty" />
@@ -351,20 +407,28 @@ export function Navbar({
                 {/* Popover Footer */}
                 <div className="popover-footer">
                   <div className="popover-status-text">
-                    {selectedCategories.includes('All') || selectedCategories.length === 0
-                      ? 'Showing all 320 projects across 20 domains'
-                      : `Showing projects from ${selectedCategories.length} selected domain${selectedCategories.length > 1 ? 's' : ''}`}
+                    {selectedCategories.includes('All')
+                      ? '✓ All 20 domains selected (320 projects)'
+                      : selectedCategories.length === 0
+                      ? '0 domains selected • Tick 1 or 2 options above'
+                      : `✓ ${selectedCategories.length} domain${selectedCategories.length > 1 ? 's' : ''} selected`}
                   </div>
                   <div className="popover-footer-actions">
                     <button
                       type="button"
                       className="btn-secondary btn-sm"
-                      onClick={() => {
-                        selectAllDomains();
-                        setIsDomainsDropdownOpen(false);
-                      }}
+                      onClick={clearAllDomains}
+                      title="Clear all ticks"
                     >
-                      Reset (All 20)
+                      Clear All
+                    </button>
+                    <button
+                      type="button"
+                      className="btn-secondary btn-sm"
+                      onClick={selectAllDomains}
+                      title="Select all 20 domains"
+                    >
+                      Select All 20
                     </button>
                     <button
                       type="button"
@@ -372,7 +436,7 @@ export function Navbar({
                       onClick={() => setIsDomainsDropdownOpen(false)}
                     >
                       <Check size={13} />
-                      <span>Apply & View</span>
+                      <span>Done / View Projects</span>
                     </button>
                   </div>
                 </div>

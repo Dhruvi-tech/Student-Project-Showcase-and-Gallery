@@ -3404,6 +3404,72 @@ a.author-profile-link:hover { color: var(--accent-cobalt); text-decoration: unde
   font-size: 0.7rem;
 }
 
+.btn-clear-pill {
+  color: var(--accent-rose, #e11d48);
+  border: 1px solid rgba(225, 29, 72, 0.25);
+  background: rgba(225, 29, 72, 0.05);
+  border-radius: 6px;
+  padding: 0.25rem 0.55rem;
+}
+
+.btn-clear-pill:hover {
+  background: rgba(225, 29, 72, 0.12);
+  color: #be123c;
+}
+
+.btn-select-pill {
+  color: var(--accent-cobalt, #2563eb);
+  border: 1px solid rgba(37, 99, 235, 0.25);
+  background: rgba(37, 99, 235, 0.05);
+  border-radius: 6px;
+  padding: 0.25rem 0.55rem;
+}
+
+.btn-select-pill:hover {
+  background: rgba(37, 99, 235, 0.12);
+}
+
+.popover-presets-row {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 0.4rem;
+  margin-top: 0.65rem;
+  padding-top: 0.65rem;
+  border-top: 1px dashed var(--border-subtle);
+}
+
+.preset-row-label {
+  font-size: 0.73rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  color: var(--text-muted);
+  letter-spacing: 0.04em;
+  margin-right: 0.2rem;
+}
+
+.preset-chip-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.25rem;
+  font-size: 0.74rem;
+  font-weight: 600;
+  padding: 0.22rem 0.55rem;
+  border-radius: 9999px;
+  background: var(--bg-surface);
+  border: 1px solid var(--border-subtle);
+  color: var(--text-secondary);
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.preset-chip-btn:hover {
+  background: rgba(37, 99, 235, 0.08);
+  border-color: var(--accent-cobalt);
+  color: var(--accent-cobalt);
+  transform: translateY(-1px);
+}
+
 .popover-domains-grid {
   display: grid;
   grid-template-columns: repeat(2, 1fr);
