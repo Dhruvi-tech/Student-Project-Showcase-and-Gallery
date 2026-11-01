@@ -47,10 +47,18 @@ export function App() {
   const [selectedTech, setSelectedTech] = useState('All');
   const [sortOption, setSortOption] = useState('upvotes');
 
-  const handleSelectCategories = (cats) => {
+  const handleSelectCategories = (cats, shouldScroll = false) => {
     const next = Array.isArray(cats) ? cats : ['All'];
     setSelectedCategories(next);
-    setSelectedCategory(next.length === 1 ? next[0] : (next.includes('All') ? 'All' : (next.length === 0 ? 'None' : next.join(', '))));
+    setSelectedCategory(
+      next.includes('All') || next.length >= 20
+        ? 'All'
+        : next.length === 0
+        ? 'None'
+        : next.length === 1
+        ? next[0]
+        : next.join(', ')
+    );
     setMyProjectsMode(false);
     setSavedProjectsMode(false);
     setRecommendationsMode(false);
@@ -65,9 +73,11 @@ export function App() {
       showToast(`Filtering by ${next.length} selected domains`, 'info');
     }
 
-    setTimeout(() => {
-      document.getElementById('gallery')?.scrollIntoView({ behavior: 'smooth', block: 'start' });
-    }, 50);
+    if (shouldScroll) {
+      setTimeout(() => {
+        document.getElementById('gallery')?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      }, 50);
+    }
   };
 
   // Development Identity Personas with synchronous localStorage persistence
@@ -378,14 +388,15 @@ export function App() {
         return;
       }
 
+      // Always load all 320 projects across all 20 domains into memory so multi-domain filtering is 100% instant with zero network lag
       const res = await api.getProjects({
-            sort: sortOption,
-            category: selectedCategory,
-            search: searchQuery,
-            studentId: currentStudentId,
-            limit: 200,
-            offset: 0,
-          });
+        sort: sortOption,
+        category: 'All',
+        search: searchQuery,
+        studentId: currentStudentId,
+        limit: 350,
+        offset: 0,
+      });
 
       let allProjects = res.data || [];
       const resultCount = res.total ?? allProjects.length;
@@ -393,23 +404,23 @@ export function App() {
       while (!myProjectsMode && !savedProjectsMode && !recommendationsMode && allProjects.length < resultCount) {
         const nextPage = await api.getProjects({
           sort: sortOption,
-          category: selectedCategory,
+          category: 'All',
           search: searchQuery,
           studentId: currentStudentId,
-          limit: 200,
+          limit: 350,
           offset: allProjects.length,
         });
         if (!nextPage.data?.length) break;
         allProjects = [...allProjects, ...nextPage.data];
       }
       setProjects(allProjects);
-      setTotalCount(resultCount);
+      setTotalCount(allProjects.length);
     } catch (err) {
       setError(err.message || 'Failed to load projects');
     } finally {
       setLoading(false);
     }
-  }, [sortOption, selectedCategory, searchQuery, currentStudentId, myProjectsMode, savedProjectsMode, recommendationsMode, forYouPreferences]);
+  }, [sortOption, searchQuery, currentStudentId, myProjectsMode, savedProjectsMode, recommendationsMode, forYouPreferences]);
 
   // Refetch when filters or identity change
   useEffect(() => {
@@ -420,23 +431,28 @@ export function App() {
   }, [loadProjects]);
 
   // Filter projects in-memory by Technology and Multi-ticked Categories
-  const visibleProjects = projects.filter((project) => {
-    // 1. Multi-ticked Categories filter (from top navbar domains menu)
-    if (selectedCategories.length > 0 && !selectedCategories.includes('All')) {
-      if (!selectedCategories.includes(project.category)) return false;
-    } else if (selectedCategory && selectedCategory !== 'All') {
-      if (project.category !== selectedCategory) return false;
+  const visibleProjects = useMemo(() => {
+    // If Clear All clicked (0 domains selected), return empty list
+    if (selectedCategories.length === 0) {
+      return [];
     }
 
-    // 2. Tech Stack filter
-    if (selectedTech && selectedTech !== 'All') {
-      const matchTech = (project.tech_stacks || []).some((t) =>
-        t.toLowerCase().includes(selectedTech.toLowerCase())
-      );
-      if (!matchTech) return false;
-    }
-    return true;
-  });
+    return projects.filter((project) => {
+      // 1. Multi-ticked Categories filter (from top navbar domains menu)
+      if (!selectedCategories.includes('All')) {
+        if (!selectedCategories.includes(project.category)) return false;
+      }
+
+      // 2. Tech Stack filter
+      if (selectedTech && selectedTech !== 'All') {
+        const matchTech = (project.tech_stacks || []).some((t) =>
+          t.toLowerCase().includes(selectedTech.toLowerCase())
+        );
+        if (!matchTech) return false;
+      }
+      return true;
+    });
+  }, [projects, selectedCategories, selectedTech]);
 
   // Dynamic sum of all peer upvotes across catalog
   const totalVotes = useMemo(() => {
@@ -655,6 +671,7 @@ export function App() {
         activeNav={activeNav}
         selectedCategories={selectedCategories}
         onSelectCategories={handleSelectCategories}
+        matchingCount={visibleProjects.length}
       />
 
       {/* Hero Section with Quick Actions */}
@@ -781,11 +798,13 @@ export function App() {
           searchQuery={searchQuery}
           onSearchChange={setSearchQuery}
           selectedCategory={selectedCategory}
+          selectedCategories={selectedCategories}
           onCategoryChange={(cat) => {
-            setSelectedCategory(cat);
-            setMyProjectsMode(false);
-            setSavedProjectsMode(false);
-            setRecommendationsMode(false);
+            if (cat === 'All') {
+              handleSelectCategories(['All']);
+            } else {
+              handleSelectCategories([cat]);
+            }
           }}
           sortOption={sortOption}
           onSortChange={setSortOption}
@@ -795,7 +814,7 @@ export function App() {
           onTechChange={setSelectedTech}
           onOpenExport={() => setIsExportModalOpen(true)}
           onResetFilters={() => {
-            setSelectedCategory('All');
+            handleSelectCategories(['All']);
             setSelectedTech('All');
             setSearchQuery('');
             setSortOption('upvotes');

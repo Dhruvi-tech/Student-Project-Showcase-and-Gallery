@@ -113,7 +113,11 @@ def get_projects(
         ]
 
     if category and category.lower() != "all":
-        all_matching = [p for p in all_matching if (p.category or "Other").lower() == category.strip().lower()]
+        cats = [c.strip().lower() for c in category.split(",") if c.strip()]
+        if "none" in cats or not cats:
+            all_matching = []
+        elif "all" not in cats:
+            all_matching = [p for p in all_matching if (p.category or "Other").lower() in cats]
 
     # Filter by tech stack (JSON array match)
     if tech_stack and tech_stack.lower() != "all":

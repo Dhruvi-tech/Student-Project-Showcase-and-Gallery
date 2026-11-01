@@ -138,6 +138,7 @@ export function Navbar({
   activeNav = 'home',
   selectedCategories = ['All'],
   onSelectCategories,
+  matchingCount,
 }) {
   const [mobileOpen, setMobileOpen] = useState(false);
   const [isDomainsDropdownOpen, setIsDomainsDropdownOpen] = useState(false);
@@ -159,7 +160,9 @@ export function Navbar({
     };
   }, [isDomainsDropdownOpen]);
 
-  const handleToggleDomain = (domainName) => {
+  const handleToggleDomain = (domainName, e) => {
+    e?.preventDefault?.();
+    e?.stopPropagation?.();
     let next;
     if (selectedCategories.includes('All')) {
       // Switch from All to this single domain
@@ -170,16 +173,20 @@ export function Navbar({
     } else {
       // Check additional domain (supports 1, 2, or multiple options)
       next = [...selectedCategories, domainName];
-      if (next.length === ALL_DOMAINS.length) next = ['All'];
+      if (next.length >= ALL_DOMAINS.length) next = ['All'];
     }
     onSelectCategories?.(next);
   };
 
-  const selectAllDomains = () => {
+  const selectAllDomains = (e) => {
+    e?.preventDefault?.();
+    e?.stopPropagation?.();
     onSelectCategories?.(['All']);
   };
 
-  const clearAllDomains = () => {
+  const clearAllDomains = (e) => {
+    e?.preventDefault?.();
+    e?.stopPropagation?.();
     onSelectCategories?.([]);
   };
 
@@ -272,7 +279,7 @@ export function Navbar({
             </button>
 
             {isDomainsDropdownOpen && (
-              <div className="top-domains-popover">
+              <div className="top-domains-popover" onClick={(e) => e.stopPropagation()}>
                 {/* Popover Header */}
                 <div className="popover-header">
                   <div className="popover-title-row">
@@ -283,7 +290,10 @@ export function Navbar({
                     <button
                       type="button"
                       className="popover-close-btn"
-                      onClick={() => setIsDomainsDropdownOpen(false)}
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        setIsDomainsDropdownOpen(false);
+                      }}
                       aria-label="Close domains menu"
                     >
                       <X size={15} />
@@ -295,13 +305,14 @@ export function Navbar({
 
                   {/* Search and Action Bar */}
                   <div className="popover-search-row">
-                    <div className="popover-search-box">
+                    <div className="popover-search-box" onClick={(e) => e.stopPropagation()}>
                       <Search size={13} />
                       <input
                         type="text"
                         placeholder="Search domains (e.g. Cyber, Cloud, Web, Robot)..."
                         value={domainSearch}
                         onChange={(e) => setDomainSearch(e.target.value)}
+                        onKeyDown={(e) => e.stopPropagation()}
                         autoFocus
                       />
                       {domainSearch && (
@@ -315,7 +326,7 @@ export function Navbar({
                       <button
                         type="button"
                         className="quick-action-link btn-clear-pill"
-                        onClick={clearAllDomains}
+                        onClick={(e) => clearAllDomains(e)}
                         title="Clear all domain ticks so you can pick 1 or 2 options"
                       >
                         <Square size={13} />
@@ -325,7 +336,7 @@ export function Navbar({
                       <button
                         type="button"
                         className="quick-action-link btn-select-pill"
-                        onClick={selectAllDomains}
+                        onClick={(e) => selectAllDomains(e)}
                         title="Select all 20 domains"
                       >
                         <CheckSquare size={13} />
@@ -340,28 +351,44 @@ export function Navbar({
                     <button
                       type="button"
                       className="preset-chip-btn"
-                      onClick={() => onSelectCategories?.(['Web Development & Full Stack', 'Cloud Computing & DevOps'])}
+                      onClick={(e) => {
+                        e.preventDefault();
+                        e.stopPropagation();
+                        onSelectCategories?.(['Web Development & Full Stack', 'Cloud Computing & DevOps']);
+                      }}
                     >
                       🌐 Web + Cloud (2)
                     </button>
                     <button
                       type="button"
                       className="preset-chip-btn"
-                      onClick={() => onSelectCategories?.(['AI & Machine Learning', 'Generative AI & AI Agents'])}
+                      onClick={(e) => {
+                        e.preventDefault();
+                        e.stopPropagation();
+                        onSelectCategories?.(['AI & Machine Learning', 'Generative AI & AI Agents']);
+                      }}
                     >
                       🤖 AI + GenAI (2)
                     </button>
                     <button
                       type="button"
                       className="preset-chip-btn"
-                      onClick={() => onSelectCategories?.(['Cybersecurity', 'Software Engineering & Developer Tools'])}
+                      onClick={(e) => {
+                        e.preventDefault();
+                        e.stopPropagation();
+                        onSelectCategories?.(['Cybersecurity', 'Software Engineering & Developer Tools']);
+                      }}
                     >
                       🛡️ Cyber + Systems (2)
                     </button>
                     <button
                       type="button"
                       className="preset-chip-btn"
-                      onClick={() => onSelectCategories?.(['Mobile App Development', 'Internet of Things'])}
+                      onClick={(e) => {
+                        e.preventDefault();
+                        e.stopPropagation();
+                        onSelectCategories?.(['Mobile App Development', 'Internet of Things']);
+                      }}
                     >
                       📱 Mobile + IoT (2)
                     </button>
@@ -380,7 +407,7 @@ export function Navbar({
                       <div
                         key={domain.name}
                         className={`domain-tick-row ${isExplicitlyTicked ? 'is-ticked' : isAllSelected ? 'is-all' : ''}`}
-                        onClick={() => handleToggleDomain(domain.name)}
+                        onClick={(e) => handleToggleDomain(domain.name, e)}
                       >
                         <div className="tick-box-indicator">
                           {isExplicitlyTicked ? (
@@ -411,13 +438,13 @@ export function Navbar({
                       ? '✓ All 20 domains selected (320 projects)'
                       : selectedCategories.length === 0
                       ? '0 domains selected • Tick 1 or 2 options above'
-                      : `✓ ${selectedCategories.length} domain${selectedCategories.length > 1 ? 's' : ''} selected`}
+                      : `✓ ${selectedCategories.length} domain${selectedCategories.length > 1 ? 's' : ''} selected (${matchingCount !== undefined ? matchingCount : ''} projects)`}
                   </div>
                   <div className="popover-footer-actions">
                     <button
                       type="button"
                       className="btn-secondary btn-sm"
-                      onClick={clearAllDomains}
+                      onClick={(e) => clearAllDomains(e)}
                       title="Clear all ticks"
                     >
                       Clear All
@@ -425,7 +452,7 @@ export function Navbar({
                     <button
                       type="button"
                       className="btn-secondary btn-sm"
-                      onClick={selectAllDomains}
+                      onClick={(e) => selectAllDomains(e)}
                       title="Select all 20 domains"
                     >
                       Select All 20
@@ -433,7 +460,12 @@ export function Navbar({
                     <button
                       type="button"
                       className="btn-primary btn-sm btn-apply-domains"
-                      onClick={() => setIsDomainsDropdownOpen(false)}
+                      onClick={(e) => {
+                        e.preventDefault();
+                        e.stopPropagation();
+                        setIsDomainsDropdownOpen(false);
+                        document.getElementById('gallery')?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                      }}
                     >
                       <Check size={13} />
                       <span>Done / View Projects</span>

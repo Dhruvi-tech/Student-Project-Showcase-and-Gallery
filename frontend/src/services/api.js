@@ -427,8 +427,15 @@ export const api = {
       return await request(`/api/v1/projects?${params.toString()}`, { headers });
     } catch (err) {
       let list = [...staticCatalog];
-      if (category && category !== 'All') {
-        list = list.filter((p) => p.category === category);
+      if (category && category !== 'All' && category !== 'None') {
+        const catArray = Array.isArray(category)
+          ? category
+          : category.split(',').map((c) => c.trim()).filter(Boolean);
+        if (catArray.length > 0 && !catArray.includes('All')) {
+          list = list.filter((p) => catArray.includes(p.category));
+        }
+      } else if (category === 'None') {
+        list = [];
       }
       if (techStack && techStack !== 'All') {
         list = list.filter((p) => p.tech_stacks && p.tech_stacks.includes(techStack));

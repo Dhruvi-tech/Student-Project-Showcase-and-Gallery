@@ -20,6 +20,7 @@ export function FilterBar({
   searchQuery,
   onSearchChange,
   selectedCategory,
+  selectedCategories = ['All'],
   onCategoryChange,
   sortOption,
   onSortChange,
@@ -30,7 +31,17 @@ export function FilterBar({
   onResetFilters,
   onOpenExport,
 }) {
-  const isFiltered = selectedCategory !== 'All' || selectedTech !== 'All' || searchQuery.trim() !== '';
+  const isAllActive = selectedCategories.includes('All') || selectedCategory === 'All';
+  const isPillActive = (cat) =>
+    selectedCategories.includes('All')
+      ? selectedCategory === cat
+      : selectedCategories.includes(cat);
+
+  const isFiltered =
+    (!selectedCategories.includes('All') && selectedCategories.length > 0) ||
+    selectedCategory !== 'All' ||
+    selectedTech !== 'All' ||
+    searchQuery.trim() !== '';
 
   return (
     <div className="filter-bar-card">
@@ -117,7 +128,7 @@ export function FilterBar({
         <div className="domain-pills-scroll">
           <button
             type="button"
-            className={`domain-pill ${selectedCategory === 'All' ? 'active' : ''}`}
+            className={`domain-pill ${isAllActive ? 'active' : ''}`}
             onClick={() => onCategoryChange('All')}
           >
             All Tracks
@@ -126,7 +137,7 @@ export function FilterBar({
             <button
               key={category}
               type="button"
-              className={`domain-pill ${selectedCategory === category ? 'active' : ''}`}
+              className={`domain-pill ${isPillActive(category) ? 'active' : ''}`}
               onClick={() => onCategoryChange(category)}
             >
               {category}
