@@ -841,6 +841,10 @@ export function App() {
             setIsAnalyticsModalOpen(false);
             document.getElementById('gallery')?.scrollIntoView({ behavior: 'smooth' });
           }}
+          onOpenProject={(project) => {
+            setIsAnalyticsModalOpen(false);
+            setActiveProject(project);
+          }}
           onClose={() => setIsAnalyticsModalOpen(false)}
         />
       )}
