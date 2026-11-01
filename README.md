@@ -44,7 +44,7 @@
 
 <br/>
 
-<a href="#live-previews"><kbd>&nbsp;📸 Live Previews&nbsp;</kbd></a>
+<a href="#interface"><kbd>&nbsp;🖥️ Interface&nbsp;</kbd></a>
 <a href="#highlights"><kbd>&nbsp;📊 Platform Stats&nbsp;</kbd></a>
 <a href="#features"><kbd>&nbsp;✨ Key Features&nbsp;</kbd></a>
 <a href="#how-it-works"><kbd>&nbsp;🧭 How It Works&nbsp;</kbd></a>
@@ -59,57 +59,33 @@
 
 <br/>
 
-<a id="live-previews"></a>
+<a id="interface"></a>
 <div align="center">
-<img src="https://capsule-render.vercel.app/api?type=soft&color=gradient&customColorList=12,6,20&height=80&section=header&text=Live%20Application%20Showcase&fontSize=30&fontColor=ffffff&fontAlignY=50" alt="Live Application Showcase" />
+<img src="https://capsule-render.vercel.app/api?type=soft&color=gradient&customColorList=12,6,20&height=80&section=header&text=Application%20Interface&fontSize=30&fontColor=ffffff&fontAlignY=50" alt="Application Interface" />
 </div>
 
-### 🌐 Live Deployment: [https://dhruvi-tech.github.io/Student-Project-Showcase-and-Gallery/](https://dhruvi-tech.github.io/Student-Project-Showcase-and-Gallery/)
+### 🌐 Live Production Link: [https://dhruvi-tech.github.io/Student-Project-Showcase-and-Gallery/](https://dhruvi-tech.github.io/Student-Project-Showcase-and-Gallery/)
 
-Here are verified live screenshots captured directly from the production web application:
-
-#### 1️⃣ Platform Home & Featured Capstone Spotlight
-> The unified landing dashboard showcasing the **3D Innovation Prism Emblem**, real-time search (Ctrl+K), category filters, and the spotlight project.
-
-<div align="center">
-  <img src="docs/screenshots/01-hero-gallery-overview.png" alt="Platform Home and Featured Capstone Spotlight" width="94%" />
-</div>
-
-<br/>
-
-#### 2️⃣ Interactive All 20 Technical Domains Popover
-> Top navigation dropdown providing checkable tick boxes across all 20 technical domains, real-time domain search, 1-click **Clear All**, **Select All 20**, and quick 2-domain presets (Web+Cloud, AI+GenAI, Cyber+Systems, Mobile+IoT).
-
-<div align="center">
-  <img src="docs/screenshots/02-domains-popover-20-tracks.png" alt="Interactive 20 Technical Domains Popover" width="94%" />
-</div>
-
-<br/>
-
-#### 3️⃣ Personalized "For You" Recommendations & Liked Topics Engine
-> Interactive questionnaire asking which technical topics and programming stacks the student likes, calculating dynamic match scores across all 320 projects.
-
-<div align="center">
-  <img src="docs/screenshots/03-for-you-recommendations.png" alt="Personalized For You Recommendations Engine" width="94%" />
-</div>
-
-<br/>
-
-#### 4️⃣ Capstone Projects Grid & Peer Upvoting
-> Responsive peer gallery cards displaying project difficulty tags, custom author names, peer appreciation counters, tech pills, and one-click comparison triggers.
-
-<div align="center">
-  <img src="docs/screenshots/04-project-cards-grid.png" alt="Capstone Projects Grid and Peer Upvoting" width="94%" />
-</div>
-
-<br/>
-
-#### 5️⃣ Mobile Responsive Experience
-> Native mobile view with fluid layout, touch-friendly navigation, and adaptive modals.
-
-<div align="center">
-  <img src="docs/screenshots/05-mobile-responsive-view.png" alt="Mobile Responsive Experience" width="360px" />
-</div>
+```text
+┌─── Student Project Showcase & Peer Gallery ───────────────────────────────────────────────────┐
+│  🎓 Student Project Showcase   [Home] [Explore (320)] [Domains (All 20) ▾] [For You]  [Publish] │
+├───────────────────────────────────────────────────────────────────────────────────────────────┤
+│                                                                                               │
+│   🏷️  [All 20 Tracks]  [AI & ML]  [Web Dev]  [Cloud]  [Cybersecurity]  ... 320 Projects Total  │
+│                                                                                               │
+│   ┌─────────────────────────────────────────┐     ┌─────────────────────────────────────────┐ │
+│   │ 🤖 Vision AI Pipeline                   │     │ 🛡️ Sentinel Packet Guard                │ │
+│   │ Track: Computer Vision                  │     │ Track: Cybersecurity                    │ │
+│   │ By: Aarav Sharma • Difficulty: Advanced │     │ By: Dev Student • Difficulty: Medium    │ │
+│   │ ▲ 42 Upvotes • ⭐ 4.8 (12 Reviews)      │     │ ▲ 38 Upvotes • ⭐ 4.6 (9 Reviews)       │ │
+│   │ [View Source ↗] [Details] [⚖️ +Compare] │     │ [View Source ↗] [Details] [⚖️ +Compare] │ │
+│   └─────────────────────────────────────────┘     └─────────────────────────────────────────┘ │
+│                                                                                               │
+│  ┌─ Floating Comparison Dock ───────────────────────────────────────────────────────────────┐ │
+│  │ Selected: Vision AI Pipeline, Sentinel Guard (2/3)      [Open Comparison Matrix] [Clear] │ │
+│  └──────────────────────────────────────────────────────────────────────────────────────────┘ │
+└───────────────────────────────────────────────────────────────────────────────────────────────┘
+```
 
 ---
 
@@ -305,8 +281,7 @@ Student-Project-Showcase-and-Gallery/
 │   │   ├── components/   # Navbar, FilterBar, ProjectCard, ForYouPreferences, Modals
 │   │   ├── data/         # staticCatalog.json (320 projects offline fallback)
 │   │   └── services/     # api.js client service with CSRF & session handling
-├── 📚 docs/              # Technical architecture, deployment specs, and live screenshots
-│   └── screenshots/      # 5 verified live PNG screenshots of production application
+├── 📚 docs/              # Technical architecture and deployment specifications
 ├── ☁️  infra/             # Reference AWS CloudFormation and least-privilege IAM policies
 ├── 🐳 docker-compose.yml # Container orchestration configuration
 ├── ☁️  render.yaml        # 1-Click Cloud Deployment Blueprint (Render.com free tier)

@@ -14,6 +14,7 @@ import { ComparisonModal } from './components/ComparisonModal';
 import { ComparisonTray } from './components/ComparisonTray';
 import { ForYouPreferences } from './components/ForYouPreferences';
 import { api } from './services/api';
+import staticCatalog from './data/staticCatalog.json';
 import './styles/App.css';
 import {
   Terminal,
@@ -32,9 +33,9 @@ import {
 } from 'lucide-react';
 
 export function App() {
-  const [projects, setProjects] = useState([]);
-  const [totalCount, setTotalCount] = useState(0);
-  const [loading, setLoading] = useState(true);
+  const [projects, setProjects] = useState(() => (Array.isArray(staticCatalog) ? staticCatalog : []));
+  const [totalCount, setTotalCount] = useState(() => (Array.isArray(staticCatalog) ? staticCatalog.length : 0));
+  const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
 
   // Theme state: dark (modern slate) or light (crisp slate)
@@ -372,17 +373,17 @@ export function App() {
 
       if (savedProjectsMode) {
         const res = await api.getSavedProjects(currentStudentId);
-        const bookmarkedList = res.data || [];
+        const bookmarkedList = res?.data || [];
         setProjects(bookmarkedList);
-        setTotalCount(res.total ?? bookmarkedList.length);
+        setTotalCount(res?.total ?? bookmarkedList.length);
         return;
       }
 
       if (myProjectsMode) {
         const res = await api.getStudentProjects(currentStudentId);
-        const myList = res.data || [];
+        const myList = res?.data || [];
         setProjects(myList);
-        setTotalCount(res.total ?? myList.length);
+        setTotalCount(res?.total ?? myList.length);
         return;
       }
 
@@ -396,8 +397,8 @@ export function App() {
         offset: 0,
       });
 
-      let allProjects = res.data || [];
-      const resultCount = res.total ?? allProjects.length;
+      let allProjects = res?.data || (Array.isArray(res) ? res : (Array.isArray(staticCatalog) ? staticCatalog : []));
+      const resultCount = res?.total ?? allProjects.length;
 
       while (!myProjectsMode && !savedProjectsMode && !recommendationsMode && allProjects.length < resultCount) {
         const nextPage = await api.getProjects({
@@ -408,13 +409,18 @@ export function App() {
           limit: 350,
           offset: allProjects.length,
         });
-        if (!nextPage.data?.length) break;
+        if (!nextPage?.data?.length) break;
         allProjects = [...allProjects, ...nextPage.data];
       }
-      setProjects(allProjects);
-      setTotalCount(allProjects.length);
+      setProjects(allProjects.length > 0 ? allProjects : (Array.isArray(staticCatalog) ? staticCatalog : []));
+      setTotalCount(allProjects.length > 0 ? allProjects.length : (staticCatalog?.length || 0));
     } catch (err) {
-      setError(err.message || 'Failed to load projects');
+      // Graceful fallback to embedded static catalog so peer gallery never errors out
+      console.warn('Network fetch error, falling back to static catalog:', err);
+      const fallbackList = Array.isArray(staticCatalog) ? staticCatalog : [];
+      setProjects(fallbackList);
+      setTotalCount(fallbackList.length);
+      setError(null);
     } finally {
       setLoading(false);
     }

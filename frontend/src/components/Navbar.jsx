@@ -63,8 +63,8 @@ export const ALL_DOMAINS = [
   { name: 'EdTech', count: 14, icon: GraduationCap, track: 'Industry Apps' },
 ];
 
-// Modern 3D Innovation Prism Emblem with Radiant Core Starburst
-const ShowcaseEmblem = ({ size = 24 }) => (
+// Academic Capstone Mortarboard Emblem with Golden Starburst of Innovation
+const ShowcaseEmblem = ({ size = 26 }) => (
   <svg
     width={size}
     height={size}
@@ -75,79 +75,54 @@ const ShowcaseEmblem = ({ size = 24 }) => (
     aria-hidden="true"
   >
     <defs>
-      <linearGradient id="prism-top" x1="4" y1="2" x2="20" y2="12" gradientUnits="userSpaceOnUse">
-        <stop stopColor="#ffffff" stopOpacity="0.95" />
-        <stop offset="60%" stopColor="#bae6fd" stopOpacity="0.85" />
-        <stop offset="100%" stopColor="#38bdf8" stopOpacity="0.75" />
+      <linearGradient id="cap-top-grad" x1="2" y1="4" x2="22" y2="12" gradientUnits="userSpaceOnUse">
+        <stop stopColor="#ffffff" />
+        <stop offset="60%" stopColor="#e0f2fe" />
+        <stop offset="100%" stopColor="#bae6fd" />
       </linearGradient>
-      <linearGradient id="prism-left" x1="3" y1="7" x2="12" y2="22" gradientUnits="userSpaceOnUse">
-        <stop stopColor="#60a5fa" stopOpacity="0.9" />
-        <stop offset="50%" stopColor="#3b82f6" stopOpacity="0.95" />
-        <stop offset="100%" stopColor="#1d4ed8" />
+      <linearGradient id="star-gold-grad" x1="15" y1="1" x2="22" y2="8" gradientUnits="userSpaceOnUse">
+        <stop stopColor="#fef08a" />
+        <stop offset="50%" stopColor="#facc15" />
+        <stop offset="100%" stopColor="#f59e0b" />
       </linearGradient>
-      <linearGradient id="prism-right" x1="12" y1="7" x2="21" y2="22" gradientUnits="userSpaceOnUse">
-        <stop stopColor="#c084fc" stopOpacity="0.9" />
-        <stop offset="50%" stopColor="#818cf8" stopOpacity="0.95" />
-        <stop offset="100%" stopColor="#4338ca" />
-      </linearGradient>
-      <linearGradient id="prism-rim" x1="2" y1="2" x2="22" y2="22" gradientUnits="userSpaceOnUse">
-        <stop stopColor="#ffffff" stopOpacity="0.95" />
-        <stop offset="40%" stopColor="#93c5fd" stopOpacity="0.85" />
-        <stop offset="75%" stopColor="#c4b5fd" stopOpacity="0.9" />
-        <stop offset="100%" stopColor="#e9d5ff" />
-      </linearGradient>
-      <filter id="starburst-glow" x="-30%" y="-30%" width="160%" height="160%">
-        <feGaussianBlur stdDeviation="0.8" result="blur" />
+      <filter id="star-glow-filter" x="-20%" y="-20%" width="140%" height="140%">
+        <feGaussianBlur stdDeviation="0.6" result="blur" />
         <feComposite in="SourceGraphic" in2="blur" operator="over" />
       </filter>
     </defs>
-
-    {/* Top Facet (Diamond Deck) */}
+    {/* Cap Top Diamond Board */}
     <polygon
-      points="12,2.2 20.4,7 12,11.8 3.6,7"
-      fill="url(#prism-top)"
-      stroke="url(#prism-rim)"
-      strokeWidth="1.3"
-      strokeLinejoin="round"
-    />
-
-    {/* Left Facet (Electric Cobalt Innovation Wing) */}
-    <polygon
-      points="3.6,7 12,11.8 12,21.8 3.6,17"
-      fill="url(#prism-left)"
-      stroke="url(#prism-rim)"
-      strokeWidth="1.3"
-      strokeLinejoin="round"
-    />
-
-    {/* Right Facet (Creative Indigo-Violet Wing) */}
-    <polygon
-      points="12,11.8 20.4,7 20.4,17 12,21.8"
-      fill="url(#prism-right)"
-      stroke="url(#prism-rim)"
-      strokeWidth="1.3"
-      strokeLinejoin="round"
-    />
-
-    {/* Inner Intersection Geometry Rays */}
-    <path
-      d="M12 2.2V11.8M3.6 7L12 11.8M20.4 7L12 11.8"
+      points="12,4.8 21.6,9.2 12,13.6 2.4,9.2"
+      fill="url(#cap-top-grad)"
       stroke="#ffffff"
-      strokeWidth="1.1"
-      strokeOpacity="0.7"
-      strokeLinecap="round"
+      strokeWidth="0.8"
+      strokeLinejoin="round"
     />
-
-    {/* Radiant 4-Point Innovation Star Node */}
+    {/* Underneath Skull Cap Band */}
     <path
-      d="M12 7.2 C12 9.7 10.1 11.8 7.6 11.8 C10.1 11.8 12 13.9 12 16.4 C12 13.9 13.9 11.8 16.4 11.8 C13.9 11.8 12 9.7 12 7.2 Z"
-      fill="#ffffff"
-      filter="url(#starburst-glow)"
+      d="M5.8 11.2V15C5.8 15 8.4 18 12 18C15.6 18 18.2 15 18.2 15V11.2"
+      stroke="#ffffff"
+      strokeWidth="1.8"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      fill="rgba(255, 255, 255, 0.2)"
     />
-
-    {/* Central Core Nodes */}
-    <circle cx="12" cy="11.8" r="1.4" fill="#ffffff" />
-    <circle cx="12" cy="11.8" r="2.9" stroke="#38bdf8" strokeWidth="0.8" strokeOpacity="0.9" />
+    {/* Center Button & Tassel Ribbon */}
+    <circle cx="12" cy="9.2" r="1.3" fill="#ffffff" />
+    <path
+      d="M12 9.2L4.6 11.6V16.2"
+      stroke="#fef08a"
+      strokeWidth="1.5"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+    />
+    <circle cx="4.6" cy="16.8" r="1.3" fill="#facc15" />
+    {/* Radiant Starburst of Innovation at Upper Right */}
+    <path
+      d="M18.8 1.8L19.6 4.1L21.8 4.9L19.6 5.7L18.8 8L18 5.7L15.8 4.9L18 4.1Z"
+      fill="url(#star-gold-grad)"
+      filter="url(#star-glow-filter)"
+    />
   </svg>
 );
 

@@ -424,7 +424,11 @@ export const api = {
       const headers = {};
       if (studentId) headers['X-Student-Id'] = studentId;
 
-      return await request(`/api/v1/projects?${params.toString()}`, { headers });
+      const result = await request(`/api/v1/projects?${params.toString()}`, { headers });
+      if (!result || !Array.isArray(result.data)) {
+        throw new Error('Backend returned invalid project payload');
+      }
+      return result;
     } catch (err) {
       let list = [...staticCatalog];
       if (category && category !== 'All' && category !== 'None') {
