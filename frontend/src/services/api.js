@@ -334,9 +334,11 @@ export const api = {
   async getRecommendations(studentId = '', limit = 50) {
     try {
       const headers = studentId ? { 'X-Student-Id': studentId } : {};
-      return await request(`/api/v1/recommendations?limit=${limit}`, { headers });
+      const res = await request(`/api/v1/recommendations?limit=${limit}`, { headers });
+      if (Array.isArray(res)) return { data: res, total: res.length };
+      return res;
     } catch (e) {
-      return staticCatalog.slice(0, limit);
+      return { data: staticCatalog.slice(0, limit), total: staticCatalog.length };
     }
   },
 

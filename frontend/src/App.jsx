@@ -12,6 +12,7 @@ import { ExportModal } from './components/ExportModal';
 import { TechAnalyticsModal } from './components/TechAnalyticsModal';
 import { ComparisonModal } from './components/ComparisonModal';
 import { ComparisonTray } from './components/ComparisonTray';
+import { ForYouPreferences } from './components/ForYouPreferences';
 import { api } from './services/api';
 import './styles/App.css';
 import {
@@ -81,6 +82,50 @@ export function App() {
   const [myProjectsMode, setMyProjectsMode] = useState(false);
   const [savedProjectsMode, setSavedProjectsMode] = useState(false);
   const [recommendationsMode, setRecommendationsMode] = useState(false);
+
+  // For You Section Preferences (Liked Domains & Tech Stacks)
+  const [forYouPreferences, setForYouPreferences] = useState(() => {
+    try {
+      const saved = localStorage.getItem('showcase_for_you_preferences');
+      if (saved) {
+        const parsed = JSON.parse(saved);
+        if (parsed && (Array.isArray(parsed.categories) || Array.isArray(parsed.techs))) {
+          return {
+            categories: parsed.categories || [],
+            techs: parsed.techs || [],
+          };
+        }
+      }
+      const userSaved = localStorage.getItem('showcase_user');
+      if (userSaved) {
+        const parsedUser = JSON.parse(userSaved);
+        if (Array.isArray(parsedUser?.interests) && parsedUser.interests.length > 0) {
+          return {
+            categories: parsedUser.interests,
+            techs: ['Python', 'React'],
+          };
+        }
+      }
+    } catch (e) {}
+    return {
+      categories: ['AI & Machine Learning', 'Web Development & Full Stack'],
+      techs: ['Python', 'React', 'TypeScript'],
+    };
+  });
+
+  const handleUpdateForYouPreferences = (newPrefs) => {
+    setForYouPreferences(newPrefs);
+    try {
+      localStorage.setItem('showcase_for_you_preferences', JSON.stringify(newPrefs));
+    } catch (e) {}
+
+    if (currentStudentId && newPrefs.categories?.length > 0) {
+      api.setFollowedCategories(newPrefs.categories, currentStudentId).catch(() => {});
+    }
+
+    const count = (newPrefs.categories?.length || 0) + (newPrefs.techs?.length || 0);
+    showToast(`Preferences updated! (${count} liked topics selected) ✨`, 'success');
+  };
   const [followedCategories, setFollowedCategories] = useState([]);
   const [technologyCatalog, setTechnologyCatalog] = useState([]);
   const [projectToEdit, setProjectToEdit] = useState(null);
@@ -222,10 +267,74 @@ export function App() {
       setLoading(true);
       setError(null);
 
-      if (recommendationsMode && currentStudentId) {
-        const res = await api.getRecommendations(currentStudentId);
-        setProjects(res.data || []);
-        setTotalCount(res.count || (res.data || []).length);
+      if (recommendationsMode) {
+        let pool = [];
+        try {
+          const res = await api.getProjects({ limit: 320, sort: 'upvotes' });
+          pool = Array.isArray(res) ? res : res.data || [];
+        } catch (e) {
+          pool = [];
+        }
+
+        const likedCats = forYouPreferences?.categories || [];
+        const likedTechs = (forYouPreferences?.techs || []).map((t) => t.toLowerCase());
+
+        const scoredProjects = pool.map((project) => {
+          let score = 0;
+          const reasons = [];
+
+          if (likedCats.length > 0 && likedCats.includes(project.category)) {
+            score += 35;
+            reasons.push(`Matches your liked domain: ${project.category}`);
+          }
+
+          if (likedTechs.length > 0) {
+            const projectTechs = Array.isArray(project.tech_stacks) ? project.tech_stacks : [];
+            const matchedTechs = projectTechs.filter((t) =>
+              likedTechs.includes(t.toLowerCase())
+            );
+            if (matchedTechs.length > 0) {
+              score += matchedTechs.length * 18;
+              reasons.push(`Uses technologies you like: ${matchedTechs.join(', ')}`);
+            }
+          }
+
+          const upvotes = Math.max(0, project.upvote_count || 0);
+          score += Math.min(10, upvotes * 0.4);
+
+          if (reasons.length === 0 && (likedCats.length > 0 || likedTechs.length > 0)) {
+            reasons.push('Popular capstone from the student peer gallery');
+          }
+
+          return {
+            ...project,
+            recommendation_score: score,
+            recommendation_reasons: reasons,
+          };
+        });
+
+        const hasPreferences = likedCats.length > 0 || likedTechs.length > 0;
+        let matched = hasPreferences
+          ? scoredProjects.filter((p) => p.recommendation_score > 12)
+          : scoredProjects;
+
+        if (matched.length < 12) {
+          const matchedIds = new Set(matched.map((p) => p.id));
+          const fillers = scoredProjects
+            .filter((p) => !matchedIds.has(p.id))
+            .sort((a, b) => (b.upvote_count || 0) - (a.upvote_count || 0));
+          matched = [...matched, ...fillers];
+        }
+
+        matched.sort((a, b) => {
+          if ((b.recommendation_score || 0) !== (a.recommendation_score || 0)) {
+            return (b.recommendation_score || 0) - (a.recommendation_score || 0);
+          }
+          return (b.upvote_count || 0) - (a.upvote_count || 0);
+        });
+
+        setProjects(matched);
+        setTotalCount(matched.length);
         return;
       }
 
@@ -276,7 +385,7 @@ export function App() {
     } finally {
       setLoading(false);
     }
-  }, [sortOption, selectedCategory, searchQuery, currentStudentId, myProjectsMode, savedProjectsMode, recommendationsMode]);
+  }, [sortOption, selectedCategory, searchQuery, currentStudentId, myProjectsMode, savedProjectsMode, recommendationsMode, forYouPreferences]);
 
   // Refetch when filters or identity change
   useEffect(() => {
@@ -592,22 +701,30 @@ export function App() {
         <div id="gallery" className="gallery-anchor" />
 
         {/* Section Heading when in Filter / Custom Modes */}
-        {(myProjectsMode || savedProjectsMode || recommendationsMode) && (
+        {(myProjectsMode || savedProjectsMode) && (
           <div className="gallery-section-heading">
             <div>
-              <h2>{myProjectsMode ? 'My Projects' : savedProjectsMode ? 'Bookmarked Projects' : 'Picked for You'}</h2>
+              <h2>{myProjectsMode ? 'My Projects' : 'Bookmarked Projects'}</h2>
               <p>
                 {myProjectsMode
                   ? 'Projects published with your account'
-                  : savedProjectsMode
-                  ? 'Your saved projects for quick reference'
-                  : 'Curated projects based on community engagement and categories'}
+                  : 'Your saved projects for quick reference'}
               </p>
             </div>
             <button className="btn-secondary" onClick={() => handleNavigate('explore')}>
               Back to All Projects
             </button>
           </div>
+        )}
+
+        {/* ONLY FOR "FOR YOU" SECTION: Interactive Preferences & Questionnaire */}
+        {recommendationsMode && (
+          <ForYouPreferences
+            preferences={forYouPreferences}
+            onUpdatePreferences={handleUpdateForYouPreferences}
+            matchedCount={visibleProjects.length}
+            totalCatalogCount={320}
+          />
         )}
 
         {/* Featured Spotlight Card */}
@@ -685,6 +802,8 @@ export function App() {
                 ? 'You have not bookmarked any projects yet. Click the bookmark icon on any card to save it.'
                 : myProjectsMode
                 ? 'You have not published any projects yet. Click "Publish Project" to submit your capstone!'
+                : recommendationsMode
+                ? 'No projects matched this specific combination of likes. Click "Customize What I Like" above to add more topics!'
                 : selectedTech !== 'All'
                 ? `No projects found using "${selectedTech}".`
                 : 'No projects match the current criteria.'}
