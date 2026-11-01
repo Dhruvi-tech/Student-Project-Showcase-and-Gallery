@@ -96,19 +96,47 @@ function saveLocalVote(projectId, voteType) {
 
 export const api = {
   async registerAccount(account) {
+    const rawUsername = (account.username || account.name || account.email?.split('@')[0] || 'student').trim();
+    const sanitizedUsername = rawUsername.replace(/[^A-Za-z0-9_]/g, '_').slice(0, 30) || `stu_${Date.now().toString().slice(-4)}`;
+    const payload = {
+      name: (account.name || sanitizedUsername).trim().slice(0, 100),
+      username: sanitizedUsername,
+      email: (account.email || `${sanitizedUsername}@student.edu`).trim().toLowerCase(),
+      password: account.password || 'StudentPass123!'
+    };
     try {
-      const result = await request('/api/v1/auth/register', { method: 'POST', body: JSON.stringify(account) });
+      const result = await request('/api/v1/auth/register', { method: 'POST', body: JSON.stringify(payload) });
       if (result?.csrf_token) csrfToken = result.csrf_token;
-      return result;
-    } catch (e) {
-      const newUser = {
+      const user = result?.user || result?.student || {
         id: `stu_${Date.now()}`,
-        name: account.name || 'New Student',
-        username: account.username || 'student',
-        email: account.email || 'student@edu',
+        name: payload.name,
+        username: payload.username,
+        email: payload.email,
         interests: []
       };
-      return { success: true, message: 'Account registered (local demo session)', user: newUser, student: newUser };
+      try {
+        localStorage.setItem('showcase_user', JSON.stringify(user));
+      } catch (e) {}
+      return { success: true, user, student: user };
+    } catch (e) {
+      if (e?.status === 409 || e?.message?.includes('already registered')) {
+        throw new Error('Email or username is already registered. Please sign in instead.');
+      }
+      if (e?.status === 422 && e?.message) {
+        throw new Error(e.message);
+      }
+      // Offline fallback for static deployment (e.g. GitHub Pages)
+      const newUser = {
+        id: `stu_${Date.now()}`,
+        name: payload.name,
+        username: payload.username,
+        email: payload.email,
+        interests: []
+      };
+      try {
+        localStorage.setItem('showcase_user', JSON.stringify(newUser));
+      } catch (err) {}
+      return { success: true, message: 'Account registered (offline session)', user: newUser, student: newUser };
     }
   },
 
@@ -116,8 +144,15 @@ export const api = {
     try {
       const result = await request('/api/v1/auth/login', { method: 'POST', body: JSON.stringify({ identifier, password }) });
       if (result?.csrf_token) csrfToken = result.csrf_token;
-      return result;
+      const user = result?.user || result?.student;
+      try {
+        localStorage.setItem('showcase_user', JSON.stringify(user));
+      } catch (e) {}
+      return { success: true, user, student: user };
     } catch (e) {
+      if (e?.status === 401) {
+        throw new Error('Invalid email/username or password.');
+      }
       const isDemo = (identifier || '').toLowerCase().includes('demo');
       const loggedUser = {
         id: isDemo ? 'stu_demo_eval' : `stu_${Date.now()}`,
@@ -128,6 +163,9 @@ export const api = {
         bio: 'Showcase student and evaluator',
         interests: ['Web Development & Full Stack', 'AI & Machine Learning']
       };
+      try {
+        localStorage.setItem('showcase_user', JSON.stringify(loggedUser));
+      } catch (err) {}
       return { success: true, user: loggedUser, student: loggedUser };
     }
   },
@@ -145,6 +183,9 @@ export const api = {
         bio: 'Showcase evaluator & demo account.',
         interests: ['AI & Machine Learning', 'Web Development & Full Stack', 'Cloud Computing'],
       };
+      try {
+        localStorage.setItem('showcase_user', JSON.stringify(user));
+      } catch (e) {}
       return { success: true, user, student: user };
     } catch (err) {
       const demoUser = {
@@ -156,6 +197,9 @@ export const api = {
         bio: 'Showcase evaluator & demo account.',
         interests: ['AI & Machine Learning', 'Web Development & Full Stack', 'Cloud Computing'],
       };
+      try {
+        localStorage.setItem('showcase_user', JSON.stringify(demoUser));
+      } catch (e) {}
       return {
         success: true,
         user: demoUser,

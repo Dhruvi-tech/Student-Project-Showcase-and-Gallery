@@ -9,11 +9,11 @@ export function AuthModal({ onClose, onAuthenticated }) {
   const [email, setEmail] = useState('');
   const [identifier, setIdentifier] = useState('');
   const [password, setPassword] = useState('');
-  const [confirmPassword, setConfirmPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
 
+  // 1-Click Instant Demo Login
   async function handleDemoLogin() {
     setLoading(true);
     setError('');
@@ -28,12 +28,40 @@ export function AuthModal({ onClose, onAuthenticated }) {
         id: 'stu_demo_eval',
         name: 'Demo Student',
         username: 'demo',
-        email: 'demo@student.edu'
+        email: 'demo@student.edu',
       };
       onAuthenticated(user);
       onClose();
     } catch (err) {
       setError(err.message || 'Demo login failed. Please try again.');
+    } finally {
+      setLoading(false);
+    }
+  }
+
+  // 1-Click Instant Demo Registration
+  async function handleInstantRegister() {
+    setLoading(true);
+    setError('');
+    const suffix = Math.floor(1000 + Math.random() * 9000);
+    const demoPayload = {
+      name: `Student Evaluator ${suffix}`,
+      username: `eval_${suffix}`,
+      email: `evaluator${suffix}@rvu.edu.in`,
+      password: 'DemoPassword123!',
+    };
+    try {
+      const result = await api.registerAccount(demoPayload);
+      const user = result?.user || result?.student || {
+        id: `stu_${Date.now()}`,
+        name: demoPayload.name,
+        username: demoPayload.username,
+        email: demoPayload.email,
+      };
+      onAuthenticated(user);
+      onClose();
+    } catch (err) {
+      setError(err.message || 'Could not create demo account.');
     } finally {
       setLoading(false);
     }
@@ -48,25 +76,43 @@ export function AuthModal({ onClose, onAuthenticated }) {
         setError('Password must be at least 6 characters.');
         return;
       }
-      if (password !== confirmPassword) {
-        setError('Passwords do not match.');
-        return;
-      }
     }
 
     setLoading(true);
     try {
-      const result = mode === 'login'
-        ? await api.login(identifier, password)
-        : await api.registerAccount({ name, username, email, password });
-      const user = result?.user || result?.student || {
-        id: `stu_${Date.now()}`,
-        name: name || identifier || 'Student Evaluator',
-        username: username || 'student',
-        email: email || identifier || 'demo@student.edu'
-      };
-      onAuthenticated(user);
-      onClose();
+      if (mode === 'login') {
+        const result = await api.login(identifier, password);
+        const user = result?.user || result?.student || {
+          id: identifier.toLowerCase().includes('demo') ? 'stu_demo_eval' : `stu_${Date.now()}`,
+          name: identifier.split('@')[0] || 'Student Evaluator',
+          username: identifier.split('@')[0] || 'student',
+          email: identifier,
+        };
+        onAuthenticated(user);
+        onClose();
+      } else {
+        // Sanitize username
+        const rawUsername = (username || name || email.split('@')[0] || 'student').trim();
+        const cleanUsername = rawUsername.replace(/[^A-Za-z0-9_]/g, '_').slice(0, 30) || `stu_${Date.now().toString().slice(-4)}`;
+        const cleanName = (name || cleanUsername).trim();
+        const cleanEmail = (email || `${cleanUsername}@student.edu`).trim().toLowerCase();
+
+        const result = await api.registerAccount({
+          name: cleanName,
+          username: cleanUsername,
+          email: cleanEmail,
+          password,
+        });
+
+        const user = result?.user || result?.student || {
+          id: `stu_${Date.now()}`,
+          name: cleanName,
+          username: cleanUsername,
+          email: cleanEmail,
+        };
+        onAuthenticated(user);
+        onClose();
+      }
     } catch (err) {
       setError(err.message || 'Could not complete request. Please try again.');
     } finally {
@@ -83,7 +129,7 @@ export function AuthModal({ onClose, onAuthenticated }) {
         aria-labelledby="auth-title"
         onClick={(e) => e.stopPropagation()}
       >
-        {/* Header with Close */}
+        {/* Header Tabs with Close Button */}
         <div className="auth-header-strip">
           <div className="auth-tabs">
             <button
@@ -108,13 +154,13 @@ export function AuthModal({ onClose, onAuthenticated }) {
           </button>
         </div>
 
-        {/* Quick Demo Login Pill */}
-        {mode === 'login' && (
-          <div className="demo-login-box">
-            <div className="demo-login-info">
-              <Zap size={14} className="text-amber" />
-              <span>Quick Evaluation Mode:</span>
-            </div>
+        {/* Quick Instant Evaluation Actions */}
+        <div className="demo-login-box">
+          <div className="demo-login-info">
+            <Zap size={14} className="text-amber" />
+            <span>{mode === 'login' ? 'Quick Evaluation Login:' : 'Quick Evaluation Setup:'}</span>
+          </div>
+          {mode === 'login' ? (
             <button
               type="button"
               className="btn-demo-quick"
@@ -124,117 +170,163 @@ export function AuthModal({ onClose, onAuthenticated }) {
             >
               ⚡ Instant Demo Login (demo@student.edu)
             </button>
-          </div>
-        )}
+          ) : (
+            <button
+              type="button"
+              className="btn-demo-quick"
+              onClick={handleInstantRegister}
+              disabled={loading}
+              title="1-click auto-create an Evaluator student account"
+            >
+              ⚡ 1-Click Instant Account (Join as Evaluator)
+            </button>
+          )}
+        </div>
 
+        {/* Auth Form with Bounded Flex Scrolling */}
         <form onSubmit={submit} className="auth-form-content">
           <div className="modal-body auth-modal-body">
             {error && (
               <div className="auth-error-banner">
-                <AlertCircle size={16} />
+                <AlertCircle size={15} />
                 <span>{error}</span>
               </div>
             )}
 
-            {mode === 'register' && (
-              <label className="form-group">
-                <span className="form-label">Full Name</span>
-                <div className="input-with-icon">
-                  <User size={15} className="input-icon" />
-                  <input
-                    className="form-input"
-                    placeholder="e.g. Alex Rivera"
-                    value={name}
-                    onChange={(e) => setName(e.target.value)}
-                    autoComplete="name"
-                    required
-                    minLength={2}
-                    maxLength={100}
-                  />
+            {mode === 'register' ? (
+              <>
+                {/* 2-Column Responsive Name & Username Row */}
+                <div className="auth-row-2col">
+                  <label className="form-group">
+                    <span className="form-label">Full Name</span>
+                    <div className="input-with-icon">
+                      <User size={15} className="input-icon" />
+                      <input
+                        className="form-input"
+                        placeholder="Alex Rivera"
+                        value={name}
+                        onChange={(e) => {
+                          setName(e.target.value);
+                          if (!username) {
+                            setUsername(e.target.value.toLowerCase().replace(/[^a-z0-9_]/g, '_'));
+                          }
+                        }}
+                        autoComplete="name"
+                        required
+                        minLength={2}
+                        maxLength={100}
+                      />
+                    </div>
+                  </label>
+
+                  <label className="form-group">
+                    <span className="form-label">Username</span>
+                    <div className="input-with-icon">
+                      <AtSign size={15} className="input-icon" />
+                      <input
+                        className="form-input"
+                        placeholder="alex_dev"
+                        value={username}
+                        onChange={(e) => setUsername(e.target.value.toLowerCase().replace(/[^a-z0-9_]/g, ''))}
+                        autoComplete="username"
+                        required
+                        minLength={3}
+                        maxLength={30}
+                      />
+                    </div>
+                  </label>
                 </div>
-              </label>
-            )}
 
-            <label className="form-group">
-              <span className="form-label">{mode === 'login' ? 'Email or Username' : 'Username'}</span>
-              <div className="input-with-icon">
-                <AtSign size={15} className="input-icon" />
-                <input
-                  className="form-input"
-                  placeholder={mode === 'login' ? 'demo@student.edu or username' : 'e.g. alex_dev'}
-                  value={mode === 'login' ? identifier : username}
-                  onChange={(e) => mode === 'login' ? setIdentifier(e.target.value) : setUsername(e.target.value)}
-                  autoComplete="username"
-                  required
-                  minLength={3}
-                  maxLength={150}
-                />
-              </div>
-            </label>
+                <label className="form-group">
+                  <span className="form-label">Email Address</span>
+                  <div className="input-with-icon">
+                    <Mail size={15} className="input-icon" />
+                    <input
+                      className="form-input"
+                      type="email"
+                      placeholder="alex@rvu.edu.in"
+                      value={email}
+                      onChange={(e) => setEmail(e.target.value)}
+                      autoComplete="email"
+                      required
+                    />
+                  </div>
+                </label>
 
-            {mode === 'register' && (
-              <label className="form-group">
-                <span className="form-label">Email Address</span>
-                <div className="input-with-icon">
-                  <Mail size={15} className="input-icon" />
-                  <input
-                    className="form-input"
-                    type="email"
-                    placeholder="student@rvu.edu.in"
-                    value={email}
-                    onChange={(e) => setEmail(e.target.value)}
-                    autoComplete="email"
-                    required
-                  />
-                </div>
-              </label>
-            )}
+                <label className="form-group">
+                  <span className="form-label">Password</span>
+                  <div className="input-with-icon">
+                    <Lock size={15} className="input-icon" />
+                    <input
+                      className="form-input"
+                      type={showPassword ? 'text' : 'password'}
+                      placeholder="At least 6 characters"
+                      value={password}
+                      onChange={(e) => setPassword(e.target.value)}
+                      autoComplete="new-password"
+                      required
+                      minLength={6}
+                      maxLength={128}
+                    />
+                    <button
+                      type="button"
+                      className="btn-toggle-eye"
+                      onClick={() => setShowPassword(!showPassword)}
+                      aria-label={showPassword ? 'Hide password' : 'Show password'}
+                    >
+                      {showPassword ? <EyeOff size={15} /> : <Eye size={15} />}
+                    </button>
+                  </div>
+                </label>
+              </>
+            ) : (
+              <>
+                <label className="form-group">
+                  <span className="form-label">Email or Username</span>
+                  <div className="input-with-icon">
+                    <AtSign size={15} className="input-icon" />
+                    <input
+                      className="form-input"
+                      placeholder="demo@student.edu or username"
+                      value={identifier}
+                      onChange={(e) => setIdentifier(e.target.value)}
+                      autoComplete="username"
+                      required
+                      minLength={3}
+                      maxLength={150}
+                    />
+                  </div>
+                </label>
 
-            <label className="form-group">
-              <span className="form-label">Password</span>
-              <div className="input-with-icon">
-                <Lock size={15} className="input-icon" />
-                <input
-                  className="form-input"
-                  type={showPassword ? 'text' : 'password'}
-                  placeholder={mode === 'login' ? 'Enter your password' : 'At least 6 characters'}
-                  value={password}
-                  onChange={(e) => setPassword(e.target.value)}
-                  autoComplete={mode === 'login' ? 'current-password' : 'new-password'}
-                  required
-                  minLength={mode === 'register' ? 6 : 1}
-                  maxLength={128}
-                />
-                <button
-                  type="button"
-                  className="btn-toggle-eye"
-                  onClick={() => setShowPassword(!showPassword)}
-                  aria-label={showPassword ? 'Hide password' : 'Show password'}
-                >
-                  {showPassword ? <EyeOff size={15} /> : <Eye size={15} />}
-                </button>
-              </div>
-            </label>
-
-            {mode === 'register' && (
-              <label className="form-group">
-                <span className="form-label">Confirm Password</span>
-                <div className="input-with-icon">
-                  <Lock size={15} className="input-icon" />
-                  <input
-                    className="form-input"
-                    type={showPassword ? 'text' : 'password'}
-                    placeholder="Re-type your password"
-                    value={confirmPassword}
-                    onChange={(e) => setConfirmPassword(e.target.value)}
-                    autoComplete="new-password"
-                    required
-                  />
-                </div>
-              </label>
+                <label className="form-group">
+                  <span className="form-label">Password</span>
+                  <div className="input-with-icon">
+                    <Lock size={15} className="input-icon" />
+                    <input
+                      className="form-input"
+                      type={showPassword ? 'text' : 'password'}
+                      placeholder="Enter your password"
+                      value={password}
+                      onChange={(e) => setPassword(e.target.value)}
+                      autoComplete="current-password"
+                      required
+                      maxLength={128}
+                    />
+                    <button
+                      type="button"
+                      className="btn-toggle-eye"
+                      onClick={() => setShowPassword(!showPassword)}
+                      aria-label={showPassword ? 'Hide password' : 'Show password'}
+                    >
+                      {showPassword ? <EyeOff size={15} /> : <Eye size={15} />}
+                    </button>
+                  </div>
+                </label>
+              </>
             )}
           </div>
 
+          {/* Permanently Pinned Modal Footer */}
           <div className="modal-footer auth-footer">
             <button
               type="button"
@@ -244,7 +336,7 @@ export function AuthModal({ onClose, onAuthenticated }) {
                 setError('');
               }}
             >
-              {mode === 'login' ? "Don't have an account? Sign up" : 'Already have an account? Sign in'}
+              {mode === 'login' ? 'Need an account? Sign up' : 'Have an account? Sign in'}
             </button>
             <button className="btn-primary auth-submit-btn" type="submit" disabled={loading}>
               {mode === 'login' ? <LogIn size={15} /> : <UserPlus size={15} />}
@@ -256,3 +348,4 @@ export function AuthModal({ onClose, onAuthenticated }) {
     </div>
   );
 }
+export default AuthModal;

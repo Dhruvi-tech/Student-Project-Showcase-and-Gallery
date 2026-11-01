@@ -145,6 +145,18 @@ export function App() {
           setCurrentUser(userResult.value.user);
           setCurrentStudentId(userResult.value.user.id);
           setInterests(userResult.value.user.interests || []);
+        } else {
+          try {
+            const saved = localStorage.getItem('showcase_user');
+            if (saved) {
+              const parsed = JSON.parse(saved);
+              if (parsed?.id) {
+                setCurrentUser(parsed);
+                setCurrentStudentId(parsed.id);
+                setInterests(parsed.interests || []);
+              }
+            }
+          } catch (e) {}
         }
       } catch (err) {
         console.error('System initialization error:', err);
@@ -314,15 +326,18 @@ export function App() {
   const handleLogout = async () => {
     try {
       await api.logout();
-      setCurrentUser(null);
-      setCurrentStudentId(students[0]?.id || '');
-      setMyProjectsMode(false);
-      setSavedProjectsMode(false);
-      setRecommendationsMode(false);
-      showToast('You are logged out.', 'info');
     } catch (err) {
-      showToast(err.message || 'Could not log out.', 'error');
+      console.warn('Backend logout failed or was offline:', err);
     }
+    setCurrentUser(null);
+    setCurrentStudentId(students[0]?.id || '');
+    setMyProjectsMode(false);
+    setSavedProjectsMode(false);
+    setRecommendationsMode(false);
+    try {
+      localStorage.removeItem('showcase_user');
+    } catch (e) {}
+    showToast('You are logged out.', 'info');
   };
 
   const showMyProjects = () => {
@@ -425,6 +440,9 @@ export function App() {
     setCurrentStudentId(user.id);
     setMyProjectsMode(false);
     setSavedProjectsMode(false);
+    try {
+      localStorage.setItem('showcase_user', JSON.stringify(user));
+    } catch (e) {}
     showToast(`Welcome back, ${user.name || user.username}! 👋`, 'success');
     loadProjects();
   };
