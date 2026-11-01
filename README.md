@@ -1,73 +1,95 @@
+<img src="https://capsule-render.vercel.app/api?type=waving&color=gradient&customColorList=1,11,20,30&height=220&section=header&text=✦%20ProjectSpace&fontSize=48&fontAlignY=36&fontColor=ffffff&desc=Student%20Project%20Showcase%20%26%20Peer-Feedback%20Platform&descAlignY=58&descColor=e0e0e0" width="100%"/>
+
 <div align="center">
 
-# ✦ ProjectSpace
+<p align="center">
+  <img src="https://readme-typing-svg.demolab.com?font=Fira+Code&weight=600&size=20&duration=2500&pause=1000&color=00D2FF&center=true&vCenter=true&width=550&lines=Discover+320%2B+Curated+Projects;Explore+20+Engineering+Tracks;React+18+%E2%80%A2+FastAPI+%E2%80%A2+SQLAlchemy;Peer+Reviews+%26+Interactive+Feedback;Zero-Cost+Cloud-Ready+Design" alt="Typing SVG" />
+</p>
 
-**A curated student project showcase and peer-feedback platform.**
+<p align="center">
+  <img src="https://img.shields.io/badge/React-18-61DAFB?style=for-the-badge&logo=react&logoColor=black" alt="React" />
+  <img src="https://img.shields.io/badge/Vite-5-646CFF?style=for-the-badge&logo=vite&logoColor=white" alt="Vite" />
+  <img src="https://img.shields.io/badge/FastAPI-0.110+-009688?style=for-the-badge&logo=fastapi&logoColor=white" alt="FastAPI" />
+  <img src="https://img.shields.io/badge/Python-3.11+-3776AB?style=for-the-badge&logo=python&logoColor=white" alt="Python" />
+  <img src="https://img.shields.io/badge/Database-SQLite-003B57?style=for-the-badge&logo=sqlite&logoColor=white" alt="SQLite" />
+  <img src="https://img.shields.io/badge/Pytest-30%20Passed-brightgreen?style=for-the-badge&logo=pytest&logoColor=white" alt="Tests" />
+</p>
 
-Discover innovations, review code, exchange technical feedback, and explore capstone projects across 20 engineering domains.
-
-<br/>
-
-[![React](https://img.shields.io/badge/React-18-61DAFB?style=flat-square&logo=react&logoColor=black)](https://react.dev)
-[![Vite](https://img.shields.io/badge/Vite-5-646CFF?style=flat-square&logo=vite&logoColor=white)](https://vitejs.dev)
-[![FastAPI](https://img.shields.io/badge/FastAPI-0.110+-009688?style=flat-square&logo=fastapi&logoColor=white)](https://fastapi.tiangolo.com)
-[![Python](https://img.shields.io/badge/Python-3.11+-3776AB?style=flat-square&logo=python&logoColor=white)](https://python.org)
-[![SQLite](https://img.shields.io/badge/Database-SQLite-003B57?style=flat-square&logo=sqlite&logoColor=white)](https://sqlite.org)
-[![Tests](https://img.shields.io/badge/Tests-30%20Passed-2ea44f?style=flat-square&logo=pytest&logoColor=white)](backend/tests)
+<p align="center">
+  <code>🟢 System: Verified & Operational</code> • <code>📦 Catalog: 320 Real Projects</code> • <code>🛡️ Policy: Strict ₹0 Cloud</code>
+</p>
 
 </div>
 
----
+<img src="https://user-images.githubusercontent.com/73097560/115834477-dbab4500-a447-11eb-908a-139a6edaec5c.gif" width="100%">
 
-### 🖥️ Interface Preview
+### 🖥️ Application Interface
 
 ```text
-┌──────────────────────────────────────────────────────────────────────────┐
-│ 🚀 ProjectSpace               🔍 Search 320 projects...        [Sign In] │
-├──────────────────────────────────────────────────────────────────────────┤
-│ 🏷️ [All] [AI & ML] [Data Science] [Cybersecurity] [Cloud] [Web Dev] ...  │
-├──────────────────────────────────────────────────────────────────────────┤
-│ ┌─────────────────────────────┐    ┌─────────────────────────────┐       │
-│ │ 🤖 Vision AI Pipeline       │    │ 🛡️ Sentinel Packet Guard    │       │
-│ │ Computer Vision • ▲ 42      │    │ Cybersecurity • ▲ 38        │       │
-│ │ Real-time edge detection    │    │ Zero-trust network monitor  │       │
-│ │ [GitHub ↗]  [Details]       │    │ [GitHub ↗]  [Details]       │       │
-│ └─────────────────────────────┘    └─────────────────────────────┘       │
-└──────────────────────────────────────────────────────────────────────────┘
+┌─── ProjectSpace Browser ────────────────────────────────────────────────────────┐
+│  ● ● ●  https://projectspace.local                             🔍 Search 320+   │
+├─────────────────────────────────────────────────────────────────────────────────┤
+│                                                                                 │
+│   🏷️  [All]  [AI & ML]  [Data Science]  [Cybersecurity]  [Cloud]  [Web Dev]     │
+│                                                                                 │
+│   ┌───────────────────────────────┐     ┌───────────────────────────────┐       │
+│   │ 🤖 Vision AI Pipeline         │     │ 🛡️ Sentinel Packet Guard      │       │
+│   │ Track: Computer Vision        │     │ Track: Cybersecurity          │       │
+│   │ ▲ 42 Upvotes • 12 Comments    │     │ ▲ 38 Upvotes • 9 Comments     │       │
+│   │ [View Source ↗] [Details Modal│     │ [View Source ↗] [Details Modal│       │
+│   └───────────────────────────────┘     └───────────────────────────────┘       │
+│                                                                                 │
+└─────────────────────────────────────────────────────────────────────────────────┘
 ```
 
 ---
 
-### 📊 Platform Metrics
+### 📊 Platform Highlights
 
-| Curated Projects | Active Authors | Peer Votes | Feedback Reviews | Engineering Tracks |
+| 📦 Preserved Projects | 👥 Student Authors | 👍 Peer Votes | 💬 Review Comments | 🏷️ Technical Domains |
 | :---: | :---: | :---: | :---: | :---: |
 | **320** | **120** | **374** | **110** | **20** |
 
 ---
 
-### 🏗️ Architecture
+### 🏗️ Visual Architecture
 
 ```mermaid
 flowchart LR
-    Browser["🖥️ Browser"] -->|SPA| React["⚛️ React 18 + Vite"]
-    React -->|Proxy /api/v1| FastAPI["⚡ FastAPI Backend"]
-    FastAPI -->|ORM| SQL["🗄️ SQLAlchemy 2.0"]
-    SQL --> DB[("💾 SQLite / showcase.db")]
+    subgraph Client ["Client Layer"]
+        Browser["🖥️ Student Browser"] -->|SPA| ReactApp["⚛️ React 18 + Vite"]
+    end
+
+    subgraph Service ["API Service (Port 8000)"]
+        ReactApp -->|JSON /api/v1| FastApiCore["⚡ FastAPI"]
+        FastApiCore --> AuthGuard["🔐 PBKDF2 Auth & CSRF"]
+        FastApiCore --> SQLAlchemy["🗄️ SQLAlchemy 2.0 ORM"]
+    end
+
+    subgraph Storage ["Persistent Storage"]
+        SQLAlchemy --> SQLiteDB[("💾 SQLite: showcase.db<br/>(320 Projects, 120 Users)")]
+    end
+
+    classDef default fill:#18181b,stroke:#52525b,stroke-width:1px,color:#fff;
+    classDef highlight fill:#0284c7,stroke:#38bdf8,stroke-width:1px,color:#fff;
+    class FastApiCore,ReactApp highlight;
 ```
 
 ---
 
 ### ⚡ Quickstart
 
-#### 1. Install Dependencies
+<details open>
+<summary><b>▶️ Click to view Launch Instructions</b></summary>
+<br/>
 
+#### 1. Setup Dependencies
 ```bash
 pip install -r backend/requirements.txt
 npm --prefix frontend install
 ```
 
-#### 2. Start Backend API
+#### 2. Start FastAPI Backend (Port 8000)
 ```powershell
 # Windows
 cd backend
@@ -81,21 +103,26 @@ export DATABASE_URL="sqlite:///../showcase.db"
 python -m uvicorn app.main:app --host 127.0.0.1 --port 8000 --reload
 ```
 
-#### 3. Start Frontend Client
+#### 3. Start React Frontend (Port 5173)
 ```bash
 cd frontend
 npm run dev -- --host 127.0.0.1 --port 5173
 ```
 
-#### 🌐 Services
-
-* **Application:** `http://localhost:5173`
+#### 🌐 Active Service Endpoints
+* **Web UI:** `http://localhost:5173`
 * **Swagger API Docs:** `http://localhost:8000/docs`
-* **Health Check:** `http://localhost:8000/health`
+* **Health Endpoint:** `http://localhost:8000/health`
+
+</details>
 
 ---
 
 ### 🏷️ 20 Engineering Tracks
+
+<details>
+<summary><b>📂 Click to view all 20 Supported Domains</b></summary>
+<br/>
 
 | Track 1 – 5 | Track 6 – 10 | Track 11 – 15 | Track 16 – 20 |
 |---|---|---|---|
@@ -105,36 +132,35 @@ npm run dev -- --host 127.0.0.1 --port 5173
 | ☁️ Cloud Computing | 📡 Internet of Things | 📚 EdTech | 🛠️ Developer Utilities |
 | 💻 Web & Full Stack Dev | ⛓️ Blockchain & Web3 | 🦾 Robotics & Embedded | 🌱 Sustainability & Impact |
 
----
-
-### 🛡️ Security & Core Features
-
-* **Authentication:** Passwords hashed with PBKDF2-SHA256 (310,000 rounds + random salt).
-* **Sessions:** Signed HttpOnly cookie tokens with session version invalidation.
-* **Integrity:** Double-submit CSRF tokens on all state-changing endpoints.
-* **Authorization:** Server-side author verification for editing and deleting projects.
-* **Engagement:** Upvoting/downvoting with duplicate prevention, comments, and bookmarks.
-* **Testing:** 30 automated API tests, isolated load tests, and production build verification.
+</details>
 
 ---
 
-### 📁 Repository Structure
+### 🛡️ Security & Reliability
+
+* 🔑 **Cryptographic Passwords:** PBKDF2-SHA256 with 310,000 rounds and unique salt.
+* 🍪 **Signed HttpOnly Cookies:** Session tokens protected against XSS and tampering.
+* 🛡️ **Double-Submit CSRF:** Protection across all state-mutating requests.
+* 👤 **Ownership Enforcement:** Server-side author validation for project edit and delete actions.
+* ☁️ **Honest ₹0 Cloud Strategy:** Local zero-cost demonstration; AWS architectures (IAM, ECS, RDS, S3) prepared as IaC templates without unapproved cloud billing.
+
+---
+
+### 📁 Clean Repository Structure
 
 ```text
 Student-Project-Showcase-and-Gallery/
-├── backend/          # FastAPI application, models, routers, and test suite
-├── frontend/         # React 18 single-page application and styles
-├── docs/             # Technical architecture and deployment documentation
-├── infra/            # Reference CloudFormation and IAM policy templates
-├── loadtests/        # Locust and async benchmarking tools
+├── backend/          # FastAPI application, SQLAlchemy models, Pydantic schemas, 30 tests
+├── frontend/         # React 18 single-page application and responsive UI styles
+├── docs/             # Technical architecture, deployment specs, and ₹0 plan
+├── infra/            # Reference AWS CloudFormation and least-privilege IAM policies
+├── loadtests/        # Locust and async load benchmarking tools
 ├── docker-compose.yml# Container orchestration configuration
 ├── showcase.db       # Preserved 320-project catalog database
 ├── .gitignore        # Git exclusion rules
-└── README.md         # Project documentation
+└── README.md         # Visual interactive documentation
 ```
 
----
+<img src="https://user-images.githubusercontent.com/73097560/115834477-dbab4500-a447-11eb-908a-139a6edaec5c.gif" width="100%">
 
-<div align="center">
-  <sub>Built with React, FastAPI & SQLAlchemy • 2026</sub>
-</div>
+<img src="https://capsule-render.vercel.app/api?type=waving&color=gradient&customColorList=1,11,20,30&height=100&section=footer" width="100%"/>
