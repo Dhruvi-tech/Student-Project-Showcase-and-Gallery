@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { ExternalLink, MessageSquare, Bookmark, Share2, Check, Quote, Clock, GitCompare, FileText } from 'lucide-react';
+import { ExternalLink, MessageSquare, Bookmark, Share2, Check, Quote, Clock, GitCompare, FileText, HelpCircle, Layers } from 'lucide-react';
 import { VoteControls } from './VoteControls';
 
 const GithubIcon = ({ size = 14 }) => (
@@ -46,6 +46,8 @@ export function ProjectCard({
   isCompared = false,
   onToggleCompare,
   onOpenDossier,
+  onOpenViva,
+  onOpenArchitecture,
 }) {
   const [copied, setCopied] = useState(false);
 
@@ -239,7 +241,35 @@ export function ProjectCard({
           )}
         </div>
 
-        <div style={{ display: 'flex', alignItems: 'center', gap: '0.4rem' }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '0.35rem', flexWrap: 'wrap' }}>
+          {/* New Feature 1: Capstone Viva Defense Simulator */}
+          <button
+            type="button"
+            className="card-share-btn"
+            onClick={(e) => {
+              e.stopPropagation();
+              onOpenViva?.(project);
+            }}
+            title="Open Capstone Oral Viva Defense Simulator & Exam Questions"
+          >
+            <HelpCircle size={13} color="var(--accent-amber)" />
+            <span>Viva</span>
+          </button>
+
+          {/* New Feature 2: Interactive System Architecture Flowchart */}
+          <button
+            type="button"
+            className="card-share-btn"
+            onClick={(e) => {
+              e.stopPropagation();
+              onOpenArchitecture?.(project);
+            }}
+            title="View Multi-Tier Architecture & Topology Diagram"
+          >
+            <Layers size={13} color="var(--accent-cobalt)" />
+            <span>Diagram</span>
+          </button>
+
           {/* Feature 10: Academic Capstone Dossier */}
           <button
             type="button"

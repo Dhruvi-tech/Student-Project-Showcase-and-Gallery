@@ -18,6 +18,10 @@ import {
   Cloud,
   PieChart as PieIcon,
   Flame,
+  GitFork,
+  Filter,
+  RefreshCw,
+  Zap,
 } from 'lucide-react';
 
 const ECOSYSTEM_RULES = [
@@ -64,15 +68,32 @@ const ECOSYSTEM_RULES = [
 ];
 
 export function TechAnalyticsModal({ projects = [], onSelectTech, onSelectCategory, onOpenProject, onClose }) {
-  const [activeTab, setActiveTab] = useState('tech'); // 'tech' | 'domains' | 'ecosystems' | 'leaderboard'
+  const [activeTab, setActiveTab] = useState('tech'); // 'tech' | 'synergy' | 'domains' | 'ecosystems' | 'leaderboard'
   const [techSearch, setTechSearch] = useState('');
+  const [selectedDomainFilter, setSelectedDomainFilter] = useState('All');
   const [copied, setCopied] = useState(false);
 
-  // Compute live multi-dimensional analytics from the catalog
+  // Extract unique categories for drilldown filter
+  const allCategories = useMemo(() => {
+    const set = new Set();
+    projects.forEach((p) => {
+      if (p.category) set.add(p.category);
+    });
+    return ['All', ...Array.from(set).sort()];
+  }, [projects]);
+
+  // Filter projects by domain drilldown if selected
+  const activeProjects = useMemo(() => {
+    if (selectedDomainFilter === 'All') return projects;
+    return projects.filter((p) => (p.category || 'Other') === selectedDomainFilter);
+  }, [projects, selectedDomainFilter]);
+
+  // Compute live multi-dimensional analytics from active projects
   const analytics = useMemo(() => {
     const techCounts = {};
     const categoryCounts = {};
     const categoryVotes = {};
+    const pairCounts = {};
     const difficultyCounts = { Beginner: 0, Intermediate: 0, Advanced: 0 };
     const ecosystemCounts = {
       'AI, ML & Data Science': 0,
@@ -86,9 +107,11 @@ export function TechAnalyticsModal({ projects = [], onSelectTech, onSelectCatego
     let liveDemoCount = 0;
     let totalVotes = 0;
 
-    projects.forEach((p) => {
+    activeProjects.forEach((p) => {
+      const stacks = (p.tech_stacks || []).slice();
+
       // Tech counts & ecosystem categorization
-      (p.tech_stacks || []).forEach((t) => {
+      stacks.forEach((t) => {
         techCounts[t] = (techCounts[t] || 0) + 1;
         totalStacks++;
 
@@ -105,6 +128,15 @@ export function TechAnalyticsModal({ projects = [], onSelectTech, onSelectCatego
           ecosystemCounts['Other Developer Utilities'] = (ecosystemCounts['Other Developer Utilities'] || 0) + 1;
         }
       });
+
+      // Tech Co-occurrence / Synergy Pairs calculation
+      const sortedStacks = stacks.sort();
+      for (let i = 0; i < sortedStacks.length; i++) {
+        for (let j = i + 1; j < sortedStacks.length; j++) {
+          const pairKey = `${sortedStacks[i]} + ${sortedStacks[j]}`;
+          pairCounts[pairKey] = (pairCounts[pairKey] || 0) + 1;
+        }
+      }
 
       // Category counts & votes
       const cat = p.category || 'Other';
@@ -129,7 +161,19 @@ export function TechAnalyticsModal({ projects = [], onSelectTech, onSelectCatego
       .map(([name, count]) => ({
         name,
         count,
-        percentage: projects.length ? Math.round((count / projects.length) * 100) : 0,
+        percentage: activeProjects.length ? Math.round((count / activeProjects.length) * 100) : 0,
+      }));
+
+    // Sorted co-occurrence pairs (Architectural synergy)
+    const sortedPairs = Object.entries(pairCounts)
+      .sort((a, b) => b[1] - a[1])
+      .slice(0, 15)
+      .map(([pair, count]) => ({
+        pair,
+        techA: pair.split(' + ')[0],
+        techB: pair.split(' + ')[1],
+        count,
+        percentage: activeProjects.length ? Math.round((count / activeProjects.length) * 100) : 0,
       }));
 
     // Sorted categories descending
@@ -144,7 +188,7 @@ export function TechAnalyticsModal({ projects = [], onSelectTech, onSelectCatego
       }));
 
     // Top 5 upvoted projects (Leaderboard)
-    const topProjects = [...projects]
+    const topProjects = [...activeProjects]
       .sort((a, b) => (b.upvote_count || 0) - (a.upvote_count || 0))
       .slice(0, 5);
 
@@ -158,11 +202,12 @@ export function TechAnalyticsModal({ projects = [], onSelectTech, onSelectCatego
         percentage: totalEcosystemHits ? Math.round((count / totalEcosystemHits) * 100) : 0,
       }));
 
-    const avgStacks = projects.length ? (totalStacks / projects.length).toFixed(1) : 0;
+    const avgStacks = activeProjects.length ? (totalStacks / activeProjects.length).toFixed(1) : 0;
 
     return {
-      totalProjects: projects.length,
+      totalProjects: activeProjects.length,
       sortedTechs,
+      sortedPairs,
       sortedCategories,
       difficultyCounts,
       sortedEcosystems,
@@ -172,7 +217,7 @@ export function TechAnalyticsModal({ projects = [], onSelectTech, onSelectCatego
       totalVotes,
       uniqueTechsCount: sortedTechs.length,
     };
-  }, [projects]);
+  }, [activeProjects, projects]);
 
   // Filtered techs for in-modal search
   const visibleTechs = useMemo(() => {
@@ -195,14 +240,17 @@ export function TechAnalyticsModal({ projects = [], onSelectTech, onSelectCatego
   const handleCopySummary = () => {
     const top5Tech = analytics.sortedTechs.slice(0, 5).map((t) => `${t.name} (${t.count} projects, ${t.percentage}%)`).join(', ');
     const top3Cats = analytics.sortedCategories.slice(0, 3).map((c) => `${c.name} (${c.count} projects)`).join(', ');
+    const topPairs = analytics.sortedPairs.slice(0, 3).map((p) => `${p.pair} (${p.count} projects)`).join(', ');
     const report = `# ProjectSpace Academic Catalog Analytics Report
-• Total Capstone Projects: ${analytics.totalProjects}
+• Scope: ${selectedDomainFilter === 'All' ? 'All 320 Projects (All 20 Domains)' : `${selectedDomainFilter} (${analytics.totalProjects} projects)`}
+• Capstone Projects Analyzed: ${analytics.totalProjects}
 • Unique Technology Stacks: ${analytics.uniqueTechsCount}
 • Average Frameworks/Libs per Project: ${analytics.avgStacks}
 • Live Deployments: ${analytics.liveDemoCount} verified websites
 • Total Peer Evaluation Votes: ${analytics.totalVotes}
 • Difficulty Breakdown: Advanced (${analytics.difficultyCounts.Advanced}), Intermediate (${analytics.difficultyCounts.Intermediate}), Beginner (${analytics.difficultyCounts.Beginner})
 • Top 5 Technologies: ${top5Tech}
+• Top Architectural Pairings: ${topPairs}
 • Top Specialization Domains: ${top3Cats}
 Generated live from verified SQLite capstone database.`;
 
@@ -220,7 +268,7 @@ Generated live from verified SQLite capstone database.`;
     const beg = analytics.difficultyCounts.Beginner || 0;
 
     const r = 40;
-    const c = 2 * Math.PI * r; // ~251.32
+    const c = 2 * Math.PI * r;
 
     const advLen = (adv / total) * c;
     const intLen = (int / total) * c;
@@ -251,7 +299,7 @@ Generated live from verified SQLite capstone database.`;
         aria-modal="true"
         aria-labelledby="analytics-title"
         onClick={(e) => e.stopPropagation()}
-        style={{ maxWidth: '880px', width: '94%', maxHeight: '92vh', display: 'flex', flexDirection: 'column' }}
+        style={{ maxWidth: '920px', width: '95%', maxHeight: '92vh', display: 'flex', flexDirection: 'column' }}
       >
         {/* Header */}
         <div className="modal-header" style={{ padding: '1.2rem 1.6rem 0.85rem', borderBottom: '1px solid var(--border-subtle)', flexShrink: 0 }}>
@@ -274,13 +322,82 @@ Generated live from verified SQLite capstone database.`;
                 Technology &amp; Catalog Analytics
               </h3>
               <p style={{ margin: '0.15rem 0 0', fontSize: '0.8rem', color: 'var(--text-muted)' }}>
-                Live computational data analysis across {analytics.totalProjects} capstone projects &amp; 20 specialization domains
+                {selectedDomainFilter === 'All'
+                  ? `Live computational analysis across all ${analytics.totalProjects} capstone projects`
+                  : `Drilldown view: ${analytics.totalProjects} projects in "${selectedDomainFilter}"`}
               </p>
             </div>
           </div>
           <button className="modal-close-btn" onClick={onClose} aria-label="Close analytics modal">
             <X size={18} />
           </button>
+        </div>
+
+        {/* Domain Drilldown Filter Strip */}
+        <div style={{
+          display: 'flex',
+          alignItems: 'center',
+          gap: '0.65rem',
+          padding: '0.65rem 1.6rem',
+          background: 'var(--bg-surface)',
+          borderBottom: '1px solid var(--border-subtle)',
+          flexShrink: 0,
+          flexWrap: 'wrap'
+        }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '0.4rem', fontSize: '0.78rem', fontWeight: 700, color: 'var(--text-secondary)' }}>
+            <Filter size={13} color="var(--accent-cobalt)" />
+            <span>Scope Drilldown:</span>
+          </div>
+
+          <select
+            value={selectedDomainFilter}
+            onChange={(e) => setSelectedDomainFilter(e.target.value)}
+            style={{
+              padding: '0.3rem 0.75rem',
+              borderRadius: '6px',
+              background: 'var(--bg-surface-elevated)',
+              border: '1px solid var(--border-subtle)',
+              color: 'var(--text-primary)',
+              fontSize: '0.82rem',
+              fontWeight: 600,
+              cursor: 'pointer',
+              outline: 'none',
+              maxWidth: '300px'
+            }}
+          >
+            {allCategories.map((cat) => (
+              <option key={cat} value={cat}>
+                {cat === 'All' ? '⚡ Entire Catalog (All 320 Projects)' : `Track: ${cat}`}
+              </option>
+            ))}
+          </select>
+
+          {selectedDomainFilter !== 'All' && (
+            <button
+              type="button"
+              onClick={() => setSelectedDomainFilter('All')}
+              style={{
+                display: 'inline-flex',
+                alignItems: 'center',
+                gap: '0.3rem',
+                padding: '0.25rem 0.55rem',
+                borderRadius: '5px',
+                background: 'var(--accent-cobalt-subtle)',
+                color: 'var(--accent-cobalt)',
+                border: '1px solid var(--accent-cobalt-border)',
+                fontSize: '0.74rem',
+                fontWeight: 650,
+                cursor: 'pointer'
+              }}
+            >
+              <RefreshCw size={11} />
+              <span>Reset to All</span>
+            </button>
+          )}
+
+          <div style={{ marginLeft: 'auto', fontSize: '0.75rem', color: 'var(--text-muted)' }}>
+            Showing <strong>{analytics.totalProjects}</strong> projects
+          </div>
         </div>
 
         {/* Top 5 Key Metrics Strip */}
@@ -294,52 +411,61 @@ Generated live from verified SQLite capstone database.`;
           flexShrink: 0
         }}>
           <div style={{ padding: '0.6rem 0.8rem', background: 'var(--bg-surface)', borderRadius: '10px', border: '1px solid var(--border-subtle)' }}>
-            <span style={{ fontSize: '0.7rem', color: 'var(--text-muted)', textTransform: 'uppercase', fontWeight: 650, letterSpacing: '0.03em' }}>Total Projects</span>
-            <div style={{ fontSize: '1.4rem', fontWeight: 800, color: 'var(--text-primary)', marginTop: '0.1rem', fontFamily: 'var(--font-mono)' }}>{analytics.totalProjects}</div>
+            <span style={{ fontSize: '0.7rem', color: 'var(--text-muted)', textTransform: 'uppercase', fontWeight: 650, letterSpacing: '0.03em' }}>Projects</span>
+            <div style={{ fontSize: '1.35rem', fontWeight: 800, color: 'var(--text-primary)', marginTop: '0.1rem', fontFamily: 'var(--font-mono)' }}>{analytics.totalProjects}</div>
           </div>
           <div style={{ padding: '0.6rem 0.8rem', background: 'var(--bg-surface)', borderRadius: '10px', border: '1px solid var(--border-subtle)' }}>
             <span style={{ fontSize: '0.7rem', color: 'var(--text-muted)', textTransform: 'uppercase', fontWeight: 650, letterSpacing: '0.03em' }}>Unique Stacks</span>
-            <div style={{ fontSize: '1.4rem', fontWeight: 800, color: 'var(--accent-cobalt)', marginTop: '0.1rem', fontFamily: 'var(--font-mono)' }}>{analytics.uniqueTechsCount}</div>
+            <div style={{ fontSize: '1.35rem', fontWeight: 800, color: 'var(--accent-cobalt)', marginTop: '0.1rem', fontFamily: 'var(--font-mono)' }}>{analytics.uniqueTechsCount}</div>
           </div>
           <div style={{ padding: '0.6rem 0.8rem', background: 'var(--bg-surface)', borderRadius: '10px', border: '1px solid var(--border-subtle)' }}>
             <span style={{ fontSize: '0.7rem', color: 'var(--text-muted)', textTransform: 'uppercase', fontWeight: 650, letterSpacing: '0.03em' }}>Avg Stacks/Project</span>
-            <div style={{ fontSize: '1.4rem', fontWeight: 800, color: 'var(--accent-emerald)', marginTop: '0.1rem', fontFamily: 'var(--font-mono)' }}>{analytics.avgStacks}</div>
+            <div style={{ fontSize: '1.35rem', fontWeight: 800, color: 'var(--accent-emerald)', marginTop: '0.1rem', fontFamily: 'var(--font-mono)' }}>{analytics.avgStacks}</div>
           </div>
           <div style={{ padding: '0.6rem 0.8rem', background: 'var(--bg-surface)', borderRadius: '10px', border: '1px solid var(--border-subtle)' }}>
             <span style={{ fontSize: '0.7rem', color: 'var(--text-muted)', textTransform: 'uppercase', fontWeight: 650, letterSpacing: '0.03em' }}>Live Deployments</span>
-            <div style={{ fontSize: '1.4rem', fontWeight: 800, color: 'var(--accent-amber)', marginTop: '0.1rem', fontFamily: 'var(--font-mono)' }}>{analytics.liveDemoCount}</div>
+            <div style={{ fontSize: '1.35rem', fontWeight: 800, color: 'var(--accent-amber)', marginTop: '0.1rem', fontFamily: 'var(--font-mono)' }}>{analytics.liveDemoCount}</div>
           </div>
           <div style={{ padding: '0.6rem 0.8rem', background: 'var(--bg-surface)', borderRadius: '10px', border: '1px solid var(--border-subtle)' }}>
             <span style={{ fontSize: '0.7rem', color: 'var(--text-muted)', textTransform: 'uppercase', fontWeight: 650, letterSpacing: '0.03em' }}>Peer Upvotes</span>
-            <div style={{ fontSize: '1.4rem', fontWeight: 800, color: 'var(--accent-indigo)', marginTop: '0.1rem', fontFamily: 'var(--font-mono)' }}>{analytics.totalVotes}</div>
+            <div style={{ fontSize: '1.35rem', fontWeight: 800, color: 'var(--accent-indigo)', marginTop: '0.1rem', fontFamily: 'var(--font-mono)' }}>{analytics.totalVotes}</div>
           </div>
         </div>
 
-        {/* 4 Interactive Tab Selectors */}
-        <div style={{ display: 'flex', padding: '0.65rem 1.6rem 0', gap: '0.5rem', borderBottom: '1px solid var(--border-subtle)', flexShrink: 0, overflowX: 'auto' }}>
+        {/* 5 Interactive Tab Selectors */}
+        <div style={{ display: 'flex', padding: '0.65rem 1.6rem 0', gap: '0.45rem', borderBottom: '1px solid var(--border-subtle)', flexShrink: 0, overflowX: 'auto' }}>
           <button
             type="button"
             className={`auth-tab-btn ${activeTab === 'tech' ? 'active' : ''}`}
             onClick={() => setActiveTab('tech')}
-            style={{ padding: '0.45rem 0.85rem', fontSize: '0.82rem', whiteSpace: 'nowrap' }}
+            style={{ padding: '0.45rem 0.8rem', fontSize: '0.82rem', whiteSpace: 'nowrap' }}
           >
             <Cpu size={14} />
             <span>Technologies ({analytics.sortedTechs.length})</span>
           </button>
           <button
             type="button"
+            className={`auth-tab-btn ${activeTab === 'synergy' ? 'active' : ''}`}
+            onClick={() => setActiveTab('synergy')}
+            style={{ padding: '0.45rem 0.8rem', fontSize: '0.82rem', whiteSpace: 'nowrap' }}
+          >
+            <GitFork size={14} color="var(--accent-cobalt)" />
+            <span>Stack Synergy &amp; Pairings</span>
+          </button>
+          <button
+            type="button"
             className={`auth-tab-btn ${activeTab === 'domains' ? 'active' : ''}`}
             onClick={() => setActiveTab('domains')}
-            style={{ padding: '0.45rem 0.85rem', fontSize: '0.82rem', whiteSpace: 'nowrap' }}
+            style={{ padding: '0.45rem 0.8rem', fontSize: '0.82rem', whiteSpace: 'nowrap' }}
           >
             <Layers size={14} />
-            <span>20 Specialization Domains</span>
+            <span>Domains &amp; Tracks</span>
           </button>
           <button
             type="button"
             className={`auth-tab-btn ${activeTab === 'ecosystems' ? 'active' : ''}`}
             onClick={() => setActiveTab('ecosystems')}
-            style={{ padding: '0.45rem 0.85rem', fontSize: '0.82rem', whiteSpace: 'nowrap' }}
+            style={{ padding: '0.45rem 0.8rem', fontSize: '0.82rem', whiteSpace: 'nowrap' }}
           >
             <PieIcon size={14} />
             <span>Ecosystems &amp; Complexity</span>
@@ -348,7 +474,7 @@ Generated live from verified SQLite capstone database.`;
             type="button"
             className={`auth-tab-btn ${activeTab === 'leaderboard' ? 'active' : ''}`}
             onClick={() => setActiveTab('leaderboard')}
-            style={{ padding: '0.45rem 0.85rem', fontSize: '0.82rem', whiteSpace: 'nowrap' }}
+            style={{ padding: '0.45rem 0.8rem', fontSize: '0.82rem', whiteSpace: 'nowrap' }}
           >
             <Flame size={14} color="#f59e0b" />
             <span>Top Capstones</span>
@@ -365,7 +491,7 @@ Generated live from verified SQLite capstone database.`;
                 <Search size={15} color="var(--text-muted)" />
                 <input
                   type="text"
-                  placeholder="Search across all 50+ technologies (e.g. PyTorch, React, Docker, FastAPI)..."
+                  placeholder="Search technologies in this view (e.g. PyTorch, React, Docker, FastAPI)..."
                   value={techSearch}
                   onChange={(e) => setTechSearch(e.target.value)}
                   style={{ background: 'transparent', border: 'none', outline: 'none', color: 'var(--text-primary)', fontSize: '0.85rem', width: '100%' }}
@@ -440,11 +566,69 @@ Generated live from verified SQLite capstone database.`;
             </div>
           )}
 
-          {/* TAB 2: Specialization Domains */}
+          {/* TAB 2: Architectural Synergy & Tech Pairings (NEW) */}
+          {activeTab === 'synergy' && (
+            <div>
+              <div style={{ padding: '0.85rem 1rem', background: 'var(--accent-cobalt-subtle)', border: '1px solid var(--accent-cobalt-border)', borderRadius: '10px', marginBottom: '1rem' }}>
+                <h4 style={{ margin: 0, fontSize: '0.88rem', fontWeight: 750, color: 'var(--accent-cobalt)', display: 'flex', alignItems: 'center', gap: '0.4rem' }}>
+                  <Zap size={15} />
+                  <span>Architectural Technology Synergy Matrix</span>
+                </h4>
+                <p style={{ margin: '0.2rem 0 0', fontSize: '0.78rem', color: 'var(--text-secondary)' }}>
+                  Discovers which tools and frameworks student developers pair together in their capstone architectures:
+                </p>
+              </div>
+
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '0.65rem' }}>
+                {analytics.sortedPairs.map((p, idx) => (
+                  <div
+                    key={p.pair}
+                    style={{
+                      display: 'flex',
+                      alignItems: 'center',
+                      gap: '0.85rem',
+                      padding: '0.75rem 1rem',
+                      borderRadius: '10px',
+                      background: 'var(--bg-surface)',
+                      border: '1px solid var(--border-subtle)',
+                    }}
+                  >
+                    <span style={{ fontSize: '0.82rem', fontWeight: 800, color: 'var(--text-muted)', width: '28px' }}>
+                      #{idx + 1}
+                    </span>
+
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', width: '260px', flexShrink: 0 }}>
+                      <span className="tech-badge" style={{ margin: 0, fontWeight: 700 }}>{p.techA}</span>
+                      <span style={{ color: 'var(--text-muted)', fontSize: '0.8rem', fontWeight: 800 }}>+</span>
+                      <span className="tech-badge" style={{ margin: 0, fontWeight: 700 }}>{p.techB}</span>
+                    </div>
+
+                    <div style={{ flex: 1, height: '8px', background: 'var(--bg-surface-elevated)', borderRadius: '4px', overflow: 'hidden' }}>
+                      <div style={{
+                        width: `${Math.min(100, p.percentage * 2.5)}%`,
+                        height: '100%',
+                        background: 'linear-gradient(90deg, #6366f1, #a855f7)',
+                        borderRadius: '4px'
+                      }} />
+                    </div>
+
+                    <span style={{ fontSize: '0.84rem', fontWeight: 700, color: 'var(--text-primary)', width: '80px', textAlign: 'right', fontFamily: 'var(--font-mono)' }}>
+                      {p.count} projects
+                    </span>
+                    <span style={{ fontSize: '0.78rem', color: 'var(--text-muted)', width: '42px', textAlign: 'right', fontFamily: 'var(--font-mono)' }}>
+                      {p.percentage}%
+                    </span>
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
+
+          {/* TAB 3: Specialization Domains */}
           {activeTab === 'domains' && (
             <div>
               <p style={{ fontSize: '0.82rem', color: 'var(--text-muted)', marginBottom: '0.85rem' }}>
-                All 20 engineering specialization tracks sorted by project distribution:
+                All engineering specialization tracks sorted by project distribution:
               </p>
               <div style={{ display: 'flex', flexDirection: 'column', gap: '0.6rem' }}>
                 {analytics.sortedCategories.map((cat, idx) => (
@@ -497,13 +681,13 @@ Generated live from verified SQLite capstone database.`;
             </div>
           )}
 
-          {/* TAB 3: Ecosystems & Difficulty (Donut Chart + Engineering Layers) */}
+          {/* TAB 4: Ecosystems & Difficulty (Donut Chart + Engineering Layers) */}
           {activeTab === 'ecosystems' && (
             <div style={{ display: 'grid', gap: '1.25rem' }}>
               {/* Difficulty Donut Chart & Cards */}
               <div style={{ background: 'var(--bg-surface)', border: '1px solid var(--border-subtle)', borderRadius: '12px', padding: '1.2rem' }}>
                 <h4 style={{ fontSize: '0.92rem', fontWeight: 750, color: 'var(--text-primary)', margin: '0 0 1rem' }}>
-                  Project Complexity &amp; Difficulty Distribution
+                  Project Complexity &amp; Difficulty Distribution ({selectedDomainFilter})
                 </h4>
                 <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-around', flexWrap: 'wrap', gap: '1.5rem' }}>
                   {/* SVG Donut Chart */}
@@ -594,7 +778,7 @@ Generated live from verified SQLite capstone database.`;
             </div>
           )}
 
-          {/* TAB 4: Top 5 Highest-Rated Capstones Leaderboard */}
+          {/* TAB 5: Top 5 Highest-Rated Capstones Leaderboard */}
           {activeTab === 'leaderboard' && (
             <div>
               <p style={{ fontSize: '0.82rem', color: 'var(--text-muted)', marginBottom: '0.85rem' }}>

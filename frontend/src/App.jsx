@@ -15,6 +15,8 @@ import { TechAnalyticsModal } from './components/TechAnalyticsModal';
 import { ComparisonModal } from './components/ComparisonModal';
 import { ComparisonTray } from './components/ComparisonTray';
 import { DossierModal } from './components/DossierModal';
+import { VivaDefenseModal } from './components/VivaDefenseModal';
+import { ArchitectureVisualizerModal } from './components/ArchitectureVisualizerModal';
 import { api } from './services/api';
 import './styles/App.css';
 import {
@@ -77,6 +79,10 @@ export function App() {
   const [isComparisonModalOpen, setIsComparisonModalOpen] = useState(false);
   const [isAnalyticsModalOpen, setIsAnalyticsModalOpen] = useState(false);
   const [projectForDossier, setProjectForDossier] = useState(null);
+
+  // 2 New Advanced Features: Viva Defense Simulator & Architecture Diagram Visualizer
+  const [projectForViva, setProjectForViva] = useState(null);
+  const [projectForArchitecture, setProjectForArchitecture] = useState(null);
 
   // Health and System State
   const [healthData, setHealthData] = useState(null);
@@ -689,6 +695,8 @@ export function App() {
                   isCompared={comparisonProjects.some((cp) => cp.id === project.id)}
                   onToggleCompare={handleToggleCompare}
                   onOpenDossier={handleOpenDossier}
+                  onOpenViva={(p) => setProjectForViva(p)}
+                  onOpenArchitecture={(p) => setProjectForArchitecture(p)}
                 />
               ))}
             </div>
@@ -706,6 +714,8 @@ export function App() {
           onClose={() => setActiveProject(null)}
           onVote={handleVote}
           onOpenDossier={handleOpenDossier}
+          onOpenViva={(p) => setProjectForViva(p)}
+          onOpenArchitecture={(p) => setProjectForArchitecture(p)}
           onEdit={(project) => {
             setActiveProject(null);
             setProjectToEdit(project);
@@ -854,6 +864,22 @@ export function App() {
         <DossierModal
           project={projectForDossier}
           onClose={() => setProjectForDossier(null)}
+        />
+      )}
+
+      {/* New Feature 1: Capstone Oral Defense & Viva Simulator */}
+      {projectForViva && (
+        <VivaDefenseModal
+          project={projectForViva}
+          onClose={() => setProjectForViva(null)}
+        />
+      )}
+
+      {/* New Feature 2: Interactive System Architecture Flowchart & Layer Inspector */}
+      {projectForArchitecture && (
+        <ArchitectureVisualizerModal
+          project={projectForArchitecture}
+          onClose={() => setProjectForArchitecture(null)}
         />
       )}
 
