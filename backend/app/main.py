@@ -87,17 +87,58 @@ app.include_router(auth_router)
 app.include_router(discovery_router)
 
 
-@app.get("/", tags=["Root"])
-def root():
-    return {
-        "service": "Student Project Showcase & Peer Gallery API",
-        "status": "online",
-        "docs_url": "/docs",
-        "redoc_url": "/redoc",
-        "health_check": "/health",
-        "api_v1_projects": "/api/v1/projects",
-        "course": "CS3452 Cloud Platforms and Service Models",
-    }
+import os
+from fastapi.staticfiles import StaticFiles
+from fastapi.responses import FileResponse
+
+# Mount frontend production build if present
+frontend_dist = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", "..", "frontend", "dist"))
+if os.path.exists(frontend_dist) and os.path.isdir(os.path.join(frontend_dist, "assets")):
+    app.mount("/assets", StaticFiles(directory=os.path.join(frontend_dist, "assets")), name="assets")
+
+    @app.get("/favicon.ico", include_in_schema=False)
+    @app.get("/vite.svg", include_in_schema=False)
+    def serve_icons():
+        icon_path = os.path.join(frontend_dist, "vite.svg")
+        if os.path.exists(icon_path):
+            return FileResponse(icon_path)
+        return JSONResponse(status_code=404, content={"detail": "Not found"})
+
+    @app.get("/", tags=["Frontend"])
+    def serve_root():
+        index_file = os.path.join(frontend_dist, "index.html")
+        if os.path.exists(index_file):
+            return FileResponse(index_file)
+        return {
+            "service": "Student Project Showcase & Peer Gallery API",
+            "status": "online",
+            "docs_url": "/docs",
+            "health_check": "/health",
+        }
+
+    @app.get("/{full_path:path}", tags=["Frontend"])
+    def serve_spa(full_path: str):
+        if full_path.startswith(("api", "health", "docs", "redoc", "openapi.json")):
+            return JSONResponse(status_code=404, content={"detail": "Not found"})
+        target = os.path.join(frontend_dist, full_path)
+        if os.path.isfile(target):
+            return FileResponse(target)
+        index_file = os.path.join(frontend_dist, "index.html")
+        if os.path.exists(index_file):
+            return FileResponse(index_file)
+        return JSONResponse(status_code=404, content={"detail": "Not found"})
+else:
+    @app.get("/", tags=["Root"])
+    def root():
+        return {
+            "service": "Student Project Showcase & Peer Gallery API",
+            "status": "online",
+            "docs_url": "/docs",
+            "redoc_url": "/redoc",
+            "health_check": "/health",
+            "api_v1_projects": "/api/v1/projects",
+            "course": "CS3452 Cloud Platforms and Service Models",
+        }
 
 
 # Standardized error response handler for validation errors
