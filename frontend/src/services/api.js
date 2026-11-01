@@ -107,9 +107,17 @@ export const api = {
     return request('/api/v1/my/projects');
   },
 
+  async getStudentProjects(studentId = '') {
+    return this.getMyProjects();
+  },
+
   async getBookmarks(studentId = '') {
     const headers = studentId ? { 'X-Student-Id': studentId } : {};
     return request('/api/v1/my/bookmarks', { headers });
+  },
+
+  async getSavedProjects(studentId = '') {
+    return this.getBookmarks(studentId);
   },
 
   async setBookmark(projectId, saved, studentId = '') {

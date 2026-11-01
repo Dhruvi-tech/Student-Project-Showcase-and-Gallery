@@ -136,16 +136,23 @@ export function App() {
         return;
       }
 
-      if (savedProjectsMode && currentStudentId) {
+      if (savedProjectsMode) {
         const res = await api.getSavedProjects(currentStudentId);
-        setProjects(res.data || []);
-        setTotalCount(res.count || (res.data || []).length);
+        const bookmarkedList = res.data || [];
+        setProjects(bookmarkedList);
+        setTotalCount(res.total ?? bookmarkedList.length);
         return;
       }
 
-      const res = myProjectsMode && currentStudentId
-        ? await api.getStudentProjects(currentStudentId)
-        : await api.getProjects({
+      if (myProjectsMode) {
+        const res = await api.getStudentProjects(currentStudentId);
+        const myList = res.data || [];
+        setProjects(myList);
+        setTotalCount(res.total ?? myList.length);
+        return;
+      }
+
+      const res = await api.getProjects({
             sort: sortOption,
             category: selectedCategory,
             search: searchQuery,
@@ -314,12 +321,18 @@ export function App() {
 
   const toggleBookmark = async (project) => {
     try {
-      await api.setBookmark(project.id, !project.is_saved, currentStudentId);
-      setProjects((rows) =>
-        rows.map((row) => (row.id === project.id ? { ...row, is_saved: !project.is_saved } : row))
-      );
-      showToast(project.is_saved ? 'Removed from saved projects.' : 'Project bookmarked! 🔖', 'success');
-      if (savedProjectsMode && project.is_saved) loadProjects();
+      const willBeSaved = !project.is_saved;
+      await api.setBookmark(project.id, willBeSaved, currentStudentId);
+      setProjects((rows) => {
+        if (savedProjectsMode && !willBeSaved) {
+          return rows.filter((row) => row.id !== project.id);
+        }
+        return rows.map((row) => (row.id === project.id ? { ...row, is_saved: willBeSaved } : row));
+      });
+      if (savedProjectsMode && !willBeSaved) {
+        setTotalCount((prev) => Math.max(0, prev - 1));
+      }
+      showToast(willBeSaved ? 'Project bookmarked! 🔖' : 'Removed from saved projects.', 'success');
     } catch (err) {
       showToast(err.message || 'Could not update saved projects.', 'error');
     }
