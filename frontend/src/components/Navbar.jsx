@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import {
   Plus,
   Terminal,
@@ -18,7 +18,50 @@ import {
   LogOut,
   FolderGit2,
   Zap,
+  Layers,
+  ChevronDown,
+  CheckSquare,
+  Square,
+  Search,
+  Check,
+  Globe,
+  Cloud,
+  Shield,
+  Database,
+  Smartphone,
+  Cpu,
+  Wifi,
+  Gamepad2,
+  Eye,
+  MessageSquare,
+  Code,
+  CreditCard,
+  Activity,
+  GraduationCap,
 } from 'lucide-react';
+
+export const ALL_DOMAINS = [
+  { name: 'Web Development & Full Stack', count: 25, icon: Globe, track: 'Web & Cloud' },
+  { name: 'Cloud Computing & DevOps', count: 23, icon: Cloud, track: 'Web & Cloud' },
+  { name: 'Data Science & Analytics', count: 21, icon: BarChart2, track: 'Data & AI' },
+  { name: 'AI & Machine Learning', count: 19, icon: Brain, track: 'Data & AI' },
+  { name: 'Cybersecurity', count: 17, icon: Shield, track: 'Security & Systems' },
+  { name: 'Blockchain & Web3', count: 15, icon: Layers, track: 'Web3 & Emerging' },
+  { name: 'Computer Vision', count: 15, icon: Eye, track: 'Data & AI' },
+  { name: 'Natural Language Processing', count: 15, icon: MessageSquare, track: 'Data & AI' },
+  { name: 'Mobile App Development', count: 15, icon: Smartphone, track: 'Mobile & Devices' },
+  { name: 'Internet of Things', count: 15, icon: Wifi, track: 'Mobile & Devices' },
+  { name: 'Generative AI & AI Agents', count: 14, icon: Sparkles, track: 'Data & AI' },
+  { name: 'Data Engineering & Big Data', count: 14, icon: Database, track: 'Data & AI' },
+  { name: 'Robotics & Automation', count: 14, icon: Cpu, track: 'Mobile & Devices' },
+  { name: 'Game Development', count: 14, icon: Gamepad2, track: 'Media & 3D' },
+  { name: 'AR/VR', count: 14, icon: Eye, track: 'Media & 3D' },
+  { name: 'Software Engineering & Developer Tools', count: 14, icon: Terminal, track: 'Security & Systems' },
+  { name: 'Open Source & Developer Utilities', count: 14, icon: Code, track: 'Security & Systems' },
+  { name: 'FinTech', count: 14, icon: CreditCard, track: 'Industry Apps' },
+  { name: 'HealthTech', count: 14, icon: Activity, track: 'Industry Apps' },
+  { name: 'EdTech', count: 14, icon: GraduationCap, track: 'Industry Apps' },
+];
 
 // Modern 3D isometric project cube emblem with illuminated center core
 const ShowcaseEmblem = ({ size = 22 }) => (
@@ -93,12 +136,63 @@ export function Navbar({
   onShowRecommendations,
   onEditProfile,
   activeNav = 'home',
+  selectedCategories = ['All'],
+  onSelectCategories,
 }) {
   const [mobileOpen, setMobileOpen] = useState(false);
+  const [isDomainsDropdownOpen, setIsDomainsDropdownOpen] = useState(false);
+  const [domainSearch, setDomainSearch] = useState('');
+  const domainsDropdownRef = useRef(null);
+
+  // Close dropdown on click outside
+  useEffect(() => {
+    const handleClickOutside = (e) => {
+      if (domainsDropdownRef.current && !domainsDropdownRef.current.contains(e.target)) {
+        setIsDomainsDropdownOpen(false);
+      }
+    };
+    if (isDomainsDropdownOpen) {
+      document.addEventListener('mousedown', handleClickOutside);
+    }
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside);
+    };
+  }, [isDomainsDropdownOpen]);
+
+  const handleToggleDomain = (domainName) => {
+    let next;
+    if (selectedCategories.includes('All')) {
+      // Switch from All to this single domain
+      next = [domainName];
+    } else if (selectedCategories.includes(domainName)) {
+      // Uncheck
+      next = selectedCategories.filter((c) => c !== domainName);
+      if (next.length === 0) next = ['All'];
+    } else {
+      // Check additional domain
+      next = [...selectedCategories, domainName];
+      if (next.length === ALL_DOMAINS.length) next = ['All'];
+    }
+    onSelectCategories?.(next);
+  };
+
+  const selectAllDomains = () => {
+    onSelectCategories?.(['All']);
+  };
+
+  const clearAllDomains = () => {
+    onSelectCategories?.([]);
+  };
+
+  const filteredDomains = ALL_DOMAINS.filter((d) =>
+    d.name.toLowerCase().includes(domainSearch.toLowerCase()) ||
+    d.track.toLowerCase().includes(domainSearch.toLowerCase())
+  );
 
   const navigate = (target) => {
     onNavigate?.(target);
     setMobileOpen(false);
+    setIsDomainsDropdownOpen(false);
   };
 
   return (
@@ -145,23 +239,146 @@ export function Navbar({
             <span>Explore (320)</span>
           </button>
 
-          <button
-            className={`nav-btn ${activeNav === 'ai' ? 'active' : ''}`}
-            onClick={() => navigate('ai')}
-            title="Filter AI & Machine Learning projects"
-          >
-            <Brain size={14} />
-            <span>AI &amp; ML</span>
-          </button>
+          {/* ALL 20 DOMAINS DROPDOWN & TICK SELECTOR (TOP NAVBAR) */}
+          <div className="nav-dropdown-wrapper" ref={domainsDropdownRef}>
+            <button
+              type="button"
+              className={`nav-btn nav-btn-domains ${isDomainsDropdownOpen || (!selectedCategories.includes('All') && selectedCategories.length > 0) ? 'active' : ''}`}
+              onClick={() => setIsDomainsDropdownOpen((prev) => !prev)}
+              aria-expanded={isDomainsDropdownOpen}
+              title="Browse and tick any of the 20 technical domains"
+            >
+              <Layers size={14} />
+              <span>
+                {selectedCategories.length === 0 || selectedCategories.includes('All')
+                  ? 'Domains (All 20)'
+                  : selectedCategories.length === 1
+                  ? selectedCategories[0].length > 16 ? selectedCategories[0].slice(0, 14) + '…' : selectedCategories[0]
+                  : `Domains (${selectedCategories.length})`}
+              </span>
+              <ChevronDown size={13} className={`dropdown-caret ${isDomainsDropdownOpen ? 'open' : ''}`} />
+            </button>
 
-          <button
-            className={`nav-btn ${activeNav === 'data' ? 'active' : ''}`}
-            onClick={() => navigate('data')}
-            title="Filter Data Science & Analytics projects"
-          >
-            <BarChart2 size={14} />
-            <span>Data Science</span>
-          </button>
+            {isDomainsDropdownOpen && (
+              <div className="top-domains-popover">
+                {/* Popover Header */}
+                <div className="popover-header">
+                  <div className="popover-title-row">
+                    <div className="popover-title">
+                      <Layers size={16} className="popover-title-icon" />
+                      <strong>Which domains do you want to explore? (All 20)</strong>
+                    </div>
+                    <button
+                      type="button"
+                      className="popover-close-btn"
+                      onClick={() => setIsDomainsDropdownOpen(false)}
+                      aria-label="Close domains menu"
+                    >
+                      <X size={15} />
+                    </button>
+                  </div>
+                  <p className="popover-subtitle">
+                    Tick the domains you want to view across our 320 peer projects:
+                  </p>
+
+                  {/* Search inside popover */}
+                  <div className="popover-search-row">
+                    <div className="popover-search-box">
+                      <Search size={13} />
+                      <input
+                        type="text"
+                        placeholder="Search domains (e.g. Cyber, Cloud, Web, Robot)..."
+                        value={domainSearch}
+                        onChange={(e) => setDomainSearch(e.target.value)}
+                        autoFocus
+                      />
+                      {domainSearch && (
+                        <button type="button" className="popover-search-clear" onClick={() => setDomainSearch('')}>
+                          <X size={12} />
+                        </button>
+                      )}
+                    </div>
+
+                    <div className="popover-quick-actions">
+                      <button type="button" className="quick-action-link" onClick={selectAllDomains}>
+                        <CheckSquare size={12} />
+                        <span>Select All 20</span>
+                      </button>
+                      <span className="dot-sep">•</span>
+                      <button type="button" className="quick-action-link" onClick={clearAllDomains}>
+                        <Square size={12} />
+                        <span>Clear All</span>
+                      </button>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Grid of all 20 domains with TICK checkboxes */}
+                <div className="popover-domains-grid">
+                  {filteredDomains.map((domain) => {
+                    const Icon = domain.icon;
+                    const isTicked = selectedCategories.includes('All') || selectedCategories.includes(domain.name);
+                    const isExplicitlyTicked = !selectedCategories.includes('All') && selectedCategories.includes(domain.name);
+
+                    return (
+                      <div
+                        key={domain.name}
+                        className={`domain-tick-row ${isExplicitlyTicked ? 'is-ticked' : selectedCategories.includes('All') ? 'is-all' : ''}`}
+                        onClick={() => handleToggleDomain(domain.name)}
+                      >
+                        <div className="tick-box-indicator">
+                          {isExplicitlyTicked ? (
+                            <CheckSquare size={16} className="tick-icon-checked" />
+                          ) : selectedCategories.includes('All') ? (
+                            <CheckSquare size={16} className="tick-icon-all" />
+                          ) : (
+                            <Square size={16} className="tick-icon-empty" />
+                          )}
+                        </div>
+                        <div className="domain-row-icon">
+                          <Icon size={14} />
+                        </div>
+                        <div className="domain-row-content">
+                          <span className="domain-row-title">{domain.name}</span>
+                          <span className="domain-row-track">{domain.track}</span>
+                        </div>
+                        <span className="domain-row-count">{domain.count}</span>
+                      </div>
+                    );
+                  })}
+                </div>
+
+                {/* Popover Footer */}
+                <div className="popover-footer">
+                  <div className="popover-status-text">
+                    {selectedCategories.includes('All') || selectedCategories.length === 0
+                      ? 'Showing all 320 projects across 20 domains'
+                      : `Showing projects from ${selectedCategories.length} selected domain${selectedCategories.length > 1 ? 's' : ''}`}
+                  </div>
+                  <div className="popover-footer-actions">
+                    <button
+                      type="button"
+                      className="btn-secondary btn-sm"
+                      onClick={() => {
+                        selectAllDomains();
+                        setIsDomainsDropdownOpen(false);
+                      }}
+                    >
+                      Reset (All 20)
+                    </button>
+                    <button
+                      type="button"
+                      className="btn-primary btn-sm btn-apply-domains"
+                      onClick={() => setIsDomainsDropdownOpen(false)}
+                    >
+                      <Check size={13} />
+                      <span>Apply & View</span>
+                    </button>
+                  </div>
+                </div>
+              </div>
+            )}
+          </div>
 
           <button
             className={`nav-btn ${activeNav === 'trending' ? 'active' : ''}`}

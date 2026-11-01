@@ -43,8 +43,30 @@ export function App() {
   // Filters & Sorting
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedCategory, setSelectedCategory] = useState('All');
+  const [selectedCategories, setSelectedCategories] = useState(['All']);
   const [selectedTech, setSelectedTech] = useState('All');
   const [sortOption, setSortOption] = useState('upvotes');
+
+  const handleSelectCategories = (cats) => {
+    const sanitized = !cats || cats.length === 0 ? ['All'] : cats;
+    setSelectedCategories(sanitized);
+    setSelectedCategory(sanitized.length === 1 ? sanitized[0] : (sanitized.includes('All') ? 'All' : sanitized[0]));
+    setMyProjectsMode(false);
+    setSavedProjectsMode(false);
+    setRecommendationsMode(false);
+
+    if (sanitized.includes('All')) {
+      showToast('Showing all 20 technical domains (320 projects)', 'info');
+    } else if (sanitized.length === 1) {
+      showToast(`Filtering by domain: ${sanitized[0]}`, 'info');
+    } else {
+      showToast(`Filtering by ${sanitized.length} selected domains`, 'info');
+    }
+
+    setTimeout(() => {
+      document.getElementById('gallery')?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    }, 50);
+  };
 
   // Development Identity Personas with synchronous localStorage persistence
   const [currentUser, setCurrentUser] = useState(() => {
@@ -253,10 +275,10 @@ export function App() {
     ? 'my-projects'
     : recommendationsMode
     ? 'recommended'
-    : selectedCategory === 'AI & Machine Learning'
-    ? 'ai'
-    : selectedCategory === 'Data Science & Analytics'
-    ? 'data'
+    : (!selectedCategories.includes('All') && selectedCategories.length > 0)
+    ? 'domains'
+    : selectedCategory !== 'All'
+    ? 'domains'
     : sortOption === 'upvotes' && selectedCategory === 'All' && !searchQuery
     ? 'trending'
     : 'explore';
@@ -395,8 +417,16 @@ export function App() {
     return () => clearTimeout(timer);
   }, [loadProjects]);
 
-  // Filter projects in-memory by Technology
+  // Filter projects in-memory by Technology and Multi-ticked Categories
   const visibleProjects = projects.filter((project) => {
+    // 1. Multi-ticked Categories filter (from top navbar domains menu)
+    if (selectedCategories.length > 0 && !selectedCategories.includes('All')) {
+      if (!selectedCategories.includes(project.category)) return false;
+    } else if (selectedCategory && selectedCategory !== 'All') {
+      if (project.category !== selectedCategory) return false;
+    }
+
+    // 2. Tech Stack filter
     if (selectedTech && selectedTech !== 'All') {
       const matchTech = (project.tech_stacks || []).some((t) =>
         t.toLowerCase().includes(selectedTech.toLowerCase())
@@ -501,12 +531,15 @@ export function App() {
     setSelectedTech('All');
 
     if (target === 'ai') {
+      setSelectedCategories(['AI & Machine Learning']);
       setSelectedCategory('AI & Machine Learning');
       showToast('Filtering: AI & Machine Learning Track', 'info');
     } else if (target === 'data') {
+      setSelectedCategories(['Data Science & Analytics']);
       setSelectedCategory('Data Science & Analytics');
       showToast('Filtering: Data Science & Analytics Track', 'info');
     } else {
+      setSelectedCategories(['All']);
       setSelectedCategory('All');
       if (target === 'explore') showToast('Showing all 320 projects', 'info');
     }
@@ -618,6 +651,8 @@ export function App() {
         onShowRecommendations={() => handleNavigate('recommended')}
         onEditProfile={() => setIsProfileEditorOpen(true)}
         activeNav={activeNav}
+        selectedCategories={selectedCategories}
+        onSelectCategories={handleSelectCategories}
       />
 
       {/* Hero Section with Quick Actions */}
