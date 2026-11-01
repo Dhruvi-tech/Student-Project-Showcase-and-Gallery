@@ -12,6 +12,7 @@ import {
   TrendingUp,
   Brain,
   BarChart2,
+  BarChart3,
   Compass,
   Home,
   User,
@@ -23,6 +24,7 @@ import {
 export function Navbar({
   onOpenPublishModal,
   onOpenExplainModal,
+  onOpenAnalytics,
   healthData,
   theme = 'light',
   onToggleTheme,
@@ -137,6 +139,19 @@ export function Navbar({
             <Bookmark size={14} />
             <span>Saved</span>
           </button>
+
+          {/* Feature 3: Tech Stack Analytics */}
+          <button
+            className={`nav-btn ${activeNav === 'analytics' ? 'active' : ''}`}
+            onClick={() => {
+              onOpenAnalytics?.();
+              setMobileOpen(false);
+            }}
+            title="Tech Stack Analytics & Visual Distribution Charts"
+          >
+            <BarChart3 size={14} />
+            <span>Analytics</span>
+          </button>
         </nav>
 
         {/* Right side controls */}
@@ -149,6 +164,16 @@ export function Navbar({
             <span className="health-dot"></span>
             <span>{healthData?.status === 'healthy' ? 'API Active' : 'Connecting…'}</span>
           </div>
+
+          {/* Feature 3: Analytics Action */}
+          <button
+            className="btn-explain"
+            onClick={onOpenAnalytics}
+            title="Open Tech Stack Analytics & Visual Distribution"
+          >
+            <BarChart3 size={14} />
+            <span className="btn-explain-text">Analytics</span>
+          </button>
 
           {/* Explain Architecture Guide */}
           <button

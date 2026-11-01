@@ -11,9 +11,28 @@ import { AuthorProfileModal } from './components/AuthorProfileModal';
 import { ProfileEditModal } from './components/ProfileEditModal';
 import { CitationModal } from './components/CitationModal';
 import { ExportModal } from './components/ExportModal';
+import { TechAnalyticsModal } from './components/TechAnalyticsModal';
+import { ComparisonModal } from './components/ComparisonModal';
+import { ComparisonTray } from './components/ComparisonTray';
+import { DossierModal } from './components/DossierModal';
 import { api } from './services/api';
 import './styles/App.css';
-import { Terminal, FolderSearch, AlertTriangle, CheckCircle, Info, Sparkles, TrendingUp, Brain, BarChart2, Plus, Compass } from 'lucide-react';
+import {
+  Terminal,
+  FolderSearch,
+  AlertTriangle,
+  CheckCircle,
+  Info,
+  Sparkles,
+  TrendingUp,
+  Brain,
+  BarChart2,
+  BarChart3,
+  GitCompare,
+  FileText,
+  Plus,
+  Compass,
+} from 'lucide-react';
 
 export function App() {
   const [projects, setProjects] = useState([]);
@@ -52,6 +71,12 @@ export function App() {
   const [isPublishModalOpen, setIsPublishModalOpen] = useState(false);
   const [isExplainModalOpen, setIsExplainModalOpen] = useState(false);
   const [votingIds, setVotingIds] = useState(new Set());
+
+  // High-Priority Features: Comparison, Analytics & Academic Dossier
+  const [comparisonProjects, setComparisonProjects] = useState([]);
+  const [isComparisonModalOpen, setIsComparisonModalOpen] = useState(false);
+  const [isAnalyticsModalOpen, setIsAnalyticsModalOpen] = useState(false);
+  const [projectForDossier, setProjectForDossier] = useState(null);
 
   // Health and System State
   const [healthData, setHealthData] = useState(null);
@@ -136,7 +161,9 @@ export function App() {
   }, []);
 
   // Compute Active Navigation tab
-  const activeNav = savedProjectsMode
+  const activeNav = isAnalyticsModalOpen
+    ? 'analytics'
+    : savedProjectsMode
     ? 'saved'
     : myProjectsMode
     ? 'my-projects'
@@ -369,6 +396,37 @@ export function App() {
     showToast(`Share link copied for "${project.title}"! 🔗`, 'success');
   };
 
+  // Feature 1: Project Comparison Handlers
+  const handleToggleCompare = (project) => {
+    setComparisonProjects((prev) => {
+      const exists = prev.some((p) => p.id === project.id);
+      if (exists) {
+        showToast(`Removed "${project.title}" from comparison tray.`, 'info');
+        return prev.filter((p) => p.id !== project.id);
+      }
+      if (prev.length >= 3) {
+        showToast('You can compare at most 3 projects at once.', 'error');
+        return prev;
+      }
+      showToast(`Added "${project.title}" to comparison (${prev.length + 1}/3).`, 'success');
+      return [...prev, project];
+    });
+  };
+
+  const handleRemoveCompare = (projectId) => {
+    setComparisonProjects((prev) => prev.filter((p) => p.id !== projectId));
+  };
+
+  const handleClearCompare = () => {
+    setComparisonProjects([]);
+    showToast('Comparison tray cleared.', 'info');
+  };
+
+  // Feature 10: Academic Dossier Handler
+  const handleOpenDossier = (project) => {
+    setProjectForDossier(project);
+  };
+
   const handleAuthenticated = async (user) => {
     setCurrentUser(user);
     setCurrentStudentId(user.id);
@@ -394,6 +452,7 @@ export function App() {
       <Navbar
         onOpenPublishModal={() => { setProjectToEdit(null); setIsPublishModalOpen(true); }}
         onOpenExplainModal={() => setIsExplainModalOpen(true)}
+        onOpenAnalytics={() => setIsAnalyticsModalOpen(true)}
         healthData={healthData}
         theme={theme}
         onToggleTheme={toggleTheme}
@@ -438,6 +497,14 @@ export function App() {
               <button className="btn-hero-secondary" onClick={() => handleNavigate('trending')}>
                 <TrendingUp size={16} />
                 <span>Trending</span>
+              </button>
+              <button
+                className="btn-hero-secondary"
+                onClick={() => setIsAnalyticsModalOpen(true)}
+                title="View Tech Stack Analytics & Visual Distribution Charts"
+              >
+                <BarChart3 size={16} />
+                <span>Analytics</span>
               </button>
               <button className="btn-hero-cta" onClick={() => { setProjectToEdit(null); setIsPublishModalOpen(true); }}>
                 <Plus size={16} />
@@ -619,6 +686,9 @@ export function App() {
                   onOpenAuthor={(id) => setProfileStudentId(id)}
                   onShare={handleShareProject}
                   onCite={(p) => setProjectToCite(p)}
+                  isCompared={comparisonProjects.some((cp) => cp.id === project.id)}
+                  onToggleCompare={handleToggleCompare}
+                  onOpenDossier={handleOpenDossier}
                 />
               ))}
             </div>
@@ -635,6 +705,7 @@ export function App() {
           currentUser={currentUser}
           onClose={() => setActiveProject(null)}
           onVote={handleVote}
+          onOpenDossier={handleOpenDossier}
           onEdit={(project) => {
             setActiveProject(null);
             setProjectToEdit(project);
@@ -732,6 +803,53 @@ export function App() {
           projects={visibleProjects}
           selectedCategory={selectedCategory}
           onClose={() => setIsExportModalOpen(false)}
+        />
+      )}
+
+      {/* Feature 1: Floating Comparison Tray */}
+      <ComparisonTray
+        selectedProjects={comparisonProjects}
+        onRemove={handleRemoveCompare}
+        onClear={handleClearCompare}
+        onOpenModal={() => setIsComparisonModalOpen(true)}
+      />
+
+      {/* Feature 1: Capstone Side-by-Side Comparison Matrix Modal */}
+      {isComparisonModalOpen && (
+        <ComparisonModal
+          projects={comparisonProjects}
+          onRemoveProject={handleRemoveCompare}
+          onOpenDetails={(p) => {
+            setIsComparisonModalOpen(false);
+            setActiveProject(p);
+          }}
+          onClose={() => setIsComparisonModalOpen(false)}
+        />
+      )}
+
+      {/* Feature 3: Technology Analytics & Distribution Chart Modal */}
+      {isAnalyticsModalOpen && (
+        <TechAnalyticsModal
+          projects={projects}
+          onSelectTech={(tech) => {
+            setSelectedTech(tech);
+            setIsAnalyticsModalOpen(false);
+            document.getElementById('gallery')?.scrollIntoView({ behavior: 'smooth' });
+          }}
+          onSelectCategory={(cat) => {
+            setSelectedCategory(cat);
+            setIsAnalyticsModalOpen(false);
+            document.getElementById('gallery')?.scrollIntoView({ behavior: 'smooth' });
+          }}
+          onClose={() => setIsAnalyticsModalOpen(false)}
+        />
+      )}
+
+      {/* Feature 10: Academic Capstone Dossier Print / PDF Modal */}
+      {projectForDossier && (
+        <DossierModal
+          project={projectForDossier}
+          onClose={() => setProjectForDossier(null)}
         />
       )}
 

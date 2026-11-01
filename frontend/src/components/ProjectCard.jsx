@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { ExternalLink, MessageSquare, Bookmark, Share2, Check, Quote, Clock } from 'lucide-react';
+import { ExternalLink, MessageSquare, Bookmark, Share2, Check, Quote, Clock, GitCompare, FileText } from 'lucide-react';
 import { VoteControls } from './VoteControls';
 
 const GithubIcon = ({ size = 14 }) => (
@@ -43,6 +43,9 @@ export function ProjectCard({
   onOpenAuthor,
   onShare,
   onCite,
+  isCompared = false,
+  onToggleCompare,
+  onOpenDossier,
 }) {
   const [copied, setCopied] = useState(false);
 
@@ -181,6 +184,22 @@ export function ProjectCard({
           <Bookmark size={15} fill={project.is_saved ? 'currentColor' : 'none'} />
           <span>{project.is_saved ? 'Saved' : 'Save'}</span>
         </button>
+
+        {/* Feature 1: Side-by-side comparison toggle */}
+        <button
+          type="button"
+          className={`card-compare-btn ${isCompared ? 'is-compared' : ''}`}
+          onClick={(e) => {
+            e.stopPropagation();
+            onToggleCompare?.(project);
+          }}
+          title={isCompared ? 'Remove from comparison matrix' : 'Add to side-by-side comparison matrix (up to 3)'}
+          aria-pressed={isCompared}
+        >
+          <GitCompare size={13} />
+          <span>{isCompared ? 'Comparing' : 'Compare'}</span>
+        </button>
+
         <button
           className="comments-badge"
           onClick={() => onOpenDetails(project)}
@@ -221,6 +240,20 @@ export function ProjectCard({
         </div>
 
         <div style={{ display: 'flex', alignItems: 'center', gap: '0.4rem' }}>
+          {/* Feature 10: Academic Capstone Dossier */}
+          <button
+            type="button"
+            className="card-share-btn card-dossier-btn"
+            onClick={(e) => {
+              e.stopPropagation();
+              onOpenDossier?.(project);
+            }}
+            title="Generate Academic Capstone Dossier (PDF / Print)"
+          >
+            <FileText size={13} />
+            <span>Dossier</span>
+          </button>
+
           <button
             type="button"
             className="card-share-btn card-cite-btn"

@@ -2352,3 +2352,410 @@ a.author-profile-link:hover { color: var(--accent-cobalt); text-decoration: unde
     transform: translateY(0);
   }
 }
+
+/* ==========================================================================
+   Feature 1: Project Comparison Floating Tray & Matrix Styles
+   ========================================================================== */
+.comparison-floating-tray {
+  position: fixed;
+  bottom: 1.5rem;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 999;
+  width: min(92%, 780px);
+  animation: traySlideUp 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+@keyframes traySlideUp {
+  from {
+    opacity: 0;
+    transform: translate(-50%, 20px);
+  }
+  to {
+    opacity: 1;
+    transform: translate(-50%, 0);
+  }
+}
+
+.comparison-tray-container {
+  display: flex;
+  align-items: center;
+  gap: 0.85rem;
+  padding: 0.75rem 1.15rem;
+  background: var(--bg-surface);
+  border: 1px solid var(--accent-cobalt-border);
+  border-radius: var(--radius-lg);
+  box-shadow: 0 12px 36px rgba(0, 0, 0, 0.28), 0 0 0 1px var(--accent-cobalt-subtle);
+  backdrop-filter: blur(12px);
+  flex-wrap: wrap;
+}
+
+.comparison-tray-header {
+  display: flex;
+  align-items: center;
+  gap: 0.45rem;
+  font-weight: 700;
+  font-size: 0.84rem;
+  color: var(--text-primary);
+  white-space: nowrap;
+}
+
+.comparison-tray-title {
+  color: var(--text-primary);
+}
+
+.comparison-chips {
+  display: flex;
+  align-items: center;
+  gap: 0.45rem;
+  flex: 1;
+  overflow-x: auto;
+  padding-bottom: 2px;
+}
+
+.comparison-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  background: var(--accent-cobalt-subtle);
+  border: 1px solid var(--accent-cobalt-border);
+  color: var(--accent-cobalt);
+  font-size: 0.76rem;
+  font-weight: 600;
+  padding: 0.25rem 0.55rem;
+  border-radius: var(--radius-sm);
+  white-space: nowrap;
+}
+
+.comparison-chip-remove {
+  background: transparent;
+  border: none;
+  color: var(--accent-cobalt);
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 1px;
+  border-radius: 3px;
+  opacity: 0.75;
+  transition: opacity 0.15s;
+}
+
+.comparison-chip-remove:hover {
+  opacity: 1;
+  background: rgba(37, 99, 235, 0.15);
+}
+
+.comparison-tray-actions {
+  display: flex;
+  align-items: center;
+  gap: 0.45rem;
+  margin-left: auto;
+}
+
+.btn-tray-clear {
+  background: transparent;
+  border: 1px solid var(--border-subtle);
+  color: var(--text-muted);
+  font-size: 0.78rem;
+  font-weight: 600;
+  padding: 0.35rem 0.65rem;
+  border-radius: var(--radius-sm);
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.btn-tray-clear:hover {
+  color: var(--accent-rose);
+  border-color: var(--accent-rose-border);
+  background: var(--accent-rose-subtle);
+}
+
+.btn-tray-compare {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.45rem;
+  background: var(--accent-cobalt);
+  color: #ffffff;
+  border: 1px solid transparent;
+  font-size: 0.82rem;
+  font-weight: 650;
+  padding: 0.4rem 0.95rem;
+  border-radius: var(--radius-sm);
+  cursor: pointer;
+  box-shadow: 0 2px 8px rgba(37, 99, 235, 0.35);
+  transition: all 0.15s ease;
+}
+
+.btn-tray-compare:hover:not(:disabled) {
+  background: #1d4ed8;
+  transform: translateY(-1px);
+}
+
+.btn-tray-compare:disabled {
+  opacity: 0.55;
+  cursor: not-allowed;
+  box-shadow: none;
+}
+
+/* Compare Button on ProjectCard */
+.card-compare-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  padding: 0.3rem 0.6rem;
+  border-radius: var(--radius-sm);
+  font-size: 0.76rem;
+  font-weight: 600;
+  color: var(--text-secondary);
+  background: var(--bg-surface-elevated);
+  border: 1px solid var(--border-subtle);
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.card-compare-btn:hover {
+  color: var(--accent-cobalt);
+  border-color: var(--accent-cobalt-border);
+  background: var(--accent-cobalt-subtle);
+}
+
+.card-compare-btn.is-compared {
+  color: #ffffff;
+  background: var(--accent-cobalt);
+  border-color: var(--accent-cobalt);
+}
+
+/* Dossier Button on ProjectCard */
+.card-dossier-btn:hover {
+  color: var(--accent-indigo);
+  border-color: var(--accent-indigo-border);
+  background: var(--accent-indigo-subtle);
+}
+
+/* ==========================================================================
+   Feature 2: Academic Rubric Scorecard & Star Rating Styles
+   ========================================================================== */
+.academic-rubric-card {
+  background: var(--bg-surface-elevated);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-md);
+  padding: 1.15rem 1.3rem;
+  margin-bottom: 0.75rem;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04);
+}
+
+.rubric-header-strip {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 0.85rem;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+}
+
+.rubric-badge-title {
+  display: flex;
+  align-items: center;
+  gap: 0.45rem;
+  font-size: 0.92rem;
+  font-weight: 750;
+  color: var(--text-primary);
+}
+
+.rubric-overall-score {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  background: linear-gradient(135deg, rgba(234, 179, 8, 0.15), rgba(245, 158, 11, 0.25));
+  border: 1px solid rgba(234, 179, 8, 0.4);
+  color: #b45309;
+  font-size: 0.88rem;
+  font-weight: 800;
+  padding: 0.25rem 0.7rem;
+  border-radius: var(--radius-full);
+}
+
+[data-theme='dark'] .rubric-overall-score {
+  color: #fbbf24;
+}
+
+.rubric-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 0.75rem;
+}
+
+.rubric-criterion-row {
+  display: flex;
+  flex-direction: column;
+  gap: 0.3rem;
+  background: var(--bg-surface);
+  border: 1px solid var(--border-subtle);
+  padding: 0.55rem 0.75rem;
+  border-radius: var(--radius-sm);
+}
+
+.rubric-criterion-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  font-size: 0.76rem;
+}
+
+.rubric-criterion-name {
+  color: var(--text-secondary);
+  font-weight: 600;
+}
+
+.rubric-criterion-score {
+  color: var(--text-primary);
+  font-weight: 700;
+  font-family: var(--font-mono);
+}
+
+.rubric-bar-track {
+  width: 100%;
+  height: 6px;
+  background: var(--bg-surface-elevated);
+  border-radius: 3px;
+  overflow: hidden;
+}
+
+.rubric-bar-fill {
+  height: 100%;
+  border-radius: 3px;
+  background: linear-gradient(90deg, var(--accent-cobalt), var(--accent-teal));
+  transition: width 0.4s ease;
+}
+
+/* Interactive Star Rating Selector in Review Form */
+.rubric-interactive-picker {
+  background: var(--bg-surface);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-md);
+  padding: 0.85rem 1rem;
+  margin-bottom: 0.35rem;
+}
+
+.rubric-picker-title {
+  font-size: 0.78rem;
+  font-weight: 700;
+  color: var(--text-secondary);
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+  margin-bottom: 0.65rem;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.rubric-stars-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 0.45rem;
+  font-size: 0.82rem;
+}
+
+.rubric-stars-group {
+  display: flex;
+  gap: 2px;
+}
+
+.rubric-star-btn {
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  padding: 2px;
+  color: var(--border-medium);
+  transition: color 0.15s, transform 0.1s;
+}
+
+.rubric-star-btn:hover {
+  transform: scale(1.15);
+}
+
+.rubric-star-btn.is-active {
+  color: #f59e0b;
+}
+
+/* Rubric Badge displayed inside comment card */
+.comment-rubric-badge {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 0.4rem;
+  background: var(--bg-surface-elevated);
+  border: 1px solid var(--border-subtle);
+  padding: 0.35rem 0.65rem;
+  border-radius: var(--radius-sm);
+  margin-bottom: 0.45rem;
+  font-size: 0.76rem;
+  color: var(--text-secondary);
+  font-weight: 600;
+}
+
+.comment-rubric-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.2rem;
+  color: #d97706;
+}
+
+[data-theme='dark'] .comment-rubric-chip {
+  color: #fbbf24;
+}
+
+/* ==========================================================================
+   Feature 3: Analytics Row Buttons
+   ========================================================================== */
+.analytics-row-btn:hover {
+  border-color: var(--accent-cobalt-border) !important;
+  background: var(--bg-surface-elevated) !important;
+  transform: translateX(2px);
+}
+
+/* ==========================================================================
+   Feature 10: Academic Dossier Printing Styles
+   ========================================================================== */
+@media print {
+  /* Hide all app chrome, nav, modals backdrop when printing dossier */
+  body * {
+    visibility: hidden;
+  }
+
+  .dossier-modal-container,
+  .dossier-modal-container * {
+    visibility: visible;
+  }
+
+  .dossier-modal-container {
+    position: absolute;
+    left: 0;
+    top: 0;
+    width: 100% !important;
+    max-width: 100% !important;
+    box-shadow: none !important;
+    border: none !important;
+    background: #ffffff !important;
+    color: #0f172a !important;
+  }
+
+  .no-print {
+    display: none !important;
+  }
+
+  .dossier-sheet {
+    box-shadow: none !important;
+    border: none !important;
+    padding: 0 !important;
+    background: #ffffff !important;
+    color: #0f172a !important;
+  }
+
+  @page {
+    size: A4;
+    margin: 1.5cm;
+  }
+}

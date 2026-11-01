@@ -1,5 +1,5 @@
-import React, { useState, useEffect } from 'react';
-import { X, ExternalLink, Send, MessageSquare } from 'lucide-react';
+import React, { useState, useEffect, useMemo } from 'react';
+import { X, ExternalLink, Send, MessageSquare, Award, Star, FileText } from 'lucide-react';
 import { api } from '../services/api';
 import { VoteControls } from './VoteControls';
 
@@ -20,6 +20,7 @@ export function ProjectDetailsModal({
   currentUser,
   onEdit,
   onDelete,
+  onOpenDossier,
 }) {
   const [details, setDetails] = useState(null);
   const [loading, setLoading] = useState(true);
@@ -28,7 +29,46 @@ export function ProjectDetailsModal({
   const [submittingComment, setSubmittingComment] = useState(false);
   const [errorMsg, setErrorMsg] = useState('');
 
+  // Rubric Star Ratings (Feature 2)
+  const [rubricRatings, setRubricRatings] = useState({
+    code: 5,
+    innovation: 5,
+    ux: 4,
+    cloud: 5,
+  });
+
   const currentStudent = students.find((s) => s.id === currentStudentId);
+
+  // Compute live deterministic academic rubric scorecard for this capstone
+  const rubric = useMemo(() => {
+    const diff = details?.difficulty || project.difficulty || 'Intermediate';
+    const stacksCount = (details?.tech_stacks || project.tech_stacks || []).length;
+    const hasDemo = Boolean(details?.demo_url || project.demo_url);
+    const hasGithub = Boolean(details?.github_link || project.github_link);
+    const hasDocs = Boolean(details?.docs_url || project.docs_url);
+
+    let codeQuality = 4.3 + (hasGithub ? 0.4 : 0.0) + (diff === 'Advanced' ? 0.3 : 0.1);
+    let innovation = 4.2 + (diff === 'Advanced' ? 0.5 : diff === 'Intermediate' ? 0.3 : 0.1);
+    let ux = 4.0 + (hasDemo ? 0.6 : 0.2) + (stacksCount >= 3 ? 0.2 : 0.0);
+    let cloud = 4.1 + (hasDemo ? 0.5 : 0.0) + (hasDocs ? 0.3 : 0.1);
+
+    codeQuality = Math.min(5.0, Math.max(3.8, Number(codeQuality.toFixed(1))));
+    innovation = Math.min(5.0, Math.max(3.7, Number(innovation.toFixed(1))));
+    ux = Math.min(5.0, Math.max(3.8, Number(ux.toFixed(1))));
+    cloud = Math.min(5.0, Math.max(3.6, Number(cloud.toFixed(1))));
+
+    const composite = Number(((codeQuality + innovation + ux + cloud) / 4).toFixed(1));
+
+    return {
+      composite,
+      criteria: [
+        { name: 'Code Quality & Modularity', score: codeQuality, max: 5 },
+        { name: 'Technical Depth & Innovation', score: innovation, max: 5 },
+        { name: 'UI / UX & Usability', score: ux, max: 5 },
+        { name: 'Cloud & Deployment Readiness', score: cloud, max: 5 },
+      ],
+    };
+  }, [details, project]);
 
   useEffect(() => {
     let isMounted = true;
@@ -56,10 +96,17 @@ export function ProjectDetailsModal({
     try {
       setSubmittingComment(true);
       setErrorMsg('');
+
+      const avgRubric = (
+        (rubricRatings.code + rubricRatings.innovation + rubricRatings.ux + rubricRatings.cloud) / 4
+      ).toFixed(1);
+      const rubricString = `[Rubric: Code: ${rubricRatings.code}★ | Innovation: ${rubricRatings.innovation}★ | UI/UX: ${rubricRatings.ux}★ | Cloud: ${rubricRatings.cloud}★ (Avg: ${avgRubric}★)]`;
+      const fullCommentContent = `${rubricString}\n\n${commentText.trim()}`;
+
       const newComment = await api.addComment(
         project.id,
         {
-          content: commentText.trim(),
+          content: fullCommentContent,
           feedback_type: feedbackType,
           author_name: currentStudent ? currentStudent.name : 'Peer Reviewer',
         },
@@ -145,7 +192,27 @@ export function ProjectDetailsModal({
                   <span>GitHub Repository</span>
                 </a>
               )}
-              {(details?.docs_url || project.docs_url) && <a href={details?.docs_url || project.docs_url} target="_blank" rel="noopener noreferrer" className="btn-secondary"><ExternalLink size={14} /><span>Documentation</span></a>}
+              {(details?.docs_url || project.docs_url) && (
+                <a
+                  href={details?.docs_url || project.docs_url}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="btn-secondary"
+                >
+                  <ExternalLink size={14} />
+                  <span>Documentation</span>
+                </a>
+              )}
+              <button
+                type="button"
+                className="btn-secondary"
+                onClick={() => onOpenDossier?.({ ...project, ...details })}
+                title="View Academic Capstone Dossier (Print / PDF)"
+                style={{ display: 'inline-flex', alignItems: 'center', gap: '0.4rem' }}
+              >
+                <FileText size={14} color="var(--accent-cobalt)" />
+                <span>Academic Dossier (PDF)</span>
+              </button>
             </div>
 
             <VoteControls project={{ ...project, ...details }} onVote={handleVote} isVoting={isVoting} />
@@ -157,6 +224,36 @@ export function ProjectDetailsModal({
                   }}>Delete</button>
                 </div>
               )}
+          </div>
+
+          {/* Academic Rubric Scorecard (Feature 2) */}
+          <div className="academic-rubric-card">
+            <div className="rubric-header-strip">
+              <div className="rubric-badge-title">
+                <Award size={18} color="#f59e0b" />
+                <span>Academic Evaluation Rubric</span>
+              </div>
+              <div className="rubric-overall-score">
+                <Star size={14} fill="currentColor" />
+                <span>{rubric.composite} / 5.0 Composite</span>
+              </div>
+            </div>
+            <div className="rubric-grid">
+              {rubric.criteria.map((crit) => (
+                <div key={crit.name} className="rubric-criterion-row">
+                  <div className="rubric-criterion-header">
+                    <span className="rubric-criterion-name">{crit.name}</span>
+                    <span className="rubric-criterion-score">{crit.score}★ / 5★</span>
+                  </div>
+                  <div className="rubric-bar-track">
+                    <div
+                      className="rubric-bar-fill"
+                      style={{ width: `${(crit.score / crit.max) * 100}%` }}
+                    />
+                  </div>
+                </div>
+              ))}
+            </div>
           </div>
 
           {/* Description Section */}
@@ -203,6 +300,40 @@ export function ProjectDetailsModal({
                 <button type="button" className={feedbackType === 'positive' ? 'active' : ''} onClick={() => setFeedbackType('positive')}>Positive</button>
                 <button type="button" className={feedbackType === 'improvement' ? 'active' : ''} onClick={() => setFeedbackType('improvement')}>Improvement</button>
               </div>
+
+              {/* 4-Criteria Interactive Rubric Rating Picker */}
+              <div className="rubric-interactive-picker">
+                <div className="rubric-picker-title">
+                  <span>Rate 4 Rubric Dimensions:</span>
+                  <span style={{ color: 'var(--accent-cobalt)', fontWeight: 700, fontSize: '0.8rem' }}>
+                    Score: {((rubricRatings.code + rubricRatings.innovation + rubricRatings.ux + rubricRatings.cloud) / 4).toFixed(1)}★ / 5★
+                  </span>
+                </div>
+                {[
+                  { key: 'code', label: 'Code Quality' },
+                  { key: 'innovation', label: 'Technical Depth' },
+                  { key: 'ux', label: 'UI / UX Design' },
+                  { key: 'cloud', label: 'Cloud Readiness' },
+                ].map(({ key, label }) => (
+                  <div key={key} className="rubric-stars-row">
+                    <span className="rubric-criterion-name">{label}</span>
+                    <div className="rubric-stars-group">
+                      {[1, 2, 3, 4, 5].map((star) => (
+                        <button
+                          key={star}
+                          type="button"
+                          className={`rubric-star-btn ${star <= rubricRatings[key] ? 'is-active' : ''}`}
+                          onClick={() => setRubricRatings((prev) => ({ ...prev, [key]: star }))}
+                          title={`Rate ${label} ${star} of 5 stars`}
+                        >
+                          <Star size={13} fill={star <= rubricRatings[key] ? 'currentColor' : 'none'} />
+                        </button>
+                      ))}
+                    </div>
+                  </div>
+                ))}
+              </div>
+
               <textarea
                 rows={3}
                 className="form-textarea"
@@ -247,23 +378,40 @@ export function ProjectDetailsModal({
               </div>
             ) : (
               <div style={{ display: 'flex', flexDirection: 'column', gap: '0.65rem' }}>
-                {(details?.comments || []).map((c) => (
-                  <div key={c.id} className="comment-card">
-                    <div className="comment-card-header">
-                      <span className="comment-author-name">{c.author_name || 'Anonymous Peer'}</span>
-                      {c.feedback_type && <span className={`feedback-type-badge ${c.feedback_type}`}>{c.feedback_type === 'positive' ? 'Positive' : 'Improvement'}</span>}
-                      <span className="comment-time">
-                        {new Date(c.created_at).toLocaleString(undefined, {
-                          month: 'short',
-                          day: 'numeric',
-                          hour: '2-digit',
-                          minute: '2-digit',
-                        })}
-                      </span>
+                {(details?.comments || []).map((c) => {
+                  const rubricMatch = c.content?.match(/^\[Rubric:\s*([^\]]+)\]\s*\n*/);
+                  const displayBody = rubricMatch ? c.content.slice(rubricMatch[0].length).trim() : c.content;
+                  const rubricDetails = rubricMatch ? rubricMatch[1] : null;
+
+                  return (
+                    <div key={c.id} className="comment-card">
+                      <div className="comment-card-header">
+                        <span className="comment-author-name">{c.author_name || 'Anonymous Peer'}</span>
+                        {c.feedback_type && (
+                          <span className={`feedback-type-badge ${c.feedback_type}`}>
+                            {c.feedback_type === 'positive' ? 'Positive' : 'Improvement'}
+                          </span>
+                        )}
+                        <span className="comment-time">
+                          {new Date(c.created_at).toLocaleString(undefined, {
+                            month: 'short',
+                            day: 'numeric',
+                            hour: '2-digit',
+                            minute: '2-digit',
+                          })}
+                        </span>
+                      </div>
+                      {rubricDetails && (
+                        <div className="comment-rubric-badge">
+                          <Award size={13} color="#f59e0b" />
+                          <span>Peer Rubric:</span>
+                          <span className="comment-rubric-chip">{rubricDetails}</span>
+                        </div>
+                      )}
+                      <p className="comment-body">{displayBody}</p>
                     </div>
-                    <p className="comment-body">{c.content}</p>
-                  </div>
-                ))}
+                  );
+                })}
               </div>
             )}
           </div>

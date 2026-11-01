@@ -112,9 +112,6 @@ def require_csrf(request: Request) -> None:
     supplied = request.headers.get("X-CSRF-Token", "")
     if cookie and supplied and hmac.compare_digest(cookie, supplied):
         return
-    # In non-production environments (development / demo mode), do not block requests
-    if settings.ENVIRONMENT.lower() != "production":
-        return
     raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="CSRF validation failed")
 
 
