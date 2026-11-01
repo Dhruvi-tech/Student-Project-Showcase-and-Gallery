@@ -51,10 +51,8 @@ export function App() {
     const next = Array.isArray(cats) ? cats : ['All'];
     setSelectedCategories(next);
     setSelectedCategory(
-      next.includes('All') || next.length >= 20
+      next.includes('All') || next.length >= 20 || next.length === 0
         ? 'All'
-        : next.length === 0
-        ? 'None'
         : next.length === 1
         ? next[0]
         : next.join(', ')
@@ -66,7 +64,7 @@ export function App() {
     if (next.includes('All')) {
       showToast('Showing all 20 technical domains (320 projects)', 'info');
     } else if (next.length === 0) {
-      showToast('All domains cleared. Select 1 or 2 options to filter.', 'info');
+      showToast('All domain ticks cleared. Tick 1 or 2 options above to filter.', 'info');
     } else if (next.length === 1) {
       showToast(`Filtering by domain: ${next[0]}`, 'info');
     } else {
@@ -432,14 +430,10 @@ export function App() {
 
   // Filter projects in-memory by Technology and Multi-ticked Categories
   const visibleProjects = useMemo(() => {
-    // If Clear All clicked (0 domains selected), return empty list
-    if (selectedCategories.length === 0) {
-      return [];
-    }
-
     return projects.filter((project) => {
       // 1. Multi-ticked Categories filter (from top navbar domains menu)
-      if (!selectedCategories.includes('All')) {
+      // When selectedCategories is empty (Clear All) or includes 'All', all projects show (page is NEVER blank!)
+      if (selectedCategories.length > 0 && !selectedCategories.includes('All')) {
         if (!selectedCategories.includes(project.category)) return false;
       }
 

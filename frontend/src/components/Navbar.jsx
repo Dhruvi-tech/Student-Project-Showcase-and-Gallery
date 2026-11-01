@@ -191,11 +191,8 @@ export function Navbar({
   };
 
   const getDomainsButtonLabel = () => {
-    if (selectedCategories.includes('All')) {
+    if (selectedCategories.includes('All') || selectedCategories.length === 0) {
       return 'Domains (All 20)';
-    }
-    if (selectedCategories.length === 0) {
-      return 'Domains (0 selected)';
     }
     if (selectedCategories.length === 1) {
       const name = selectedCategories[0];
@@ -437,7 +434,7 @@ export function Navbar({
                     {selectedCategories.includes('All')
                       ? '✓ All 20 domains selected (320 projects)'
                       : selectedCategories.length === 0
-                      ? '0 domains selected • Tick 1 or 2 options above'
+                      ? 'All ticks cleared • Showing all 320 projects (tick 1 or 2 below to filter)'
                       : `✓ ${selectedCategories.length} domain${selectedCategories.length > 1 ? 's' : ''} selected (${matchingCount !== undefined ? matchingCount : ''} projects)`}
                   </div>
                   <div className="popover-footer-actions">
