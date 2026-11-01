@@ -32,14 +32,15 @@ The platform comes pre-loaded with a curated catalog of **320 real engineering p
 - [System Architecture](#-system-architecture)
 - [How to Run (Step-by-Step)](#-how-to-run-step-by-step)
   - [Prerequisites](#prerequisites)
-  - [1-Click PowerShell Startup (Windows)](#1-click-powershell-startup-windows)
-  - [Manual Command-Line Startup](#manual-command-line-startup)
+  - [Step 1: Install Dependencies](#step-1-one-time-dependency-installation)
+  - [Step 2: Start Backend API](#step-2-start-fastapi-backend)
+  - [Step 3: Start Frontend Client](#step-3-start-react-frontend)
   - [Application URLs](#application-urls)
   - [Demo Accounts](#demo-accounts)
 - [Supported Domains](#-supported-domains-20-categories)
 - [Tech Stack](#-tech-stack)
 - [Cloud Architecture & ₹0 Policy](#-cloud-readiness--strict-0-policy)
-- [Academic Submission Evidence](#-academic-submission-packages-cie-3)
+- [Academic Documentation & Evaluation](#-academic-documentation--evaluation)
 - [Verification & Quality Assurance](#-verification--quality-assurance)
 - [Repository Structure](#-repository-structure)
 
@@ -89,19 +90,18 @@ flowchart TD
 Ensure you have the following installed on your machine:
 - **Python 3.11+** (Tested on Python 3.13)
 - **Node.js 20+** and **npm**
-- **PowerShell** (Windows) or **Bash** (macOS/Linux)
 
 ---
 
 ### Step 1: One-Time Dependency Installation
 
-Open your terminal in the project root directory (`CVPM CIE 3 PROJECT`):
+From the project root directory, install dependencies:
 
 ```powershell
-# 1. Install backend Python dependencies
+# 1. Install backend dependencies
 pip install -r backend/requirements.txt
 
-# 2. Install frontend Node packages
+# 2. Install frontend dependencies
 cd frontend
 npm install
 cd ..
@@ -109,50 +109,34 @@ cd ..
 
 ---
 
-### Step 2: Running the Application
+### Step 2: Start FastAPI Backend
 
-#### 1-Click PowerShell Startup (Windows — Recommended)
+Open a terminal in the project root:
 
-Run each command in its own PowerShell window:
-
-**Terminal 1 (Backend API):**
+**Windows PowerShell:**
 ```powershell
-.\scripts\start-backend.ps1
+cd backend
+$env:DATABASE_URL = "sqlite:///../showcase.db"
+$env:ENVIRONMENT = "development"
+$env:DEMO_MODE = "true"
+python -m uvicorn app.main:app --host 127.0.0.1 --port 8000 --reload
 ```
-*(This loads the preserved 320-project `showcase.db` from the root and starts Uvicorn on `http://127.0.0.1:8000`)*
 
-**Terminal 2 (Frontend Client):**
-```powershell
-.\scripts\start-frontend.ps1
+**macOS / Linux Bash:**
+```bash
+cd backend
+export DATABASE_URL="sqlite:///../showcase.db"
+export ENVIRONMENT="development"
+export DEMO_MODE="true"
+python -m uvicorn app.main:app --host 127.0.0.1 --port 8000 --reload
 ```
-*(This starts Vite with hot-reload on `http://127.0.0.1:5173`)*
 
 ---
 
-#### Manual Command-Line Startup (Any OS / Shell)
+### Step 3: Start React Frontend
 
-If you prefer running commands manually without PowerShell scripts:
+Open a second terminal in the project root:
 
-**Terminal 1: Start FastAPI Backend**
-```powershell
-# Windows PowerShell:
-$env:DATABASE_URL = "sqlite:///$((Get-Item showcase.db).FullName -replace '\\', '/')"
-$env:ENVIRONMENT = "development"
-$env:DEMO_MODE = "true"
-cd backend
-python -m uvicorn app.main:app --host 127.0.0.1 --port 8000 --reload
-```
-
-```bash
-# macOS / Linux Bash:
-export DATABASE_URL="sqlite:///$(pwd)/showcase.db"
-export ENVIRONMENT="development"
-export DEMO_MODE="true"
-cd backend
-python -m uvicorn app.main:app --host 127.0.0.1 --port 8000 --reload
-```
-
-**Terminal 2: Start React Frontend**
 ```bash
 cd frontend
 npm run dev -- --host 127.0.0.1 --port 5173
@@ -162,7 +146,7 @@ npm run dev -- --host 127.0.0.1 --port 5173
 
 ### 🌐 Application URLs
 
-Once both servers are running, access the services:
+Once both servers are running:
 
 | Service | URL | Description |
 |---|---|---|
@@ -217,38 +201,19 @@ ProjectSpace adopts an **honest academic cloud strategy**:
 - **Why ₹0 Policy?** Provisioning continuous AWS infrastructure (such as ECS Fargate, Application Load Balancers, and RDS PostgreSQL) risks recurring billable charges. Under our strict ₹0 policy, no fee-generating AWS resource has been created.
 - **Implemented Locally:** Multi-stage Dockerfiles, Docker Compose topology, private S3 routes with safe 503 fallback when unconfigured, health check endpoints, structured JSON request logging, and local Locust load simulations.
 - **Cloud-Ready Templates:** Located in `infra/aws/` (least-privilege IAM task policy, CloudWatch dashboard templates, CloudFormation templates).
-- **Submissions Package:** All cloud documentation has been updated and organized in [submission/cloud-computing/](submission/cloud-computing/).
 
 ---
 
-## 🎓 Academic Submission Packages (CIE-3)
+## 📚 Academic Documentation & Evaluation
 
-Comprehensive evaluation dossiers with viva questions, matrices, and presentation guides are organized in the [`submission/`](submission/) directory:
+Comprehensive architectural guides and assessment documentation are located in [`docs/`](docs/):
 
-### 1. Web Services / Full Stack (50 Marks)
-- 📄 [Web Services Submission Overview](submission/web-services/README.md)
-- 📊 [Web 50-Mark Evidence Matrix](submission/web-services/WEB_50_MARKS.md)
-- 💬 [Web Services Viva Questions & Answers](submission/web-services/WEB_VIVA_QUESTIONS.md)
-
-### 2. Cloud Computing (50 Marks)
-- 📄 [Cloud Computing Submission Overview](submission/cloud-computing/README.md)
-- 📊 [Cloud 50-Mark Evidence Matrix](submission/cloud-computing/CLOUD_50_MARKS.md)
-- 📐 [Cloud Architecture & Data Flow](submission/cloud-computing/CLOUD_ARCHITECTURE.md)
-- 🔍 [AWS Services Explanation & Cost Matrix](submission/cloud-computing/AWS_SERVICES_EXPLANATION.md)
-- 💰 [Strict ₹0 Cost Analysis](submission/cloud-computing/ZERO_COST_ANALYSIS.md)
-- 🔐 [IAM Least-Privilege Security](submission/cloud-computing/IAM_SECURITY.md)
-- 📦 [S3 Storage Implementation](submission/cloud-computing/S3_IMPLEMENTATION.md)
-- 🐳 [Docker & Deployment Readiness](submission/cloud-computing/DOCKER_DEPLOYMENT.md)
-- 📈 [CloudWatch Monitoring Plan](submission/cloud-computing/CLOUDWATCH_MONITORING.md)
-- 💬 [Cloud Viva Questions & Answers (25 Q&A)](submission/cloud-computing/CLOUD_VIVA_QUESTIONS.md)
-
-### 3. Presentation & Demonstration Guides
-- 🎯 [Evaluator Presentation Guide](submission/PRESENTATION_GUIDE.md)
-- 🎙️ [Final Presentation Script](submission/FINAL_PRESENTATION_SCRIPT.md)
-- ⏱️ [5-Minute Demonstration Script](submission/cloud-computing/DEMONSTRATION_SCRIPT.md)
-- ✅ [Final Submission Checklist](submission/FINAL_SUBMISSION_CHECKLIST.md)
-- 📸 [Screenshot Capture Checklist](submission/SCREENSHOT_CHECKLIST.md)
-- 📊 [Full Test & Benchmark Results](submission/TEST_RESULTS.md)
+* 📐 [Detailed Architecture & Data Flow](docs/architecture.md)
+* ☁️ [Cloud Deployment & Security Specification](docs/aws-deployment.md)
+* 💰 [Zero-Cost Cloud Plan (Strict ₹0 Policy)](docs/zero-cost-cloud-plan.md)
+* 📊 [50:50 Assessment & Evaluation Matrix](docs/50-50-completion-matrix.md)
+* 🧪 [Testing Plan & Quality Assurance Strategy](docs/testing-plan.md)
+* 📋 [Functional Requirements Specification](docs/requirements.md)
 
 ---
 
@@ -262,14 +227,12 @@ Comprehensive evaluation dossiers with viva questions, matrices, and presentatio
 | **Load Testing (25 Users)** | Locust local run | **100% Success** | 0 failures, sustained throughput |
 | **Load Testing (50 Users)** | Locust local run | **100% Success** | 0 failures, verified concurrency |
 
-*(Full benchmark metrics, charts, and Locust execution logs are detailed in [submission/TEST_RESULTS.md](submission/TEST_RESULTS.md))*
-
 ---
 
 ## 📁 Repository Structure
 
 ```text
-CVPM CIE 3 PROJECT/
+Student-Project-Showcase-and-Gallery/
 ├── backend/                  # FastAPI backend application
 │   ├── app/
 │   │   ├── models/           # SQLAlchemy database models
@@ -291,19 +254,12 @@ CVPM CIE 3 PROJECT/
 ├── infra/                    # Infrastructure as Code
 │   └── aws/                  # IAM policy and CloudWatch JSON templates
 ├── loadtests/                # Locust and async load-testing benchmark scripts
-├── scripts/                  # Windows PowerShell 1-click startup scripts
-│   ├── start-backend.ps1     # Starts FastAPI on 127.0.0.1:8000
-│   └── start-frontend.ps1    # Starts Vite on 127.0.0.1:5173
-├── docs/                     # Core architectural & design documentation
+├── docs/                     # Core architectural, deployment & evaluation documentation
 │   ├── architecture.md       # Detailed technical architecture
-│   ├── aws-deployment.md     # Future AWS deployment specifications
-│   └── zero-cost-cloud-plan.md # Budget and ₹0 compliance plan
-├── submission/               # CIE-3 academic evidence & presentation packages
-│   ├── cloud-computing/      # 50-mark Cloud Computing matrix, Q&A, and technical docs
-│   ├── web-services/         # 50-mark Web Services matrix and viva Q&A
-│   ├── README.md             # Submission navigation hub
-│   └── TEST_RESULTS.md       # Benchmark & verification data
-├── artifacts/                # Database checkpoints and load test reports
+│   ├── aws-deployment.md     # AWS deployment specifications
+│   ├── zero-cost-cloud-plan.md # Budget and ₹0 compliance plan
+│   ├── 50-50-completion-matrix.md # 50:50 mark rubric
+│   └── testing-plan.md       # Verification procedures
 ├── docker-compose.yml        # Multi-container local orchestration
 ├── showcase.db               # Preserved 320-project SQLite database
 ├── .gitignore                # Git ignore configuration
