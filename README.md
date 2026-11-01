@@ -1,33 +1,32 @@
-<img src="https://capsule-render.vercel.app/api?type=waving&color=gradient&customColorList=1,11,20,30&height=220&section=header&text=✦%20ProjectSpace&fontSize=48&fontAlignY=36&fontColor=ffffff&desc=Student%20Project%20Showcase%20%26%20Peer-Feedback%20Platform&descAlignY=58&descColor=e0e0e0" width="100%"/>
-
 <div align="center">
 
-<p align="center">
-  <img src="https://readme-typing-svg.demolab.com?font=Fira+Code&weight=600&size=20&duration=2500&pause=1000&color=00D2FF&center=true&vCenter=true&width=550&lines=Discover+320%2B+Curated+Projects;Explore+20+Engineering+Tracks;React+18+%E2%80%A2+FastAPI+%E2%80%A2+SQLAlchemy;Peer+Reviews+%26+Interactive+Feedback;Zero-Cost+Cloud-Ready+Design" alt="Typing SVG" />
-</p>
+# 🚀 ProjectSpace
+### Student Project Showcase & Peer-Feedback Platform
 
-<p align="center">
-  <img src="https://img.shields.io/badge/React-18-61DAFB?style=for-the-badge&logo=react&logoColor=black" alt="React" />
-  <img src="https://img.shields.io/badge/Vite-5-646CFF?style=for-the-badge&logo=vite&logoColor=white" alt="Vite" />
-  <img src="https://img.shields.io/badge/FastAPI-0.110+-009688?style=for-the-badge&logo=fastapi&logoColor=white" alt="FastAPI" />
-  <img src="https://img.shields.io/badge/Python-3.11+-3776AB?style=for-the-badge&logo=python&logoColor=white" alt="Python" />
-  <img src="https://img.shields.io/badge/Database-SQLite-003B57?style=for-the-badge&logo=sqlite&logoColor=white" alt="SQLite" />
-  <img src="https://img.shields.io/badge/Pytest-30%20Passed-brightgreen?style=for-the-badge&logo=pytest&logoColor=white" alt="Tests" />
-</p>
+A full-stack web platform for engineering students to discover 320+ capstone projects across 20 technical domains, exchange constructive peer feedback, and showcase technical work.
 
-<p align="center">
-  <code>🟢 System: Verified & Operational</code> • <code>📦 Catalog: 320 Real Projects</code> • <code>🛡️ Policy: Strict ₹0 Cloud</code>
-</p>
+<br/>
+
+[![React](https://img.shields.io/badge/React-18-61DAFB?style=for-the-badge&logo=react&logoColor=black)](https://react.dev)
+[![Vite](https://img.shields.io/badge/Vite-5-646CFF?style=for-the-badge&logo=vite&logoColor=white)](https://vitejs.dev)
+[![FastAPI](https://img.shields.io/badge/FastAPI-0.110+-009688?style=for-the-badge&logo=fastapi&logoColor=white)](https://fastapi.tiangolo.com)
+[![Python](https://img.shields.io/badge/Python-3.11+-3776AB?style=for-the-badge&logo=python&logoColor=white)](https://python.org)
+[![SQLite](https://img.shields.io/badge/Database-SQLite-003B57?style=for-the-badge&logo=sqlite&logoColor=white)](https://sqlite.org)
+[![Pytest](https://img.shields.io/badge/Pytest-30%20Passed-brightgreen?style=for-the-badge&logo=pytest&logoColor=white)](backend/tests)
+
+<br/>
+
+`🟢 System: Verified & Operational` &nbsp;•&nbsp; `📦 Catalog: 320 Real Projects` &nbsp;•&nbsp; `🛡️ Policy: Strict ₹0 Cloud`
 
 </div>
 
-<img src="https://user-images.githubusercontent.com/73097560/115834477-dbab4500-a447-11eb-908a-139a6edaec5c.gif" width="100%">
+---
 
 ### 🖥️ Application Interface
 
 ```text
 ┌─── ProjectSpace Browser ────────────────────────────────────────────────────────┐
-│  ● ● ●  https://projectspace.local                             🔍 Search 320+   │
+│  ● ● ●  http://localhost:5173                                  🔍 Search 320+   │
 ├─────────────────────────────────────────────────────────────────────────────────┤
 │                                                                                 │
 │   🏷️  [All]  [AI & ML]  [Data Science]  [Cybersecurity]  [Cloud]  [Web Dev]     │
@@ -161,6 +160,8 @@ Student-Project-Showcase-and-Gallery/
 └── README.md         # Visual interactive documentation
 ```
 
-<img src="https://user-images.githubusercontent.com/73097560/115834477-dbab4500-a447-11eb-908a-139a6edaec5c.gif" width="100%">
+---
 
-<img src="https://capsule-render.vercel.app/api?type=waving&color=gradient&customColorList=1,11,20,30&height=100&section=footer" width="100%"/>
+<div align="center">
+  <sub>Built with React, FastAPI & SQLAlchemy • Student Project Showcase Platform</sub>
+</div>
