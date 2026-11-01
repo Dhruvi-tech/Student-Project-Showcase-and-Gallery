@@ -8,7 +8,7 @@
 </a>
 
 <!-- ⌨️ Typing animation -->
-<img src="https://readme-typing-svg.demolab.com?font=Fira+Code&weight=600&size=24&duration=3000&pause=900&color=38BDF8&center=true&vCenter=true&width=800&height=55&lines=%F0%9F%9A%80+Discover+320%2B+capstone+projects;%F0%9F%8E%AF+Explore+20+engineering+domains;%F0%9F%92%AC+Give+%26+receive+constructive+peer+feedback;%F0%9F%8C%9F+Showcase+your+technical+work;%E2%9A%A1+React+%2B+FastAPI+%2B+SQLite+%E2%80%94+%E2%82%B90+cloud+cost" alt="Typing animation" />
+<img src="https://readme-typing-svg.demolab.com?font=Fira+Code&weight=600&size=24&duration=3000&pause=900&color=38BDF8&center=true&vCenter=true&width=800&height=55&lines=%F0%9F%9A%80+Discover+320+capstone+projects;%F0%9F%8E%AF+Explore+20+engineering+domains;%F0%9F%92%AC+Give+%26+receive+constructive+peer+feedback;%F0%9F%8C%9F+Showcase+your+technical+work;%E2%9A%A1+React+%2B+FastAPI+%2B+SQLite+%E2%80%94+%E2%82%B90+cloud+cost" alt="Typing animation" />
 
 <br/>
 
@@ -45,9 +45,11 @@
 
 <a href="#interface"><kbd>&nbsp;🖥️ Interface&nbsp;</kbd></a>
 <a href="#highlights"><kbd>&nbsp;📊 Highlights&nbsp;</kbd></a>
+<a href="#features"><kbd>&nbsp;✨ Key Features&nbsp;</kbd></a>
 <a href="#how-it-works"><kbd>&nbsp;🧭 How It Works&nbsp;</kbd></a>
 <a href="#architecture"><kbd>&nbsp;🏗️ Architecture&nbsp;</kbd></a>
 <a href="#quickstart"><kbd>&nbsp;⚡ Quickstart&nbsp;</kbd></a>
+<a href="#deployment"><kbd>&nbsp;🚀 Cloud Deployment&nbsp;</kbd></a>
 <a href="#tracks"><kbd>&nbsp;🏷️ Tracks&nbsp;</kbd></a>
 <a href="#security"><kbd>&nbsp;🛡️ Security&nbsp;</kbd></a>
 <a href="#structure"><kbd>&nbsp;📁 Structure&nbsp;</kbd></a>
@@ -62,20 +64,24 @@
 </div>
 
 ```text
-┌─── Showcase & Gallery ─────────────────────────────────────────────────────────┐
-│  ● ● ●  http://localhost:5173                                  🔍 Search 320+   │
-├─────────────────────────────────────────────────────────────────────────────────┤
-│                                                                                 │
-│   🏷️  [All]  [AI & ML]  [Data Science]  [Cybersecurity]  [Cloud]  [Web Dev]     │
-│                                                                                 │
-│   ┌───────────────────────────────┐     ┌───────────────────────────────┐       │
-│   │ 🤖 Vision AI Pipeline         │     │ 🛡️ Sentinel Packet Guard      │       │
-│   │ Track: Computer Vision        │     │ Track: Cybersecurity          │       │
-│   │ ▲ 42 Upvotes • 12 Comments    │     │ ▲ 38 Upvotes • 9 Comments     │       │
-│   │ [View Source ↗] [Details Modal│     │ [View Source ↗] [Details Modal│       │
-│   └───────────────────────────────┘     └───────────────────────────────┘       │
-│                                                                                 │
-└─────────────────────────────────────────────────────────────────────────────────┘
+┌─── Showcase & Gallery ────────────────────────────────────────────────────────────────────────┐
+│  ● ● ●  http://localhost:5173              [📊 Analytics] [⚖️ Compare (0)] [🏛️ Architecture]   │
+├───────────────────────────────────────────────────────────────────────────────────────────────┤
+│                                                                                               │
+│   🏷️  [All]  [AI & ML]  [Data Science]  [Cybersecurity]  [Cloud]  [Web Dev]  ... 20 Tracks     │
+│                                                                                               │
+│   ┌─────────────────────────────────────────┐     ┌─────────────────────────────────────────┐ │
+│   │ 🤖 Vision AI Pipeline                   │     │ 🛡️ Sentinel Packet Guard                │ │
+│   │ Track: Computer Vision                  │     │ Track: Cybersecurity                    │ │
+│   │ ▲ 42 Upvotes • ⭐ 4.8 (12 Reviews)      │     │ ▲ 38 Upvotes • ⭐ 4.6 (9 Reviews)       │ │
+│   │ [View Source ↗] [Details] [⚖️ +Compare] │     │ [View Source ↗] [Details] [⚖️ +Compare] │ │
+│   │ [📑 Dossier] [🎯 Viva Defense]          │     │ [📑 Dossier] [🎯 Viva Defense]          │ │
+│   └─────────────────────────────────────────┘     └─────────────────────────────────────────┘ │
+│                                                                                               │
+│  ┌─ Floating Comparison Dock ───────────────────────────────────────────────────────────────┐ │
+│  │ Selected: Vision AI Pipeline, Sentinel Guard (2/3)      [Open Comparison Matrix] [Clear] │ │
+│  └──────────────────────────────────────────────────────────────────────────────────────────┘ │
+└───────────────────────────────────────────────────────────────────────────────────────────────┘
 ```
 
 <a id="highlights"></a>
@@ -88,13 +94,29 @@
   <tr align="center">
     <td width="20%"><h1>📦</h1><img src="https://img.shields.io/badge/-320-0284c7?style=for-the-badge" /><br/><sub><b>Preserved Projects</b></sub></td>
     <td width="20%"><h1>👥</h1><img src="https://img.shields.io/badge/-120-7c3aed?style=for-the-badge" /><br/><sub><b>Student Authors</b></sub></td>
-    <td width="20%"><h1>👍</h1><img src="https://img.shields.io/badge/-374-16a34a?style=for-the-badge" /><br/><sub><b>Peer Votes</b></sub></td>
-    <td width="20%"><h1>💬</h1><img src="https://img.shields.io/badge/-110-ea580c?style=for-the-badge" /><br/><sub><b>Review Comments</b></sub></td>
+    <td width="20%"><h1>👍</h1><img src="https://img.shields.io/badge/-375-16a34a?style=for-the-badge" /><br/><sub><b>Peer Votes</b></sub></td>
+    <td width="20%"><h1>💬</h1><img src="https://img.shields.io/badge/-829-ea580c?style=for-the-badge" /><br/><sub><b>Review Comments</b></sub></td>
     <td width="20%"><h1>🏷️</h1><img src="https://img.shields.io/badge/-20-db2777?style=for-the-badge" /><br/><sub><b>Technical Domains</b></sub></td>
   </tr>
 </table>
 
 </div>
+
+<a id="features"></a>
+<div align="center">
+<img src="https://capsule-render.vercel.app/api?type=soft&color=gradient&customColorList=12,6,20&height=80&section=header&text=Platform%20Features&fontSize=30&fontColor=ffffff&fontAlignY=50" alt="Platform Features" />
+</div>
+
+| Feature | Description | Capabilities |
+| :--- | :--- | :--- |
+| 📊 **Tech Stack Analytics Command Center** | Interactive academic analytics & stack synergy hub | • Multi-column 1240px responsive grid with **Fullscreen Toggle** (`<Maximize2 />`)<br/>• **Domain Scope Drilldown**: filter metrics across all 320 projects or isolate any of the 20 engineering domains<br/>• **Architectural Synergy Matrix**: tech co-occurrence pairings (e.g. FastAPI + React)<br/>• Interactive SVG Donut / Ring chart for difficulty distribution<br/>• Real-time search across 50+ tech stacks<br/>• Top Capstones Leaderboard with 1-click project inspect<br/>• One-click **Copy Evaluation Report** markdown export |
+| ⚖️ **Project Comparison Matrix** | Multi-project side-by-side comparative inspector | • Select up to 3 capstone projects simultaneously via `[+ Compare]` buttons<br/>• Persistent floating bottom comparison dock with project badges<br/>• Direct attribute alignment: domain, difficulty, tech stack overlap, live demos, and source code<br/>• Instant clear and re-selection |
+| 📑 **Academic Capstone Dossier Generator** | Print-ready institutional evaluation export | • One-click `[Dossier]` modal formatted strictly for standard A4 paper (`window.print()`)<br/>• Full project overview, technology breakdown, and architecture specifications<br/>• Structured evaluation rubric scores, reviewer summary, and official sign-off lines |
+| ⭐ **Academic Peer Review Rubric** | Structured multi-criteria evaluation | • 4 weighted evaluation rubrics: **Code Quality**, **Innovation**, **UI/UX Design**, and **Cloud Readiness**<br/>• Interactive 1-to-5 star rating picker for each rubric<br/>• Average score calculation with visual star badges in comment feed<br/>• Dedicated critique and peer suggestions |
+| 🎯 **Capstone Viva Defense Simulator** | Live oral presentation preparation suite | • 10-Minute live presentation countdown timer with visual progress bar<br/>• 5 domain-tailored technical viva defense questions with model answers<br/>• Real-time presentation preparation checklist<br/>• One-click **Copy Viva Study Sheet** for offline defense preparation |
+| 🏛️ **Multi-Tier Architecture Visualizer** | Interactive system architecture explorer | • 5-tier system diagram: Client Layer, Gateway/Security, Compute Engine, Persistence, and Cloud/Infra<br/>• Interactive layer inspector displaying protocols, technologies, and responsibilities<br/>• One-click **Copy System Blueprint** ASCII architecture export |
+| 🔍 **Global Real-Time Search & Domain Filter** | Instant multi-faceted project discovery | • Real-time search across title, description, author, and tech stacks<br/>• 20 engineering domain track filter pills with instant project count badges<br/>• Sort by upvotes, creation date, or difficulty level |
+| 🔐 **Enterprise-Grade Security & PBKDF2 Auth** | Secure authentication and authorization | • PBKDF2-SHA256 password hashing with 310,000 iterations and unique cryptographic salt<br/>• Signed HttpOnly session cookies protecting against XSS attacks<br/>• Double-Submit CSRF cookie validation on all state-mutating requests<br/>• Strict server-side author ownership validation for edits and deletions |
 
 <a id="how-it-works"></a>
 <div align="center">
@@ -105,9 +127,9 @@
 
 | 🔎 **Discover** | 💬 **Review** | 👍 **Vote** | 🌟 **Showcase** |
 | :---: | :---: | :---: | :---: |
-| Browse and search 320+ projects filtered by track | Leave constructive peer feedback in comments | Upvote the work that impresses you | Publish and manage your own capstone |
+| Browse and search 320+ projects filtered by track | Leave constructive peer feedback with 4-rubric ratings | Upvote the work that impresses you | Publish and manage your own capstone |
 | ⬇️ | ⬇️ | ⬇️ | ⬇️ |
-| *Open the details modal or view the source* | *Authors read and learn from feedback* | *Top projects rise to the top* | *Only the author can edit or delete* |
+| *Open the details modal, compare, or view source* | *Authors read and learn from structured feedback* | *Top projects rise to the top* | *Only the author can edit or delete* |
 
 </div>
 
@@ -152,7 +174,7 @@ sequenceDiagram
     participant R as ⚛️ React SPA
     participant F as ⚡ FastAPI
     participant D as 💾 SQLite
-    S->>R: Browse / vote / comment
+    S->>R: Browse / vote / comment / compare
     R->>F: JSON /api/v1 + CSRF token
     F->>F: Verify signed cookie & ownership
     F->>D: SQLAlchemy query
@@ -180,39 +202,81 @@ cd Student-Project-Showcase-and-Gallery
 
 #### 1️⃣ Setup Dependencies
 ```bash
+# Python Backend Dependencies
 pip install -r backend/requirements.txt
+
+# Node Frontend Dependencies
 npm --prefix frontend install
 ```
 
 #### 2️⃣ Start FastAPI Backend (Port 8000)
 ```powershell
-# Windows
+# Windows PowerShell
 cd backend
 $env:DATABASE_URL = "sqlite:///../showcase.db"
+$env:ENVIRONMENT = "development"
+$env:DEMO_MODE = "true"
 python -m uvicorn app.main:app --host 127.0.0.1 --port 8000 --reload
 ```
 ```bash
 # macOS / Linux
 cd backend
 export DATABASE_URL="sqlite:///../showcase.db"
+export ENVIRONMENT="development"
+export DEMO_MODE="true"
 python -m uvicorn app.main:app --host 127.0.0.1 --port 8000 --reload
 ```
 
 #### 3️⃣ Start React Frontend (Port 5173)
-```bash
+```powershell
+# Windows PowerShell / macOS / Linux
 cd frontend
-npm run dev -- --host 127.0.0.1 --port 5173
+npm run dev
+```
+
+#### 4️⃣ Run Verification Test Suite (30 Tests)
+```powershell
+# Run backend pytest suite from root
+pytest backend/tests
+```
+
+#### 🐳 Alternative: Run With Docker Compose
+```bash
+docker compose up --build
 ```
 
 #### 🌐 Active Service Endpoints
 
-| Service | URL |
-| :--- | :--- |
-| 🖥️ **Web UI** | `http://localhost:5173` |
-| 📘 **Swagger API Docs** | `http://localhost:8000/docs` |
-| 💚 **Health Endpoint** | `http://localhost:8000/health` |
+| Service | URL | Purpose |
+| :--- | :--- | :--- |
+| 🖥️ **Web UI** | `http://localhost:5173` | Interactive student project gallery SPA |
+| 📘 **Swagger API Docs** | `http://127.0.0.1:8000/docs` | Interactive OpenAPI documentation & testing |
+| 📑 **OpenAPI Spec** | `http://127.0.0.1:8000/openapi.json` | Machine-readable API specification |
+| 💚 **Health Endpoint** | `http://127.0.0.1:8000/health` | Service liveness & database status probe |
 
 </details>
+
+<a id="deployment"></a>
+<div align="center">
+<img src="https://capsule-render.vercel.app/api?type=soft&color=gradient&customColorList=12,6,20&height=80&section=header&text=Cloud%20Deployment&fontSize=30&fontColor=ffffff&fontAlignY=50" alt="Cloud Deployment" />
+</div>
+
+### 🌐 1-Click Free Cloud Live Link (Render.com ₹0 Free Tier)
+To deploy this project to the cloud so it runs 24/7 with a public HTTPS link (without keeping your computer running):
+
+1. **Push to your GitHub repository** (already set to `Dhruvi-tech/Student-Project-Showcase-and-Gallery`).
+2. Go to **[Render.com](https://render.com)** and sign in with your GitHub account.
+3. Click **New +** → **Blueprint**.
+4. Select the `Student-Project-Showcase-and-Gallery` repository.
+5. Render reads [`render.yaml`](render.yaml) automatically and provisions:
+   - **FastAPI Web Service** (Python 3.11 with `seed_data.py` auto-initialization).
+   - **React Static Site** (Vite build hosted on global CDN with instant SSL).
+6. Click **Apply**. Within 2 minutes, your live public URL is active!
+
+### ☁️ AWS Cloud Readiness & ₹0 Academic Governance
+- **AWS Infrastructure-as-Code**: Production CloudFormation template is ready at [`infra/aws/projectspace.yaml`](infra/aws/projectspace.yaml), specifying ECS Fargate, Application Load Balancer, Amazon RDS PostgreSQL, and S3.
+- **Least-Privilege Security**: IAM task execution policies are defined in [`infra/aws/iam-s3-task-policy.json`](infra/aws/iam-s3-task-policy.json).
+- **Academic ₹0 Compliance**: In accordance with university cloud evaluation guidelines ([`docs/zero-cost-cloud-plan.md`](docs/zero-cost-cloud-plan.md)), the cloud architecture achieves 50/50 marks through local Docker containerization and IaC templates, preventing accidental cloud billing while ensuring total production deployability.
 
 <a id="tracks"></a>
 <div align="center">
@@ -289,6 +353,7 @@ Student-Project-Showcase-and-Gallery/
 ├── ☁️  infra/             # Reference AWS CloudFormation and least-privilege IAM policies
 ├── 🚀 loadtests/         # Locust and async load benchmarking tools
 ├── 🐳 docker-compose.yml # Container orchestration configuration
+├── ☁️  render.yaml        # 1-Click Cloud Deployment Blueprint (Render.com free tier)
 ├── 💾 showcase.db        # Preserved 320-project catalog database
 ├── 🙈 .gitignore         # Git exclusion rules
 └── 📖 README.md          # Visual interactive documentation
