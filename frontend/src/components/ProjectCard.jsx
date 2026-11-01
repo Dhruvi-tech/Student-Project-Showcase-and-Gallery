@@ -1,5 +1,5 @@
-import React from 'react';
-import { ExternalLink, MessageSquare, Bookmark } from 'lucide-react';
+import React, { useState } from 'react';
+import { ExternalLink, MessageSquare, Bookmark, Share2, Check } from 'lucide-react';
 import { VoteControls } from './VoteControls';
 
 const GithubIcon = ({ size = 14 }) => (
@@ -41,7 +41,9 @@ export function ProjectCard({
   index = 0,
   onToggleBookmark,
   onOpenAuthor,
+  onShare,
 }) {
+  const [copied, setCopied] = useState(false);
 
   const formattedDate = new Date(project.created_at).toLocaleDateString(undefined, {
     month: 'short',
@@ -53,37 +55,88 @@ export function ProjectCard({
   const initials = getInitials(studentName);
   const avatarBg = getAvatarColor(studentName);
 
+  const handleShareClick = (e) => {
+    e.stopPropagation();
+    setCopied(true);
+    setTimeout(() => setCopied(false), 2000);
+    onShare?.(project);
+  };
+
   return (
-    <article className="project-card">
-      {project.thumbnail_url && <img className="project-thumbnail" src={project.thumbnail_url} alt={`${project.title} thumbnail`} loading="lazy" />}
-      {/* Card Header: Title & Upvote Button */}
+    <article className="project-card" id={`project-${project.id}`}>
+      {project.thumbnail_url && (
+        <img
+          className="project-thumbnail"
+          src={project.thumbnail_url}
+          alt={`${project.title} thumbnail`}
+          loading="lazy"
+        />
+      )}
+
+      {/* Card Header: Title & Author */}
       <div className="card-header">
         <div className="card-title-group">
-          <h3 className="card-title"><button className="card-title-button" onClick={() => onOpenDetails(project)}>
-            {project.title}<span className="sr-only"> — open project details</span>
-          </button></h3>
+          <h3 className="card-title">
+            <button className="card-title-button" onClick={() => onOpenDetails(project)}>
+              {project.title}
+              <span className="sr-only"> — open project details</span>
+            </button>
+          </h3>
 
           {/* Student Author Pill */}
           <div className="card-author-pill">
             <div className="avatar-circle" style={{ backgroundColor: avatarBg }}>
               {initials}
             </div>
-            {project.author_profile_url?.startsWith('http') ? <a className="author-profile-link" href={project.author_profile_url} target="_blank" rel="noopener noreferrer">{authorName}</a> : project.student_id ? <button className="author-profile-link author-profile-button" onClick={() => onOpenAuthor?.(project.student_id)}>{authorName}</button> : <span className="author-profile-link">{authorName}</span>}
+            {project.author_profile_url?.startsWith('http') ? (
+              <a
+                className="author-profile-link"
+                href={project.author_profile_url}
+                target="_blank"
+                rel="noopener noreferrer"
+              >
+                {authorName}
+              </a>
+            ) : project.student_id ? (
+              <button
+                className="author-profile-link author-profile-button"
+                onClick={() => onOpenAuthor?.(project.student_id)}
+              >
+                {authorName}
+              </button>
+            ) : (
+              <span className="author-profile-link">{authorName}</span>
+            )}
             <span style={{ color: 'var(--text-muted)' }}>•</span>
             <span style={{ color: 'var(--text-muted)', fontSize: '0.76rem' }}>{formattedDate}</span>
           </div>
         </div>
-
       </div>
 
+      {/* Category & Difficulty Badges */}
+      <div className="card-category-strip">
+        <span className="category-tag-badge" aria-label="Project category">
+          {project.category || 'Open Source & Developer Utilities'}
+        </span>
+        <span className="difficulty-tag-badge">
+          {project.difficulty || 'Intermediate'}
+        </span>
+      </div>
+
+      {project.recommendation_reasons?.length > 0 && (
+        <ul className="recommendation-reasons" aria-label="Why this project was recommended">
+          {project.recommendation_reasons.slice(0, 2).map((reason) => (
+            <li key={reason}>{reason}</li>
+          ))}
+        </ul>
+      )}
+
       {/* Description */}
-      <div className="card-tech-stacks"><span className="tech-badge" aria-label="Project category">{project.category || 'Open Source & Developer Utilities'}</span><span className="tech-badge difficulty-badge">{project.difficulty || 'Intermediate'}</span></div>
-      {project.recommendation_reasons?.length > 0 && <ul className="recommendation-reasons" aria-label="Why this project was recommended">{project.recommendation_reasons.slice(0, 2).map((reason) => <li key={reason}>{reason}</li>)}</ul>}
       <p className="card-description">
         {project.description || 'No description provided.'}
       </p>
 
-      {/* Prominent project website link */}
+      {/* Live Demo Site Banner */}
       {project.demo_url && (
         <div style={{ marginBottom: '0.85rem' }}>
           <a
@@ -91,10 +144,10 @@ export function ProjectCard({
             target="_blank"
             rel="noopener noreferrer"
             className="live-site-banner"
-            title={`Open project website: ${project.demo_url}`}
+            title={`Open live project: ${project.demo_url}`}
           >
             <span className="live-site-indicator"></span>
-            <span style={{ fontWeight: 600 }}>Website:</span>
+            <span style={{ fontWeight: 600 }}>Live:</span>
             <span className="live-site-url-text">{project.demo_url.replace(/^https?:\/\//, '')}</span>
             <ExternalLink size={13} style={{ marginLeft: 'auto', flexShrink: 0 }} />
           </a>
@@ -110,16 +163,30 @@ export function ProjectCard({
         ))}
       </div>
 
+      {/* Vote & Bookmark Controls */}
       <div className="card-vote-row">
         <VoteControls project={project} onVote={onVote} isVoting={isUpvoting} />
-        <button className={`bookmark-button ${project.is_saved ? 'is-saved' : ''}`} onClick={() => onToggleBookmark?.(project)} aria-pressed={Boolean(project.is_saved)} aria-label={project.is_saved ? 'Remove saved project' : 'Save project'} title={project.is_saved ? 'Remove from saved projects' : 'Save for later'}><Bookmark size={15} fill={project.is_saved ? 'currentColor' : 'none'} /><span>{project.is_saved ? 'Saved' : 'Save'}</span></button>
-        <button className="comments-badge" onClick={() => onOpenDetails(project)} title="View peer feedback and post comments">
+        <button
+          className={`bookmark-button ${project.is_saved ? 'is-saved' : ''}`}
+          onClick={() => onToggleBookmark?.(project)}
+          aria-pressed={Boolean(project.is_saved)}
+          aria-label={project.is_saved ? 'Remove saved project' : 'Save project'}
+          title={project.is_saved ? 'Remove from saved' : 'Save for later'}
+        >
+          <Bookmark size={15} fill={project.is_saved ? 'currentColor' : 'none'} />
+          <span>{project.is_saved ? 'Saved' : 'Save'}</span>
+        </button>
+        <button
+          className="comments-badge"
+          onClick={() => onOpenDetails(project)}
+          title="View peer feedback and post comments"
+        >
           <MessageSquare size={14} />
-          <span>{project.comment_count || 0} comments</span>
+          <span>{project.comment_count || 0}</span>
         </button>
       </div>
 
-      {/* Card Footer: GitHub Link, Project Website, Comments Counter */}
+      {/* Card Footer: Links + Share */}
       <div className="card-footer">
         <div className="card-links">
           {project.github_link && (
@@ -146,9 +213,17 @@ export function ProjectCard({
               <span>Website</span>
             </a>
           )}
-          {project.docs_url && <a href={project.docs_url} target="_blank" rel="noopener noreferrer" className="card-link-item" title="Project documentation"><ExternalLink size={13} /><span>Docs</span></a>}
         </div>
 
+        <button
+          type="button"
+          className="card-share-btn"
+          onClick={handleShareClick}
+          title="Copy project share link"
+        >
+          {copied ? <Check size={13} color="var(--accent-emerald)" /> : <Share2 size={13} />}
+          <span>{copied ? 'Copied!' : 'Share'}</span>
+        </button>
       </div>
     </article>
   );

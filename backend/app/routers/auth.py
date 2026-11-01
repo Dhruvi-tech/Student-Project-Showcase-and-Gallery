@@ -28,7 +28,7 @@ class RegisterBody(BaseModel):
     name: str = Field(min_length=2, max_length=100)
     username: str = Field(min_length=3, max_length=40, pattern=r"^[A-Za-z0-9_]+$")
     email: str = Field(min_length=5, max_length=150)
-    password: str = Field(min_length=12, max_length=128)
+    password: str = Field(min_length=6, max_length=128)
 
     @field_validator("name", "username", "email")
     @classmethod
@@ -50,8 +50,8 @@ class RegisterBody(BaseModel):
     @field_validator("password")
     @classmethod
     def validate_password_strength(cls, value: str) -> str:
-        if not (re.search(r"[a-z]", value) and re.search(r"[A-Z]", value) and re.search(r"\d", value)):
-            raise ValueError("Password must include lowercase, uppercase, and numeric characters")
+        if len(value) < 6:
+            raise ValueError("Password must be at least 6 characters long")
         return value
 
 

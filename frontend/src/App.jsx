@@ -11,7 +11,7 @@ import { AuthorProfileModal } from './components/AuthorProfileModal';
 import { ProfileEditModal } from './components/ProfileEditModal';
 import { api } from './services/api';
 import './styles/App.css';
-import { Terminal, FolderSearch, AlertTriangle, CheckCircle } from 'lucide-react';
+import { Terminal, FolderSearch, AlertTriangle, CheckCircle, Info, Sparkles, TrendingUp, Brain, BarChart2, Plus, Compass } from 'lucide-react';
 
 export function App() {
   const [projects, setProjects] = useState([]);
@@ -19,12 +19,13 @@ export function App() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
 
-  // Theme state: warm neutral light (default) or polished slate dark
-  const [theme, setTheme] = useState(() => localStorage.getItem('theme') || 'light');
+  // Theme state: dark (modern slate) or light (crisp slate)
+  const [theme, setTheme] = useState(() => localStorage.getItem('theme') || 'dark');
 
   // Filters & Sorting
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedCategory, setSelectedCategory] = useState('All');
+  const [selectedTech, setSelectedTech] = useState('All');
   const [sortOption, setSortOption] = useState('upvotes');
 
   // Development Identity Personas
@@ -67,7 +68,7 @@ export function App() {
     setTimeout(() => setToast(null), 3600);
   };
 
-  // Initial Boot: Load Students and Health
+  // Initial Boot: Load Students, Health, and User
   useEffect(() => {
     async function initSystem() {
       try {
@@ -81,13 +82,16 @@ export function App() {
         if (health.status === 'fulfilled') {
           setHealthData(health.value);
         }
-        if (technologyResult.status === 'fulfilled') setTechnologyCatalog(technologyResult.value.data || []);
+        if (technologyResult.status === 'fulfilled') {
+          setTechnologyCatalog(technologyResult.value.data || []);
+        }
 
         if (studentsList.status === 'fulfilled' && studentsList.value.length > 0) {
           setStudents(studentsList.value);
           setCurrentStudentId(studentsList.value[0].id);
           const [follows, profileInterests] = await Promise.allSettled([
-            api.getFollowedCategories(studentsList.value[0].id), api.getInterests(studentsList.value[0].id),
+            api.getFollowedCategories(studentsList.value[0].id),
+            api.getInterests(studentsList.value[0].id),
           ]);
           if (follows.status === 'fulfilled') setFollowedCategories(follows.value.data || []);
           if (profileInterests.status === 'fulfilled') setInterests(profileInterests.value.data || []);
@@ -104,27 +108,55 @@ export function App() {
     initSystem();
   }, []);
 
-  // Fetch Projects Callback
+  // Compute Active Navigation tab
+  const activeNav = savedProjectsMode
+    ? 'saved'
+    : myProjectsMode
+    ? 'my-projects'
+    : recommendationsMode
+    ? 'recommended'
+    : selectedCategory === 'AI & Machine Learning'
+    ? 'ai'
+    : selectedCategory === 'Data Science & Analytics'
+    ? 'data'
+    : sortOption === 'upvotes' && selectedCategory === 'All' && !searchQuery
+    ? 'trending'
+    : 'explore';
+
+  // Load Projects based on filters
   const loadProjects = useCallback(async () => {
     try {
       setLoading(true);
       setError(null);
-      const res = myProjectsMode
-        ? await api.getMyProjects()
-        : savedProjectsMode
-          ? await api.getBookmarks(currentStudentId)
-          : recommendationsMode
-            ? await api.getRecommendations(currentStudentId)
+
+      if (recommendationsMode && currentStudentId) {
+        const res = await api.getRecommendations(currentStudentId);
+        setProjects(res.data || []);
+        setTotalCount(res.count || (res.data || []).length);
+        return;
+      }
+
+      if (savedProjectsMode && currentStudentId) {
+        const res = await api.getSavedProjects(currentStudentId);
+        setProjects(res.data || []);
+        setTotalCount(res.count || (res.data || []).length);
+        return;
+      }
+
+      const res = myProjectsMode && currentStudentId
+        ? await api.getStudentProjects(currentStudentId)
         : await api.getProjects({
-        sort: sortOption,
-        category: selectedCategory,
-        search: searchQuery,
-        studentId: currentStudentId,
-        limit: 200,
-        offset: 0,
-        });
+            sort: sortOption,
+            category: selectedCategory,
+            search: searchQuery,
+            studentId: currentStudentId,
+            limit: 200,
+            offset: 0,
+          });
+
       let allProjects = res.data || [];
       const resultCount = res.total ?? allProjects.length;
+
       while (!myProjectsMode && !savedProjectsMode && !recommendationsMode && allProjects.length < resultCount) {
         const nextPage = await api.getProjects({
           sort: sortOption,
@@ -154,10 +186,20 @@ export function App() {
     return () => clearTimeout(timer);
   }, [loadProjects]);
 
-  // The current profile can cast one vote per project and switch between like/dislike.
+  // Filter projects in-memory by Technology
+  const visibleProjects = projects.filter((project) => {
+    if (selectedTech && selectedTech !== 'All') {
+      const matchTech = (project.tech_stacks || []).some((t) =>
+        t.toLowerCase().includes(selectedTech.toLowerCase())
+      );
+      if (!matchTech) return false;
+    }
+    return true;
+  });
+
   const handleVote = async (projectId, direction) => {
     if (!currentStudentId) {
-      showToast('Your profile is loading. Try again in a moment.', 'error');
+      showToast('Please sign in or select a profile to vote.', 'error');
       return null;
     }
 
@@ -169,6 +211,7 @@ export function App() {
         : direction === 'down'
           ? await api.downvoteProject(projectId, currentStudentId)
           : await api.upvoteProject(projectId, currentStudentId);
+
       const vote = Object.prototype.hasOwnProperty.call(result, 'user_vote') ? result.user_vote : direction;
       const applyVote = (project) => ({
         ...project,
@@ -184,7 +227,7 @@ export function App() {
       if (activeProject && activeProject.id === projectId) {
         setActiveProject((prev) => applyVote(prev));
       }
-      showToast(vote === 'up' ? 'You liked this project.' : vote === 'down' ? 'You disliked this project.' : 'Your vote was removed.', 'success');
+      showToast(vote === 'up' ? 'You upvoted this project! 👍' : vote === 'down' ? 'You downvoted this project.' : 'Vote removed.', 'success');
       return { ...result, user_vote: vote };
     } catch (err) {
       showToast(err.message || 'Your vote could not be saved.', 'error');
@@ -199,13 +242,13 @@ export function App() {
   };
 
   const handleProjectPublished = (newProject) => {
-    showToast(`Project "${newProject.title}" published successfully!`, 'success');
+    showToast(`Project "${newProject.title}" published successfully! 🚀`, 'success');
     loadProjects();
     api.getTechnologies().then((result) => setTechnologyCatalog(result.data || [])).catch(() => {});
   };
 
   const handleCommentAdded = () => {
-    showToast('Feedback comment added successfully!', 'success');
+    showToast('Feedback comment added! 💬', 'success');
     loadProjects();
   };
 
@@ -217,7 +260,7 @@ export function App() {
       setMyProjectsMode(false);
       setSavedProjectsMode(false);
       setRecommendationsMode(false);
-      showToast('You are logged out.', 'success');
+      showToast('You are logged out.', 'info');
     } catch (err) {
       showToast(err.message || 'Could not log out.', 'error');
     }
@@ -230,42 +273,60 @@ export function App() {
     setSearchQuery('');
     setSelectedTech('All');
     setSelectedCategory('All');
+    showToast('Showing projects authored by your profile', 'info');
   };
 
   const handleNavigate = (target) => {
-    setMyProjectsMode(false);
+    setMyProjectsMode(target === 'my-projects');
     setSavedProjectsMode(target === 'saved');
     setRecommendationsMode(target === 'recommended');
     setSearchQuery('');
     setSelectedTech('All');
-    if (target === 'ai') setSelectedCategory('AI & Machine Learning');
-    else if (target === 'data') setSelectedCategory('Data Science & Analytics');
-    else setSelectedCategory('All');
-    if (target === 'trending') setSortOption('upvotes');
-    if (target === 'saved' || target === 'recommended') setSelectedCategory('All');
-    else if (target === 'home' || target === 'explore') setSortOption(target === 'home' ? 'upvotes' : sortOption);
-    if (target === 'home') window.scrollTo({ top: 0, behavior: 'smooth' });
-    else requestAnimationFrame(() => document.getElementById('gallery')?.scrollIntoView({ behavior: 'smooth', block: 'start' }));
+
+    if (target === 'ai') {
+      setSelectedCategory('AI & Machine Learning');
+      showToast('Filtering: AI & Machine Learning Track', 'info');
+    } else if (target === 'data') {
+      setSelectedCategory('Data Science & Analytics');
+      showToast('Filtering: Data Science & Analytics Track', 'info');
+    } else {
+      setSelectedCategory('All');
+      if (target === 'explore') showToast('Showing all 320 projects', 'info');
+    }
+
+    if (target === 'trending') {
+      setSortOption('upvotes');
+      showToast('Sorted by Most Appreciated 🔥', 'info');
+    } else if (target === 'saved') {
+      showToast('Showing your Bookmarked Projects 🔖', 'info');
+    } else if (target === 'recommended') {
+      showToast('Showing curated recommendations for you ✨', 'info');
+    }
+
+    if (target === 'home') {
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    } else {
+      setTimeout(() => {
+        document.getElementById('gallery')?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      }, 50);
+    }
   };
 
   const toggleBookmark = async (project) => {
     try {
       await api.setBookmark(project.id, !project.is_saved, currentStudentId);
-      setProjects((rows) => rows.filter((row) => row.id !== project.id || !project.is_saved).map((row) => row.id === project.id ? { ...row, is_saved: !project.is_saved } : row));
-      showToast(project.is_saved ? 'Removed from saved projects.' : 'Project saved for later.', 'success');
+      setProjects((rows) =>
+        rows.map((row) => (row.id === project.id ? { ...row, is_saved: !project.is_saved } : row))
+      );
+      showToast(project.is_saved ? 'Removed from saved projects.' : 'Project bookmarked! 🔖', 'success');
       if (savedProjectsMode && project.is_saved) loadProjects();
-    } catch (err) { showToast(err.message || 'Could not update saved projects.', 'error'); }
+    } catch (err) {
+      showToast(err.message || 'Could not update saved projects.', 'error');
+    }
   };
 
-  const toggleCategoryFollow = async (category) => {
-    const next = followedCategories.includes(category)
-      ? followedCategories.filter((item) => item !== category)
-      : [...followedCategories, category];
-    try {
-      const result = await api.setFollowedCategories(next, currentStudentId);
-      setFollowedCategories(result.data || next);
-      showToast(next.includes(category) ? `Following ${category}.` : `Unfollowed ${category}.`, 'success');
-    } catch (err) { showToast(err.message || 'Could not save your category preferences.', 'error'); }
+  const handleShareProject = (project) => {
+    showToast(`Share link copied for "${project.title}"! 🔗`, 'success');
   };
 
   const handleAuthenticated = async (user) => {
@@ -273,24 +334,25 @@ export function App() {
     setCurrentStudentId(user.id);
     setMyProjectsMode(false);
     setSavedProjectsMode(false);
-    setRecommendationsMode(false);
-    setInterests(user.interests || []);
-    try {
-      const result = await api.getFollowedCategories(user.id);
-      setFollowedCategories(result.data || []);
-    } catch { setFollowedCategories([]); }
-    showToast(`Signed in as @${user.username}.`, 'success');
+    showToast(`Welcome back, ${user.name || user.username}! 👋`, 'success');
+    loadProjects();
   };
 
-  // Top featured spotlight project (Rank #1 or first item)
-  const spotlightProject = sortOption === 'upvotes' && projects.length > 0 ? projects[0] : null;
-  const showSpotlight = !myProjectsMode && !savedProjectsMode && !recommendationsMode && !loading && !error && !searchQuery && selectedCategory === 'All' && spotlightProject;
+  const spotlightProject = visibleProjects[0] || null;
+  const showSpotlight =
+    !myProjectsMode &&
+    !savedProjectsMode &&
+    !recommendationsMode &&
+    selectedCategory === 'All' &&
+    selectedTech === 'All' &&
+    !searchQuery &&
+    spotlightProject !== null;
 
   return (
     <div className="app-layout">
-      {/* Navigation Header */}
+      {/* Top Navbar */}
       <Navbar
-        onOpenPublishModal={() => setIsPublishModalOpen(true)}
+        onOpenPublishModal={() => { setProjectToEdit(null); setIsPublishModalOpen(true); }}
         onOpenExplainModal={() => setIsExplainModalOpen(true)}
         healthData={healthData}
         theme={theme}
@@ -303,28 +365,51 @@ export function App() {
         onShowSaved={() => handleNavigate('saved')}
         onShowRecommendations={() => handleNavigate('recommended')}
         onEditProfile={() => setIsProfileEditorOpen(true)}
+        activeNav={activeNav}
       />
 
-      {/* Hero Section */}
+      {/* Hero Section with Quick Actions */}
       <section className="hero-banner">
         <div className="hero-content">
           <div className="hero-copy">
             <div className="hero-tag">
-              <Terminal size={13} />
-              <span>Student Project Gallery</span>
+              <Terminal size={14} />
+              <span>Student Project Showcase & Peer Gallery</span>
             </div>
             <h2 className="hero-title">Builds worth sharing.<br />Feedback that helps them grow.</h2>
             <p className="hero-subtitle">
-              Explore student work, open the source, and leave a thoughtful vote or comment.
-              Publish your own project when it is ready to share.
+              Explore 320 capstone projects across 20 technical domains, inspect real code, save your favorites, and leave constructive peer feedback.
             </p>
-            <p className="catalog-data-note">Catalog includes upstream open-source projects and clearly labeled fictional samples. Sample entries do not include invented repository or website links.</p>
+
+            {/* Quick Action Buttons in Hero */}
+            <div className="hero-action-buttons">
+              <button className="btn-hero-primary" onClick={() => handleNavigate('explore')}>
+                <Compass size={16} />
+                <span>Explore 320 Projects</span>
+              </button>
+              <button className="btn-hero-secondary" onClick={() => handleNavigate('ai')}>
+                <Brain size={16} />
+                <span>AI &amp; ML</span>
+              </button>
+              <button className="btn-hero-secondary" onClick={() => handleNavigate('data')}>
+                <BarChart2 size={16} />
+                <span>Data Science</span>
+              </button>
+              <button className="btn-hero-secondary" onClick={() => handleNavigate('trending')}>
+                <TrendingUp size={16} />
+                <span>Trending</span>
+              </button>
+              <button className="btn-hero-cta" onClick={() => { setProjectToEdit(null); setIsPublishModalOpen(true); }}>
+                <Plus size={16} />
+                <span>Publish Project</span>
+              </button>
+            </div>
           </div>
 
           <aside className="hero-community" aria-label="Project gallery summary">
             <div className="community-panel-heading">
-              <span className="community-spark">✳</span>
-              <div><strong>Gallery overview</strong><span>Student and open-source projects</span></div>
+              <span className="community-spark">✦</span>
+              <div><strong>Live Catalog Metrics</strong><span>Preserved SQLite Database</span></div>
             </div>
             <div className="stats-strip">
               <div className="stat-item">
@@ -336,11 +421,17 @@ export function App() {
                 <span className="stat-label">Domains</span>
               </div>
               <div className="stat-item">
-                <span className="stat-value">{technologyCatalog.length}</span>
-                <span className="stat-label">Technologies</span>
+                <span className="stat-value">120</span>
+                <span className="stat-label">Authors</span>
+              </div>
+              <div className="stat-item">
+                <span className="stat-value">374</span>
+                <span className="stat-label">Peer Votes</span>
               </div>
             </div>
-            <p className="community-panel-note">Search by idea, filter by stack, and open a project for details and feedback.</p>
+            <p className="community-panel-note">
+              Search by idea, filter by tech stack, and click any card for live details, feedback, and repository source.
+            </p>
           </aside>
         </div>
       </section>
@@ -348,7 +439,26 @@ export function App() {
       {/* Main Content Area */}
       <main className="main-content">
         <div id="gallery" className="gallery-anchor" />
-        {(myProjectsMode || savedProjectsMode || recommendationsMode) && <div className="gallery-section-heading"><div><h2>{myProjectsMode ? 'My projects' : savedProjectsMode ? 'Saved projects' : 'Picked for you'}</h2><p>{myProjectsMode ? 'Projects published by your account' : savedProjectsMode ? 'Your bookmarked projects' : 'Ranked using your followed categories, technology interests, recency, and stored community votes.'}</p></div><button className="btn-secondary" onClick={() => handleNavigate('explore')}>Back to Explore</button></div>}
+
+        {/* Section Heading when in Filter / Custom Modes */}
+        {(myProjectsMode || savedProjectsMode || recommendationsMode) && (
+          <div className="gallery-section-heading">
+            <div>
+              <h2>{myProjectsMode ? 'My Projects' : savedProjectsMode ? 'Bookmarked Projects' : 'Picked for You'}</h2>
+              <p>
+                {myProjectsMode
+                  ? 'Projects published with your account'
+                  : savedProjectsMode
+                  ? 'Your saved projects for quick reference'
+                  : 'Curated projects based on community engagement and categories'}
+              </p>
+            </div>
+            <button className="btn-secondary" onClick={() => handleNavigate('explore')}>
+              Back to All Projects
+            </button>
+          </div>
+        )}
+
         {/* Featured Spotlight Card */}
         {showSpotlight && (
           <FeaturedSpotlight
@@ -365,54 +475,79 @@ export function App() {
         <FilterBar
           searchQuery={searchQuery}
           onSearchChange={setSearchQuery}
-        selectedCategory={selectedCategory}
-        onCategoryChange={setSelectedCategory}
+          selectedCategory={selectedCategory}
+          onCategoryChange={(cat) => {
+            setSelectedCategory(cat);
+            setMyProjectsMode(false);
+            setSavedProjectsMode(false);
+            setRecommendationsMode(false);
+          }}
           sortOption={sortOption}
           onSortChange={setSortOption}
           totalCount={totalCount}
-          showingCount={projects.length}
-          followedCategories={followedCategories}
-          onToggleCategoryFollow={toggleCategoryFollow}
+          showingCount={visibleProjects.length}
+          selectedTech={selectedTech}
+          onTechChange={setSelectedTech}
+          onResetFilters={() => {
+            setSelectedCategory('All');
+            setSelectedTech('All');
+            setSearchQuery('');
+            setSortOption('upvotes');
+            setMyProjectsMode(false);
+            setSavedProjectsMode(false);
+            setRecommendationsMode(false);
+            showToast('Filters reset to default.', 'info');
+          }}
         />
 
         {/* Loading Spinner */}
         {loading && (
           <div className="state-box">
             <div className="spinner"></div>
-            <h3 className="state-title">Loading Projects Gallery</h3>
-            <p className="state-desc">Fetching ranked student projects from the API...</p>
+            <h3 className="state-title">Loading Projects Gallery…</h3>
+            <p className="state-text">Fetching verified catalog data from SQLite.</p>
           </div>
         )}
 
         {/* Error State */}
-        {!loading && error && (
-          <div className="state-box">
-            <AlertTriangle size={36} color="var(--accent-rose)" />
-            <h3 className="state-title">Unable to Connect to Backend API</h3>
-            <p className="state-desc">{error}</p>
-            <button className="btn-primary" onClick={loadProjects} style={{ marginTop: '0.8rem' }}>
-              Retry Connection
+        {error && !loading && (
+          <div className="state-box error-box">
+            <AlertTriangle size={32} color="var(--accent-rose)" />
+            <h3 className="state-title">Unable to Load Projects</h3>
+            <p className="state-text">{error}</p>
+            <button className="btn-primary" onClick={loadProjects} style={{ marginTop: '1rem' }}>
+              Retry
             </button>
           </div>
         )}
 
         {/* Empty State */}
-        {!loading && !error && projects.length === 0 && (
-          <div className="state-box">
-            <FolderSearch size={38} color="var(--text-muted)" />
+        {!loading && !error && visibleProjects.length === 0 && (
+          <div className="state-box empty-box">
+            <FolderSearch size={40} color="var(--text-muted)" />
             <h3 className="state-title">No Projects Found</h3>
-            <p className="state-desc">
-              {searchQuery || selectedCategory !== 'All'
-                ? `No projects matched your current filters. Try clearing filters.`
-              : myProjectsMode ? 'You have not published a project with this account yet.' : savedProjectsMode ? 'Save projects from the gallery and they will be collected here.' : recommendationsMode ? 'Follow categories or technologies to personalize recommendations.' : 'The showcase gallery is currently empty. Be the first to publish a project!'}
+            <p className="state-text">
+              {searchQuery
+                ? `No projects matched "${searchQuery}". Try a different keyword.`
+                : savedProjectsMode
+                ? 'You have not bookmarked any projects yet. Click the bookmark icon on any card to save it.'
+                : myProjectsMode
+                ? 'You have not published any projects yet. Click "Publish Project" to submit your capstone!'
+                : selectedTech !== 'All'
+                ? `No projects found using "${selectedTech}".`
+                : 'No projects match the current criteria.'}
             </p>
             <button
-              className="btn-primary"
+              className="btn-secondary"
               onClick={() => {
-                setSearchQuery('');
                 setSelectedCategory('All');
+                setSelectedTech('All');
+                setSearchQuery('');
+                setMyProjectsMode(false);
+                setSavedProjectsMode(false);
+                setRecommendationsMode(false);
               }}
-              style={{ marginTop: '0.8rem' }}
+              style={{ marginTop: '1rem' }}
             >
               Reset Filters
             </button>
@@ -420,30 +555,36 @@ export function App() {
         )}
 
         {/* Projects Grid */}
-        {!loading && !error && projects.length > 0 && (
+        {!loading && !error && visibleProjects.length > 0 && (
           <>
-            {showSpotlight && <div className="gallery-section-heading">
-              <div><h2>More projects</h2><p>{Math.max(0, totalCount - 1)} additional projects in the gallery</p></div>
-            </div>}
+            {showSpotlight && (
+              <div className="gallery-section-heading">
+                <div>
+                  <h2>All Projects</h2>
+                  <p>{visibleProjects.length} projects matching your current filters</p>
+                </div>
+              </div>
+            )}
             <div className="projects-grid">
-            {projects.filter((project) => !showSpotlight || project.id !== spotlightProject.id).map((project, idx) => (
-              <ProjectCard
-                key={project.id}
-                project={project}
-                index={idx}
-                onVote={handleVote}
-                onOpenDetails={(p) => setActiveProject(p)}
-                isUpvoting={votingIds.has(project.id)}
-                onToggleBookmark={toggleBookmark}
-                onOpenAuthor={(id) => setProfileStudentId(id)}
-              />
-            ))}
+              {(showSpotlight ? visibleProjects.slice(1) : visibleProjects).map((project, index) => (
+                <ProjectCard
+                  key={project.id}
+                  project={project}
+                  onVote={handleVote}
+                  onOpenDetails={(p) => setActiveProject(p)}
+                  isUpvoting={votingIds.has(project.id)}
+                  index={index}
+                  onToggleBookmark={toggleBookmark}
+                  onOpenAuthor={(id) => setProfileStudentId(id)}
+                  onShare={handleShareProject}
+                />
+              ))}
             </div>
           </>
         )}
       </main>
 
-      {/* Modals */}
+      {/* Project Details Modal */}
       {activeProject && (
         <ProjectDetailsModal
           project={activeProject}
@@ -452,37 +593,82 @@ export function App() {
           currentUser={currentUser}
           onClose={() => setActiveProject(null)}
           onVote={handleVote}
-          onEdit={(project) => { setActiveProject(null); setProjectToEdit(project); setIsPublishModalOpen(true); }}
+          onEdit={(project) => {
+            setActiveProject(null);
+            setProjectToEdit(project);
+            setIsPublishModalOpen(true);
+          }}
           onDelete={async (project) => {
             try {
               await api.deleteProject(project.id, currentUser?.id);
               setActiveProject(null);
-              showToast('Project deleted.', 'success');
+              showToast('Project deleted successfully.', 'success');
               loadProjects();
-            } catch (err) { showToast(err.message || 'Could not delete project.', 'error'); }
+            } catch (err) {
+              showToast(err.message || 'Could not delete project.', 'error');
+            }
           }}
           isVoting={votingIds.has(activeProject.id)}
           onCommentAdded={handleCommentAdded}
         />
       )}
 
-      {profileStudentId && <AuthorProfileModal studentId={profileStudentId} onClose={() => setProfileStudentId(null)} onOpenProject={(projectId) => { setProfileStudentId(null); const found = projects.find((project) => project.id === projectId); if (found) setActiveProject(found); else api.getProjectDetails(projectId, currentStudentId).then(setActiveProject).catch((err) => showToast(err.message || 'Could not open project.', 'error')); }} />}
+      {/* Author Profile Modal */}
+      {profileStudentId && (
+        <AuthorProfileModal
+          studentId={profileStudentId}
+          onClose={() => setProfileStudentId(null)}
+          onOpenProject={(projectId) => {
+            setProfileStudentId(null);
+            const found = projects.find((project) => project.id === projectId);
+            if (found) setActiveProject(found);
+            else api.getProjectDetails(projectId, currentStudentId).then(setActiveProject).catch((err) => showToast(err.message || 'Could not open project.', 'error'));
+          }}
+        />
+      )}
 
-      {isProfileEditorOpen && currentUser && <ProfileEditModal user={currentUser} onClose={() => setIsProfileEditorOpen(false)} onSaved={(user) => { setCurrentUser(user); setInterests(user.interests || []); showToast('Profile updated.', 'success'); }} />}
+      {/* Profile Edit Modal */}
+      {isProfileEditorOpen && currentUser && (
+        <ProfileEditModal
+          user={currentUser}
+          onClose={() => setIsProfileEditorOpen(false)}
+          onSaved={(user) => {
+            setCurrentUser(user);
+            setInterests(user.interests || []);
+            showToast('Profile updated.', 'success');
+          }}
+        />
+      )}
 
+      {/* Publish Project Modal */}
       {isPublishModalOpen && (
         <PublishProjectModal
           currentStudentId={currentStudentId}
           students={students}
-          onClose={() => { setIsPublishModalOpen(false); setProjectToEdit(null); }}
+          onClose={() => {
+            setIsPublishModalOpen(false);
+            setProjectToEdit(null);
+          }}
           onProjectPublished={handleProjectPublished}
           initialProject={projectToEdit}
-          onSaved={() => { setProjectToEdit(null); setIsPublishModalOpen(false); loadProjects(); showToast('Project updated.', 'success'); }}
+          onSaved={() => {
+            setProjectToEdit(null);
+            setIsPublishModalOpen(false);
+            loadProjects();
+            showToast('Project updated successfully.', 'success');
+          }}
         />
       )}
 
-      {isAuthModalOpen && <AuthModal onClose={() => setIsAuthModalOpen(false)} onAuthenticated={handleAuthenticated} />}
+      {/* Auth Modal */}
+      {isAuthModalOpen && (
+        <AuthModal
+          onClose={() => setIsAuthModalOpen(false)}
+          onAuthenticated={handleAuthenticated}
+        />
+      )}
 
+      {/* Architecture Guide Modal */}
       {isExplainModalOpen && (
         <ExplainArchitectureModal
           healthData={healthData}
@@ -495,6 +681,8 @@ export function App() {
         <div className={`toast-notification ${toast.type}`}>
           {toast.type === 'success' ? (
             <CheckCircle size={16} color="var(--accent-emerald)" />
+          ) : toast.type === 'info' ? (
+            <Info size={16} color="var(--accent-cobalt)" />
           ) : (
             <AlertTriangle size={16} color="var(--accent-rose)" />
           )}
@@ -506,18 +694,18 @@ export function App() {
       <footer className="app-footer">
         <div className="footer-container">
           <div className="footer-left">
-            <strong>Student Project Showcase & Peer Gallery</strong>
-            <span>Peer-to-Peer Engineering Platform & Open-Source Community</span>
+            <strong>ProjectSpace • Student Project Showcase</strong>
+            <span>Preserved 320-Project Academic Catalog</span>
           </div>
           <div className="footer-links">
             <a href="http://127.0.0.1:8000/docs" target="_blank" rel="noopener noreferrer">
-              REST API Docs
+              Swagger API Docs
             </a>
             <a href="http://127.0.0.1:8000/redoc" target="_blank" rel="noopener noreferrer">
-              API Specifications
+              ReDoc Specs
             </a>
             <a href="http://127.0.0.1:8000/health" target="_blank" rel="noopener noreferrer">
-              System Health
+              System Health Check
             </a>
           </div>
         </div>

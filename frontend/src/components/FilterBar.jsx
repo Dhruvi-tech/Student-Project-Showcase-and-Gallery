@@ -1,6 +1,20 @@
 import React from 'react';
-import { Search, ArrowUpDown, X } from 'lucide-react';
+import { Search, ArrowUpDown, X, Tag, Layers, Filter } from 'lucide-react';
 import { PROJECT_CATEGORIES } from '../constants/catalog';
+
+const POPULAR_TECHS = [
+  'All',
+  'Python',
+  'React',
+  'FastAPI',
+  'PyTorch',
+  'Docker',
+  'TypeScript',
+  'TensorFlow',
+  'PostgreSQL',
+  'Node.js',
+  'AWS',
+];
 
 export function FilterBar({
   searchQuery,
@@ -11,12 +25,15 @@ export function FilterBar({
   onSortChange,
   totalCount,
   showingCount,
-  followedCategories = [],
-  onToggleCategoryFollow,
+  selectedTech = 'All',
+  onTechChange,
+  onResetFilters,
 }) {
+  const isFiltered = selectedCategory !== 'All' || selectedTech !== 'All' || searchQuery.trim() !== '';
+
   return (
-    <div className="filter-bar">
-      {/* Top row: Search input + Sorting dropdown */}
+    <div className="filter-bar-card">
+      {/* Top row: Search input + Sorting dropdown + Reset */}
       <div className="filter-top-row">
         <div className="search-box">
           <Search size={16} className="search-icon" />
@@ -24,22 +41,15 @@ export function FilterBar({
             type="text"
             className="search-input"
             aria-label="Search projects"
-            placeholder="Search projects by title, description, or tech stack..."
+            placeholder="Search 320 projects by title, description, author, or tech stack..."
             value={searchQuery}
             onChange={(e) => onSearchChange(e.target.value)}
           />
           {searchQuery && (
             <button
               onClick={() => onSearchChange('')}
+              className="search-clear-btn"
               aria-label="Clear search"
-              style={{
-                position: 'absolute',
-                right: '0.75rem',
-                color: 'var(--text-muted)',
-                display: 'flex',
-                alignItems: 'center',
-                padding: '2px',
-              }}
               title="Clear search"
             >
               <X size={14} />
@@ -48,34 +58,93 @@ export function FilterBar({
         </div>
 
         <div className="sort-group">
-          <ArrowUpDown size={14} color="var(--text-muted)" />
-          <span className="sort-label">Sort:</span>
+          <ArrowUpDown size={14} className="sort-icon" />
+          <span className="sort-label">Sort By:</span>
           <select
             className="sort-select"
             aria-label="Sort projects"
             value={sortOption}
             onChange={(e) => onSortChange(e.target.value)}
           >
-            <option value="upvotes">Most Appreciated</option>
-            <option value="newest">Recently Published</option>
-            <option value="oldest">Chronological</option>
-            <option value="alphabetical">A to Z</option>
+            <option value="upvotes">🔥 Most Appreciated</option>
+            <option value="newest">⚡ Recently Published</option>
+            <option value="oldest">📅 Chronological</option>
+            <option value="alphabetical">🔤 Alphabetical (A-Z)</option>
           </select>
+        </div>
+
+        {isFiltered && (
+          <button
+            type="button"
+            className="btn-reset-filters"
+            onClick={onResetFilters}
+            title="Reset all filters"
+          >
+            <X size={13} />
+            <span>Clear Filters</span>
+          </button>
+        )}
+      </div>
+
+      {/* Popular Tech Filter Row */}
+      <div className="tech-filter-row">
+        <span className="filter-section-title">
+          <Tag size={13} />
+          <span>Technology:</span>
+        </span>
+        <div className="tech-pills-scroll">
+          {POPULAR_TECHS.map((tech) => (
+            <button
+              key={tech}
+              type="button"
+              className={`tech-filter-pill ${selectedTech === tech ? 'active' : ''}`}
+              onClick={() => onTechChange?.(tech)}
+            >
+              {tech === 'All' ? 'All Tech' : tech}
+            </button>
+          ))}
         </div>
       </div>
 
-      {/* Bottom row: Tech stack pills + Showing count */}
-      <div className="tech-pills-row domain-filter-row" aria-label="Filter by project domain">
-        <span className="tech-pills-label">Domain:</span>
-        <button aria-pressed={selectedCategory === 'All'} className={`tech-pill ${selectedCategory === 'All' ? 'active' : ''}`} onClick={() => onCategoryChange('All')}>All domains</button>
-        {PROJECT_CATEGORIES.map((category) => (
-          <span className="category-filter-item" key={category}>
-            <button aria-pressed={selectedCategory === category} className={`tech-pill ${selectedCategory === category ? 'active' : ''}`} onClick={() => onCategoryChange(category)}>{category}</button>
-            <button className={`follow-mini ${followedCategories.includes(category) ? 'active' : ''}`} aria-label={`${followedCategories.includes(category) ? 'Unfollow' : 'Follow'} ${category}`} aria-pressed={followedCategories.includes(category)} onClick={() => onToggleCategoryFollow?.(category)}>{followedCategories.includes(category) ? '★' : '☆'}</button>
-          </span>
-        ))}
+      {/* 20 Engineering Domains Filter Row */}
+      <div className="domain-filter-row">
+        <span className="filter-section-title">
+          <Layers size={13} />
+          <span>Domain (20):</span>
+        </span>
+        <div className="domain-pills-scroll">
+          <button
+            type="button"
+            className={`domain-pill ${selectedCategory === 'All' ? 'active' : ''}`}
+            onClick={() => onCategoryChange('All')}
+          >
+            All Tracks
+          </button>
+          {PROJECT_CATEGORIES.map((category) => (
+            <button
+              key={category}
+              type="button"
+              className={`domain-pill ${selectedCategory === category ? 'active' : ''}`}
+              onClick={() => onCategoryChange(category)}
+            >
+              {category}
+            </button>
+          ))}
+        </div>
       </div>
-      <div className="filter-results-count">{showingCount === totalCount ? <>All <strong>{totalCount}</strong> projects</> : <>Showing <strong>{showingCount ?? totalCount}</strong> of <strong>{totalCount}</strong> projects</>}</div>
+
+      {/* Results Header */}
+      <div className="filter-status-bar">
+        <div className="filter-results-badge">
+          <span className="results-dot"></span>
+          <span>
+            Showing <strong>{showingCount ?? totalCount}</strong> of <strong>{totalCount}</strong> projects
+            {selectedCategory !== 'All' && ` in ${selectedCategory}`}
+            {selectedTech !== 'All' && ` using ${selectedTech}`}
+            {searchQuery && ` matching "${searchQuery}"`}
+          </span>
+        </div>
+      </div>
     </div>
   );
 }
