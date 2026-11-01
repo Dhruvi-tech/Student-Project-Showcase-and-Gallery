@@ -32,3 +32,5 @@ Open `http://127.0.0.1:5173`. Do not use an existing account password; create a 
 - Web: `WEB_50_MARKS.md`, `TEST_RESULTS.md`, `WEB_VIVA_QUESTIONS.md`
 - Cloud: `CLOUD_50_MARKS.md`, `ARCHITECTURE.md`, `DEPLOYMENT_GUIDE.md`, `CLOUD_VIVA_QUESTIONS.md`
 - Screenshots: `SCREENSHOT_CHECKLIST.md`
+
+

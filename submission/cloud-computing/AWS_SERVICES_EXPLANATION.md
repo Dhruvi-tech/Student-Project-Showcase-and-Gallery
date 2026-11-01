@@ -12,3 +12,5 @@
 | NAT Gateway | Private-subnet outbound traffic | Billable hourly/data | Not provisioned |
 
 The large reference template remains academic evidence only; it must not be deployed under the strict ₹0 policy.
+
+

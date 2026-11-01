@@ -29,3 +29,5 @@
 2. Start frontend in a second PowerShell window: `./scripts/start-frontend.ps1`.
 3. Open `http://127.0.0.1:5173`; Swagger is `http://127.0.0.1:8000/docs`.
 4. Follow [FINAL_PRESENTATION_SCRIPT.md](FINAL_PRESENTATION_SCRIPT.md).
+
+

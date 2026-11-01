@@ -45,5 +45,3 @@ These runs include mixed browsing, filtering, health, recommendation, bookmark, 
 ## Data preservation check
 
 After final startup verification, the current primary database was compared against the pre-implementation checkpoint. Both contain 320 projects, 120 students, 110 comments, 374 votes, and 20 categories. There are zero missing/new project IDs, zero missing student IDs, and zero missing GitHub links. The database file hash changed because the application's existing additive startup migration writes schema/index metadata; the record-level comparison above confirmed preservation.
-
-

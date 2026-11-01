@@ -13,5 +13,3 @@
 - [ ] `TEST_RESULTS.md` and local benchmark JSON.
 - [ ] AWS Billing/Free Tier page only when the account can be read; capture no credentials.
 - [ ] Cloud architecture diagram with the truthful “unprovisioned / pending approval” status.
-
-

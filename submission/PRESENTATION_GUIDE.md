@@ -21,5 +21,3 @@ The application is cloud-ready, with Docker, S3-compatible asset routes, IAM/sco
 - `WEB_50_MARKS.md`
 - `CLOUD_50_MARKS.md`
 - `SCREENSHOT_CHECKLIST.md`
-
-

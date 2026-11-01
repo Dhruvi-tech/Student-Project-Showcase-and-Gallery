@@ -25,3 +25,5 @@
 23. **Why is Locust not AWS evidence?** It ran on a local machine, not managed cloud infrastructure.
 24. **How would migration be safe?** Backup, test-copy import, count/ID/link comparison, workflow verification, approval.
 25. **What can introduce charges?** S3 usage, CloudWatch ingestion, compute, databases, ingress, network, and data transfer.
+
+

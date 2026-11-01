@@ -9,5 +9,3 @@
 | Integration & testing — 10 | API tests, frontend build, isolated 10/25/50 benchmark | `TEST_RESULTS.md`, JSON report | Passed locally |
 
 Suggested evidence score: demonstrate each row live and let the evaluator assign marks. The matrix records evidence, not a self-awarded score.
-
-

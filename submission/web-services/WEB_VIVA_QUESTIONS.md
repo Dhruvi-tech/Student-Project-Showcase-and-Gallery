@@ -20,3 +20,5 @@
 18. **How are errors handled?** Invalid data gives 422, missing resources 404, unauthenticated protected actions 401, forbidden ownership 403, and duplicate votes 409.
 19. **How was the app tested?** Pytest covers API, auth, CRUD, permissions, votes, comments, discovery, and migration; Vite validates the production build.
 20. **What is a limitation?** SQLite is excellent for the local demonstration but not intended for concurrent multi-instance production hosting.
+
+

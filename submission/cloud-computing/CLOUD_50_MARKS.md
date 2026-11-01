@@ -9,5 +9,3 @@
 | Monitoring, load & cost — 10 | health endpoint, structured benchmark, Locust script, ₹0 plan/cost gate | Local measurements verified; no CloudWatch metrics or AWS billing data available |
 
 The evidence supports a cloud-ready academic implementation. Do not claim managed AWS hosting, S3 storage, CloudWatch monitoring, or free-tier eligibility until the correct AWS profile is available and approval is granted.
-
-
