@@ -41,23 +41,23 @@
 }
 
 .brand-icon-box {
-  width: 40px;
-  height: 40px;
-  border-radius: 12px;
-  background: linear-gradient(135deg, #2563eb 0%, #4f46e5 50%, #7c3aed 100%);
+  width: 42px;
+  height: 42px;
+  border-radius: 13px;
+  background: linear-gradient(135deg, #1d4ed8 0%, #3b82f6 35%, #6366f1 70%, #8b5cf6 100%);
   color: #ffffff;
   display: flex;
   align-items: center;
   justify-content: center;
   flex-shrink: 0;
-  box-shadow: 0 4px 14px rgba(79, 70, 229, 0.35), inset 0 1px 1px rgba(255, 255, 255, 0.4);
-  border: 1px solid rgba(255, 255, 255, 0.2);
-  transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+  box-shadow: 0 4px 16px rgba(37, 99, 235, 0.42), inset 0 1px 1.5px rgba(255, 255, 255, 0.55);
+  border: 1px solid rgba(255, 255, 255, 0.32);
+  transition: all 0.28s cubic-bezier(0.16, 1, 0.3, 1);
 }
 
 .brand-section:hover .brand-icon-box {
-  transform: translateY(-2px) scale(1.05);
-  box-shadow: 0 8px 22px rgba(99, 102, 241, 0.48), inset 0 1px 1px rgba(255, 255, 255, 0.55);
+  transform: translateY(-2px) scale(1.06);
+  box-shadow: 0 8px 24px rgba(79, 70, 229, 0.55), inset 0 1px 1.5px rgba(255, 255, 255, 0.7);
 }
 
 .brand-emblem {
@@ -1367,9 +1367,9 @@
 }
 
 .brand-icon-box {
-  width: 40px;
-  height: 40px;
-  border-radius: 12px;
+  width: 42px;
+  height: 42px;
+  border-radius: 13px;
 }
 
 .brand-text h1 { letter-spacing: -0.035em; }

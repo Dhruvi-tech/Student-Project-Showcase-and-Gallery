@@ -63,8 +63,8 @@ export const ALL_DOMAINS = [
   { name: 'EdTech', count: 14, icon: GraduationCap, track: 'Industry Apps' },
 ];
 
-// Modern 3D isometric project cube emblem with illuminated center core
-const ShowcaseEmblem = ({ size = 22 }) => (
+// Modern 3D Innovation Prism Emblem with Radiant Core Starburst
+const ShowcaseEmblem = ({ size = 24 }) => (
   <svg
     width={size}
     height={size}
@@ -75,48 +75,79 @@ const ShowcaseEmblem = ({ size = 22 }) => (
     aria-hidden="true"
   >
     <defs>
-      <linearGradient id="emblem-grad" x1="2" y1="2" x2="22" y2="22" gradientUnits="userSpaceOnUse">
-        <stop stopColor="#ffffff" />
-        <stop offset="100%" stopColor="#dbeafe" />
+      <linearGradient id="prism-top" x1="4" y1="2" x2="20" y2="12" gradientUnits="userSpaceOnUse">
+        <stop stopColor="#ffffff" stopOpacity="0.95" />
+        <stop offset="60%" stopColor="#bae6fd" stopOpacity="0.85" />
+        <stop offset="100%" stopColor="#38bdf8" stopOpacity="0.75" />
       </linearGradient>
-      <linearGradient id="emblem-node" x1="9.5" y1="9.5" x2="14.5" y2="14.5" gradientUnits="userSpaceOnUse">
-        <stop stopColor="#38bdf8" />
-        <stop offset="100%" stopColor="#818cf8" />
+      <linearGradient id="prism-left" x1="3" y1="7" x2="12" y2="22" gradientUnits="userSpaceOnUse">
+        <stop stopColor="#60a5fa" stopOpacity="0.9" />
+        <stop offset="50%" stopColor="#3b82f6" stopOpacity="0.95" />
+        <stop offset="100%" stopColor="#1d4ed8" />
       </linearGradient>
+      <linearGradient id="prism-right" x1="12" y1="7" x2="21" y2="22" gradientUnits="userSpaceOnUse">
+        <stop stopColor="#c084fc" stopOpacity="0.9" />
+        <stop offset="50%" stopColor="#818cf8" stopOpacity="0.95" />
+        <stop offset="100%" stopColor="#4338ca" />
+      </linearGradient>
+      <linearGradient id="prism-rim" x1="2" y1="2" x2="22" y2="22" gradientUnits="userSpaceOnUse">
+        <stop stopColor="#ffffff" stopOpacity="0.95" />
+        <stop offset="40%" stopColor="#93c5fd" stopOpacity="0.85" />
+        <stop offset="75%" stopColor="#c4b5fd" stopOpacity="0.9" />
+        <stop offset="100%" stopColor="#e9d5ff" />
+      </linearGradient>
+      <filter id="starburst-glow" x="-30%" y="-30%" width="160%" height="160%">
+        <feGaussianBlur stdDeviation="0.8" result="blur" />
+        <feComposite in="SourceGraphic" in2="blur" operator="over" />
+      </filter>
     </defs>
-    {/* Outer Isometric Project Cube / Hexagon */}
-    <path
-      d="M12 2.6L20.5 7.5V16.5L12 21.4L3.5 16.5V7.5L12 2.6Z"
-      stroke="url(#emblem-grad)"
-      strokeWidth="1.8"
-      strokeLinejoin="round"
-    />
-    {/* Isometric Faces: Top, Left, and Right dividing axes */}
-    <path
-      d="M12 2.6V12M20.5 7.5L12 12M3.5 7.5L12 12"
-      stroke="url(#emblem-grad)"
-      strokeWidth="1.8"
-      strokeLinecap="round"
-      strokeLinejoin="round"
-    />
-    {/* Translucent Isometric Top Diamond Surface */}
+
+    {/* Top Facet (Diamond Deck) */}
     <polygon
-      points="12,3.8 19.3,8 12,11.4 4.7,8"
-      fill="rgba(255, 255, 255, 0.22)"
+      points="12,2.2 20.4,7 12,11.8 3.6,7"
+      fill="url(#prism-top)"
+      stroke="url(#prism-rim)"
+      strokeWidth="1.3"
+      strokeLinejoin="round"
     />
-    {/* Glowing Central Project Core Node */}
-    <circle
-      cx="12"
-      cy="12"
-      r="2.5"
-      fill="url(#emblem-node)"
+
+    {/* Left Facet (Electric Cobalt Innovation Wing) */}
+    <polygon
+      points="3.6,7 12,11.8 12,21.8 3.6,17"
+      fill="url(#prism-left)"
+      stroke="url(#prism-rim)"
+      strokeWidth="1.3"
+      strokeLinejoin="round"
     />
-    <circle
-      cx="12"
-      cy="12"
-      r="1.1"
+
+    {/* Right Facet (Creative Indigo-Violet Wing) */}
+    <polygon
+      points="12,11.8 20.4,7 20.4,17 12,21.8"
+      fill="url(#prism-right)"
+      stroke="url(#prism-rim)"
+      strokeWidth="1.3"
+      strokeLinejoin="round"
+    />
+
+    {/* Inner Intersection Geometry Rays */}
+    <path
+      d="M12 2.2V11.8M3.6 7L12 11.8M20.4 7L12 11.8"
+      stroke="#ffffff"
+      strokeWidth="1.1"
+      strokeOpacity="0.7"
+      strokeLinecap="round"
+    />
+
+    {/* Radiant 4-Point Innovation Star Node */}
+    <path
+      d="M12 7.2 C12 9.7 10.1 11.8 7.6 11.8 C10.1 11.8 12 13.9 12 16.4 C12 13.9 13.9 11.8 16.4 11.8 C13.9 11.8 12 9.7 12 7.2 Z"
       fill="#ffffff"
+      filter="url(#starburst-glow)"
     />
+
+    {/* Central Core Nodes */}
+    <circle cx="12" cy="11.8" r="1.4" fill="#ffffff" />
+    <circle cx="12" cy="11.8" r="2.9" stroke="#38bdf8" strokeWidth="0.8" strokeOpacity="0.9" />
   </svg>
 );
 
