@@ -516,7 +516,7 @@ export function App() {
         <div className="hero-content">
           <div className="hero-copy">
             <div className="hero-tag">
-              <Terminal size={14} />
+              <Sparkles size={14} />
               <span>Student Project Showcase & Peer Gallery</span>
             </div>
             <h2 className="hero-title">Builds worth sharing.<br />Feedback that helps them grow.</h2>

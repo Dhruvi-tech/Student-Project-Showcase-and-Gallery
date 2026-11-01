@@ -20,6 +20,63 @@ import {
   Zap,
 } from 'lucide-react';
 
+// Modern 3D isometric project cube emblem with illuminated center core
+const ShowcaseEmblem = ({ size = 22 }) => (
+  <svg
+    width={size}
+    height={size}
+    viewBox="0 0 24 24"
+    fill="none"
+    xmlns="http://www.w3.org/2000/svg"
+    className="brand-emblem"
+    aria-hidden="true"
+  >
+    <defs>
+      <linearGradient id="emblem-grad" x1="2" y1="2" x2="22" y2="22" gradientUnits="userSpaceOnUse">
+        <stop stopColor="#ffffff" />
+        <stop offset="100%" stopColor="#dbeafe" />
+      </linearGradient>
+      <linearGradient id="emblem-node" x1="9.5" y1="9.5" x2="14.5" y2="14.5" gradientUnits="userSpaceOnUse">
+        <stop stopColor="#38bdf8" />
+        <stop offset="100%" stopColor="#818cf8" />
+      </linearGradient>
+    </defs>
+    {/* Outer Isometric Project Cube / Hexagon */}
+    <path
+      d="M12 2.6L20.5 7.5V16.5L12 21.4L3.5 16.5V7.5L12 2.6Z"
+      stroke="url(#emblem-grad)"
+      strokeWidth="1.8"
+      strokeLinejoin="round"
+    />
+    {/* Isometric Faces: Top, Left, and Right dividing axes */}
+    <path
+      d="M12 2.6V12M20.5 7.5L12 12M3.5 7.5L12 12"
+      stroke="url(#emblem-grad)"
+      strokeWidth="1.8"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+    />
+    {/* Translucent Isometric Top Diamond Surface */}
+    <polygon
+      points="12,3.8 19.3,8 12,11.4 4.7,8"
+      fill="rgba(255, 255, 255, 0.22)"
+    />
+    {/* Glowing Central Project Core Node */}
+    <circle
+      cx="12"
+      cy="12"
+      r="2.5"
+      fill="url(#emblem-node)"
+    />
+    <circle
+      cx="12"
+      cy="12"
+      r="1.1"
+      fill="#ffffff"
+    />
+  </svg>
+);
+
 export function Navbar({
   onOpenPublishModal,
   onOpenExplainModal,
@@ -49,8 +106,8 @@ export function Navbar({
       <div className="navbar-container">
         {/* Brand Section */}
         <div className="brand-section" onClick={() => navigate('home')} style={{ cursor: 'pointer' }}>
-          <div className="brand-icon-box">
-            <Terminal size={19} />
+          <div className="brand-icon-box" title="Student Project Showcase & Peer Gallery">
+            <ShowcaseEmblem size={22} />
           </div>
           <div className="brand-text">
             <h1>Student Project Showcase</h1>
