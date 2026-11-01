@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { ExternalLink, MessageSquare, Bookmark, Share2, Check } from 'lucide-react';
+import { ExternalLink, MessageSquare, Bookmark, Share2, Check, Quote, Clock } from 'lucide-react';
 import { VoteControls } from './VoteControls';
 
 const GithubIcon = ({ size = 14 }) => (
@@ -42,6 +42,7 @@ export function ProjectCard({
   onToggleBookmark,
   onOpenAuthor,
   onShare,
+  onCite,
 }) {
   const [copied, setCopied] = useState(false);
 
@@ -113,13 +114,17 @@ export function ProjectCard({
         </div>
       </div>
 
-      {/* Category & Difficulty Badges */}
+      {/* Category, Difficulty & Complexity Badges */}
       <div className="card-category-strip">
         <span className="category-tag-badge" aria-label="Project category">
           {project.category || 'Open Source & Developer Utilities'}
         </span>
         <span className="difficulty-tag-badge">
           {project.difficulty || 'Intermediate'}
+        </span>
+        <span className="readtime-tag-badge" title="Estimated capstone overview read time">
+          <Clock size={11} style={{ marginRight: '3px', verticalAlign: '-1px' }} />
+          {Math.max(1, Math.round((project.description || '').split(/\s+/).length / 40))} min read
         </span>
       </div>
 
@@ -215,15 +220,30 @@ export function ProjectCard({
           )}
         </div>
 
-        <button
-          type="button"
-          className="card-share-btn"
-          onClick={handleShareClick}
-          title="Copy project share link"
-        >
-          {copied ? <Check size={13} color="var(--accent-emerald)" /> : <Share2 size={13} />}
-          <span>{copied ? 'Copied!' : 'Share'}</span>
-        </button>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '0.4rem' }}>
+          <button
+            type="button"
+            className="card-share-btn card-cite-btn"
+            onClick={(e) => {
+              e.stopPropagation();
+              onCite?.(project);
+            }}
+            title="Generate academic citation (BibTeX, IEEE, APA)"
+          >
+            <Quote size={13} />
+            <span>Cite</span>
+          </button>
+
+          <button
+            type="button"
+            className="card-share-btn"
+            onClick={handleShareClick}
+            title="Copy project share link"
+          >
+            {copied ? <Check size={13} color="var(--accent-emerald)" /> : <Share2 size={13} />}
+            <span>{copied ? 'Copied!' : 'Share'}</span>
+          </button>
+        </div>
       </div>
     </article>
   );

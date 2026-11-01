@@ -9,6 +9,8 @@ import { ExplainArchitectureModal } from './components/ExplainArchitectureModal'
 import { AuthModal } from './components/AuthModal';
 import { AuthorProfileModal } from './components/AuthorProfileModal';
 import { ProfileEditModal } from './components/ProfileEditModal';
+import { CitationModal } from './components/CitationModal';
+import { ExportModal } from './components/ExportModal';
 import { api } from './services/api';
 import './styles/App.css';
 import { Terminal, FolderSearch, AlertTriangle, CheckCircle, Info, Sparkles, TrendingUp, Brain, BarChart2, Plus, Compass } from 'lucide-react';
@@ -45,6 +47,8 @@ export function App() {
 
   // Modals & Active View
   const [activeProject, setActiveProject] = useState(null);
+  const [projectToCite, setProjectToCite] = useState(null);
+  const [isExportModalOpen, setIsExportModalOpen] = useState(false);
   const [isPublishModalOpen, setIsPublishModalOpen] = useState(false);
   const [isExplainModalOpen, setIsExplainModalOpen] = useState(false);
   const [votingIds, setVotingIds] = useState(new Set());
@@ -52,6 +56,29 @@ export function App() {
   // Health and System State
   const [healthData, setHealthData] = useState(null);
   const [toast, setToast] = useState(null);
+
+  // Global Quick Search Shortcut (Ctrl+K or /)
+  useEffect(() => {
+    const handleGlobalKey = (e) => {
+      if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === 'k') {
+        e.preventDefault();
+        const input = document.querySelector('.search-input');
+        if (input) {
+          input.focus();
+          input.select();
+        }
+      } else if (e.key === '/' && document.activeElement?.tagName !== 'INPUT' && document.activeElement?.tagName !== 'TEXTAREA') {
+        e.preventDefault();
+        const input = document.querySelector('.search-input');
+        if (input) {
+          input.focus();
+          input.select();
+        }
+      }
+    };
+    window.addEventListener('keydown', handleGlobalKey);
+    return () => window.removeEventListener('keydown', handleGlobalKey);
+  }, []);
 
   // Sync theme attribute to <html> element
   useEffect(() => {
@@ -501,6 +528,7 @@ export function App() {
           showingCount={visibleProjects.length}
           selectedTech={selectedTech}
           onTechChange={setSelectedTech}
+          onOpenExport={() => setIsExportModalOpen(true)}
           onResetFilters={() => {
             setSelectedCategory('All');
             setSelectedTech('All');
@@ -590,6 +618,7 @@ export function App() {
                   onToggleBookmark={toggleBookmark}
                   onOpenAuthor={(id) => setProfileStudentId(id)}
                   onShare={handleShareProject}
+                  onCite={(p) => setProjectToCite(p)}
                 />
               ))}
             </div>
@@ -686,6 +715,23 @@ export function App() {
         <ExplainArchitectureModal
           healthData={healthData}
           onClose={() => setIsExplainModalOpen(false)}
+        />
+      )}
+
+      {/* Citation Generator Modal */}
+      {projectToCite && (
+        <CitationModal
+          project={projectToCite}
+          onClose={() => setProjectToCite(null)}
+        />
+      )}
+
+      {/* Catalog Exporter Modal */}
+      {isExportModalOpen && (
+        <ExportModal
+          projects={visibleProjects}
+          selectedCategory={selectedCategory}
+          onClose={() => setIsExportModalOpen(false)}
         />
       )}
 

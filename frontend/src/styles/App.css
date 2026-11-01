@@ -2260,6 +2260,68 @@ a.author-profile-link:hover { color: var(--accent-cobalt); text-decoration: unde
   background: var(--bg-card);
 }
 
+.card-cite-btn {
+  margin-left: 0;
+}
+
+.card-cite-btn:hover {
+  color: var(--accent-cobalt);
+  border-color: var(--accent-cobalt-border);
+  background: var(--accent-cobalt-subtle);
+}
+
+.readtime-tag-badge {
+  display: inline-flex;
+  align-items: center;
+  font-size: 0.69rem;
+  font-weight: 550;
+  padding: 0.2rem 0.5rem;
+  border-radius: var(--radius-sm);
+  background: var(--bg-surface-elevated);
+  color: var(--text-muted);
+  border: 1px solid var(--border-subtle);
+}
+
+.search-kbd-hint {
+  display: inline-flex;
+  align-items: center;
+  font-family: var(--font-mono);
+  font-size: 0.68rem;
+  font-weight: 600;
+  color: var(--text-muted);
+  background: var(--bg-surface-elevated);
+  border: 1px solid var(--border-subtle);
+  border-radius: 4px;
+  padding: 0.15rem 0.45rem;
+  pointer-events: none;
+  margin-left: auto;
+  margin-right: 0.25rem;
+  box-shadow: 0 1px 1px rgba(0, 0, 0, 0.05);
+}
+
+.btn-export-catalog {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  padding: 0.35rem 0.8rem;
+  border-radius: var(--radius-md);
+  font-size: 0.78rem;
+  font-weight: 600;
+  color: var(--text-secondary);
+  background: var(--bg-surface);
+  border: 1px solid var(--border-subtle);
+  margin-left: auto;
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.btn-export-catalog:hover {
+  color: var(--accent-cobalt);
+  border-color: var(--accent-cobalt-border);
+  background: var(--accent-cobalt-subtle);
+  transform: translateY(-1px);
+}
+
 /* Toast Notifications */
 .toast-notification {
   position: fixed;

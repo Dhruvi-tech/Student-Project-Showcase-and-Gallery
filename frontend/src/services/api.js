@@ -6,24 +6,38 @@
 const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || '';
 let csrfToken = null;
 
+function getCsrfFromCookie() {
+  if (typeof document === 'undefined') return null;
+  const match = document.cookie.match(/(?:^|;\s*)projectspace_csrf=([^;]*)/);
+  return match ? decodeURIComponent(match[1]) : null;
+}
+
 async function getCsrfToken() {
+  const fromCookie = getCsrfFromCookie();
+  if (fromCookie) {
+    csrfToken = fromCookie;
+    return csrfToken;
+  }
   const response = await fetch(`${API_BASE_URL}/api/v1/auth/csrf`, { credentials: 'include' });
   const data = await response.json();
   if (!response.ok) throw new Error(data?.detail || 'Could not initialize secure session');
-  csrfToken = data.csrf_token;
+  csrfToken = data.csrf_token || getCsrfFromCookie();
   return csrfToken;
 }
 
 async function request(endpoint, options = {}) {
   const url = `${API_BASE_URL}${endpoint}`;
   const method = (options.method || 'GET').toUpperCase();
-  const csrfExempt = endpoint === '/api/v1/auth/login' || endpoint === '/api/v1/auth/register';
+  const csrfExempt = endpoint === '/api/v1/auth/login' || endpoint === '/api/v1/auth/register' || endpoint === '/api/v1/auth/demo-login';
   if (!['GET', 'HEAD', 'OPTIONS'].includes(method) && !csrfExempt) {
-    csrfToken = csrfToken || await getCsrfToken();
+    csrfToken = getCsrfFromCookie() || csrfToken || await getCsrfToken();
   }
   const isFormData = typeof FormData !== 'undefined' && options.body instanceof FormData;
   const defaultHeaders = isFormData ? {} : { 'Content-Type': 'application/json' };
-  if (csrfToken && !['GET', 'HEAD', 'OPTIONS'].includes(method)) defaultHeaders['X-CSRF-Token'] = csrfToken;
+  const activeCsrf = getCsrfFromCookie() || csrfToken;
+  if (activeCsrf && !['GET', 'HEAD', 'OPTIONS'].includes(method)) {
+    defaultHeaders['X-CSRF-Token'] = activeCsrf;
+  }
 
   const config = {
     ...options,
@@ -62,15 +76,21 @@ async function request(endpoint, options = {}) {
 
 export const api = {
   async registerAccount(account) {
-    return request('/api/v1/auth/register', { method: 'POST', body: JSON.stringify(account) });
+    const result = await request('/api/v1/auth/register', { method: 'POST', body: JSON.stringify(account) });
+    if (result?.csrf_token) csrfToken = result.csrf_token;
+    return result;
   },
 
   async login(identifier, password) {
-    return request('/api/v1/auth/login', { method: 'POST', body: JSON.stringify({ identifier, password }) });
+    const result = await request('/api/v1/auth/login', { method: 'POST', body: JSON.stringify({ identifier, password }) });
+    if (result?.csrf_token) csrfToken = result.csrf_token;
+    return result;
   },
 
   async demoLogin() {
-    return request('/api/v1/auth/demo-login', { method: 'POST' });
+    const result = await request('/api/v1/auth/demo-login', { method: 'POST' });
+    if (result?.csrf_token) csrfToken = result.csrf_token;
+    return result;
   },
 
   async logout() {

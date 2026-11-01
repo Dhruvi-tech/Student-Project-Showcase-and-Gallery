@@ -1,5 +1,5 @@
 import React from 'react';
-import { Search, ArrowUpDown, X, Tag, Layers, Filter } from 'lucide-react';
+import { Search, ArrowUpDown, X, Tag, Layers, Filter, Download } from 'lucide-react';
 import { PROJECT_CATEGORIES } from '../constants/catalog';
 
 const POPULAR_TECHS = [
@@ -28,6 +28,7 @@ export function FilterBar({
   selectedTech = 'All',
   onTechChange,
   onResetFilters,
+  onOpenExport,
 }) {
   const isFiltered = selectedCategory !== 'All' || selectedTech !== 'All' || searchQuery.trim() !== '';
 
@@ -41,10 +42,11 @@ export function FilterBar({
             type="text"
             className="search-input"
             aria-label="Search projects"
-            placeholder="Search 320 projects by title, description, author, or tech stack..."
+            placeholder="Search 320 projects (or press Ctrl+K / /)..."
             value={searchQuery}
             onChange={(e) => onSearchChange(e.target.value)}
           />
+          <kbd className="search-kbd-hint" title="Keyboard shortcut: Ctrl+K or /">Ctrl K</kbd>
           {searchQuery && (
             <button
               onClick={() => onSearchChange('')}
@@ -133,7 +135,7 @@ export function FilterBar({
         </div>
       </div>
 
-      {/* Results Header */}
+      {/* Results Header + Export Feature */}
       <div className="filter-status-bar">
         <div className="filter-results-badge">
           <span className="results-dot"></span>
@@ -144,6 +146,16 @@ export function FilterBar({
             {searchQuery && ` matching "${searchQuery}"`}
           </span>
         </div>
+
+        <button
+          type="button"
+          className="btn-export-catalog"
+          onClick={onOpenExport}
+          title="Export current filtered project list as Markdown or JSON"
+        >
+          <Download size={13} />
+          <span>Export Catalog</span>
+        </button>
       </div>
     </div>
   );
