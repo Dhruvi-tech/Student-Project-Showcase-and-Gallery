@@ -206,6 +206,33 @@ def login(body: LoginBody, response: Response, db: Session = Depends(get_db)):
     return {"user": public_user(user)}
 
 
+@router.post("/demo-login")
+def demo_login(response: Response, db: Session = Depends(get_db)):
+    user = db.query(Student).filter(
+        (Student.email == "demo@student.edu") | (Student.username == "demo")
+    ).first()
+    if not user:
+        user = Student(
+            id="stu_demo_eval",
+            name="Demo Student",
+            username="demo",
+            email="demo@student.edu",
+            password_hash=_hash_password("DemoPass123!"),
+            bio="Showcase evaluator & demo account.",
+            interests=["AI & Machine Learning", "Web Development & Full Stack", "Cloud Computing"],
+            session_version=1,
+        )
+        db.add(user)
+        db.commit()
+        db.refresh(user)
+    elif not user.password_hash:
+        user.password_hash = _hash_password("DemoPass123!")
+        db.commit()
+        db.refresh(user)
+    set_session(response, user)
+    return {"user": public_user(user)}
+
+
 @router.post("/logout")
 def logout(request: Request, response: Response, db: Session = Depends(get_db)):
     require_csrf(request)

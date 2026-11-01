@@ -18,7 +18,12 @@ export function AuthModal({ onClose, onAuthenticated }) {
     setLoading(true);
     setError('');
     try {
-      const result = await api.login('demo@student.edu', 'DemoPass123!');
+      let result;
+      try {
+        result = await api.demoLogin();
+      } catch (e) {
+        result = await api.login('demo@student.edu', 'DemoPass123!');
+      }
       onAuthenticated(result.user);
       onClose();
     } catch (err) {

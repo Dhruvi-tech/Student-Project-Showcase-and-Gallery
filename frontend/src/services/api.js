@@ -69,6 +69,10 @@ export const api = {
     return request('/api/v1/auth/login', { method: 'POST', body: JSON.stringify({ identifier, password }) });
   },
 
+  async demoLogin() {
+    return request('/api/v1/auth/demo-login', { method: 'POST' });
+  },
+
   async logout() {
     const result = await request('/api/v1/auth/logout', { method: 'POST' });
     csrfToken = null;

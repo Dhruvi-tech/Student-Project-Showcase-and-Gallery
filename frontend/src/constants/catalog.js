@@ -11,3 +11,4 @@ export const COMMON_TECH_STACKS = [
   'Tailwind CSS', 'Go', 'Rust', 'GraphQL', 'Redis', 'MongoDB', 'AWS', 'Firebase', 'Java', 'PyTorch',
   'TensorFlow', 'OpenCV', 'scikit-learn', 'Flutter', 'Kubernetes', 'Arduino', 'Solidity', 'ROS',
 ];
+
