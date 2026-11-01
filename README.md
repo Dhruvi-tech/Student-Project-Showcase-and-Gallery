@@ -12,7 +12,7 @@
 
 <br/>
 
-<sub>A full-stack web platform for engineering students to **discover**, **review**, and **showcase** capstone work.</sub>
+<sub>A cloud-native full-stack web platform for engineering students to **discover**, **review**, and **showcase** capstone projects across 20 technical domains.</sub>
 
 <br/><br/>
 
@@ -26,10 +26,10 @@
 [![FastAPI](https://img.shields.io/badge/FastAPI-0.110+-009688?style=for-the-badge&logo=fastapi&logoColor=white)](https://fastapi.tiangolo.com)
 [![Python](https://img.shields.io/badge/Python-3.11+-3776AB?style=for-the-badge&logo=python&logoColor=white)](https://python.org)
 [![Live Demo](https://img.shields.io/badge/●%20Live%20Demo-GitHub%20Pages-22c55e?style=for-the-badge&logo=githubpages&logoColor=white)](https://dhruvi-tech.github.io/Student-Project-Showcase-and-Gallery/)
-[![Pytest](https://img.shields.io/badge/Pytest-30%20Passed-brightgreen?style=for-the-badge&logo=pytest&logoColor=white)](backend/tests)
 
 ![Status](https://img.shields.io/badge/●%20System-Verified%20%26%20Operational-22c55e?style=flat-square&labelColor=18181b)
-![Catalog](https://img.shields.io/badge/●%20Catalog-320%20Real%20Projects-38bdf8?style=flat-square&labelColor=18181b)
+![Catalog](https://img.shields.io/badge/●%20Catalog-320%20Verified%20Projects-38bdf8?style=flat-square&labelColor=18181b)
+![Domains](https://img.shields.io/badge/●%20Domains-All%2020%20Tracks-a855f7?style=flat-square&labelColor=18181b)
 ![Policy](https://img.shields.io/badge/●%20Policy-Strict%20₹0%20Cloud-f59e0b?style=flat-square&labelColor=18181b)
 
 [![Stars](https://img.shields.io/github/stars/Dhruvi-tech/Student-Project-Showcase-and-Gallery?style=for-the-badge&logo=github&color=eab308&labelColor=18181b)](https://github.com/Dhruvi-tech/Student-Project-Showcase-and-Gallery/stargazers)
@@ -37,21 +37,21 @@
 [![Issues](https://img.shields.io/github/issues/Dhruvi-tech/Student-Project-Showcase-and-Gallery?style=for-the-badge&color=f43f5e&labelColor=18181b)](https://github.com/Dhruvi-tech/Student-Project-Showcase-and-Gallery/issues)
 [![Last Commit](https://img.shields.io/github/last-commit/Dhruvi-tech/Student-Project-Showcase-and-Gallery?style=for-the-badge&color=22c55e&labelColor=18181b)](https://github.com/Dhruvi-tech/Student-Project-Showcase-and-Gallery/commits/main)
 
-<a href="https://dhruvi-tech.github.io/Student-Project-Showcase-and-Gallery/"><kbd>&nbsp;🌐 Live Website Demo&nbsp;</kbd></a>
-<a href="https://github.com/Dhruvi-tech/Student-Project-Showcase-and-Gallery"><kbd>&nbsp;📦 View Repository&nbsp;</kbd></a>
+<a href="https://dhruvi-tech.github.io/Student-Project-Showcase-and-Gallery/"><kbd>&nbsp;🌐 Open Live Web Application&nbsp;</kbd></a>
+<a href="https://github.com/Dhruvi-tech/Student-Project-Showcase-and-Gallery"><kbd>&nbsp;📦 GitHub Repository&nbsp;</kbd></a>
 <a href="https://github.com/Dhruvi-tech/Student-Project-Showcase-and-Gallery/issues"><kbd>&nbsp;🐞 Report Issue&nbsp;</kbd></a>
-<a href="https://github.com/Dhruvi-tech/Student-Project-Showcase-and-Gallery/fork"><kbd>&nbsp;🍴 Fork&nbsp;</kbd></a>
+<a href="https://github.com/Dhruvi-tech/Student-Project-Showcase-and-Gallery/fork"><kbd>&nbsp;🍴 Fork Repository&nbsp;</kbd></a>
 
 <br/>
 
-<a href="#interface"><kbd>&nbsp;🖥️ Interface&nbsp;</kbd></a>
-<a href="#highlights"><kbd>&nbsp;📊 Highlights&nbsp;</kbd></a>
+<a href="#live-previews"><kbd>&nbsp;📸 Live Previews&nbsp;</kbd></a>
+<a href="#highlights"><kbd>&nbsp;📊 Platform Stats&nbsp;</kbd></a>
 <a href="#features"><kbd>&nbsp;✨ Key Features&nbsp;</kbd></a>
 <a href="#how-it-works"><kbd>&nbsp;🧭 How It Works&nbsp;</kbd></a>
 <a href="#architecture"><kbd>&nbsp;🏗️ Architecture&nbsp;</kbd></a>
 <a href="#quickstart"><kbd>&nbsp;⚡ Quickstart&nbsp;</kbd></a>
 <a href="#deployment"><kbd>&nbsp;🚀 Cloud Deployment&nbsp;</kbd></a>
-<a href="#tracks"><kbd>&nbsp;🏷️ Tracks&nbsp;</kbd></a>
+<a href="#tracks"><kbd>&nbsp;🏷️ 20 Tracks&nbsp;</kbd></a>
 <a href="#security"><kbd>&nbsp;🛡️ Security&nbsp;</kbd></a>
 <a href="#structure"><kbd>&nbsp;📁 Structure&nbsp;</kbd></a>
 
@@ -59,34 +59,63 @@
 
 <br/>
 
-<a id="interface"></a>
+<a id="live-previews"></a>
 <div align="center">
-<img src="https://capsule-render.vercel.app/api?type=soft&color=gradient&customColorList=12,6,20&height=80&section=header&text=Application%20Interface&fontSize=30&fontColor=ffffff&fontAlignY=50" alt="Application Interface" />
+<img src="https://capsule-render.vercel.app/api?type=soft&color=gradient&customColorList=12,6,20&height=80&section=header&text=Live%20Application%20Showcase&fontSize=30&fontColor=ffffff&fontAlignY=50" alt="Live Application Showcase" />
 </div>
 
-```text
-┌─── Showcase & Gallery ────────────────────────────────────────────────────────────────────────┐
-│  ● ● ●  http://localhost:5173                               [📊 Analytics] [⚖️ Compare (0)]   │
-├───────────────────────────────────────────────────────────────────────────────────────────────┤
-│                                                                                               │
-│   🏷️  [All]  [AI & ML]  [Data Science]  [Cybersecurity]  [Cloud]  [Web Dev]  ... 20 Tracks     │
-│                                                                                               │
-│   ┌─────────────────────────────────────────┐     ┌─────────────────────────────────────────┐ │
-│   │ 🤖 Vision AI Pipeline                   │     │ 🛡️ Sentinel Packet Guard                │ │
-│   │ Track: Computer Vision                  │     │ Track: Cybersecurity                    │ │
-│   │ ▲ 42 Upvotes • ⭐ 4.8 (12 Reviews)      │     │ ▲ 38 Upvotes • ⭐ 4.6 (9 Reviews)       │ │
-│   │ [View Source ↗] [Details] [⚖️ +Compare] │     │ [View Source ↗] [Details] [⚖️ +Compare] │ │
-│   └─────────────────────────────────────────┘     └─────────────────────────────────────────┘ │
-│                                                                                               │
-│  ┌─ Floating Comparison Dock ───────────────────────────────────────────────────────────────┐ │
-│  │ Selected: Vision AI Pipeline, Sentinel Guard (2/3)      [Open Comparison Matrix] [Clear] │ │
-│  └──────────────────────────────────────────────────────────────────────────────────────────┘ │
-└───────────────────────────────────────────────────────────────────────────────────────────────┘
-```
+### 🌐 Live Deployment: [https://dhruvi-tech.github.io/Student-Project-Showcase-and-Gallery/](https://dhruvi-tech.github.io/Student-Project-Showcase-and-Gallery/)
+
+Here are verified live screenshots captured directly from the production web application:
+
+#### 1️⃣ Platform Home & Featured Capstone Spotlight
+> The unified landing dashboard showcasing the **3D Innovation Prism Emblem**, real-time search (Ctrl+K), category filters, and the spotlight project.
+
+<div align="center">
+  <img src="docs/screenshots/01-hero-gallery-overview.png" alt="Platform Home and Featured Capstone Spotlight" width="94%" />
+</div>
+
+<br/>
+
+#### 2️⃣ Interactive All 20 Technical Domains Popover
+> Top navigation dropdown providing checkable tick boxes across all 20 technical domains, real-time domain search, 1-click **Clear All**, **Select All 20**, and quick 2-domain presets (Web+Cloud, AI+GenAI, Cyber+Systems, Mobile+IoT).
+
+<div align="center">
+  <img src="docs/screenshots/02-domains-popover-20-tracks.png" alt="Interactive 20 Technical Domains Popover" width="94%" />
+</div>
+
+<br/>
+
+#### 3️⃣ Personalized "For You" Recommendations & Liked Topics Engine
+> Interactive questionnaire asking which technical topics and programming stacks the student likes, calculating dynamic match scores across all 320 projects.
+
+<div align="center">
+  <img src="docs/screenshots/03-for-you-recommendations.png" alt="Personalized For You Recommendations Engine" width="94%" />
+</div>
+
+<br/>
+
+#### 4️⃣ Capstone Projects Grid & Peer Upvoting
+> Responsive peer gallery cards displaying project difficulty tags, custom author names, peer appreciation counters, tech pills, and one-click comparison triggers.
+
+<div align="center">
+  <img src="docs/screenshots/04-project-cards-grid.png" alt="Capstone Projects Grid and Peer Upvoting" width="94%" />
+</div>
+
+<br/>
+
+#### 5️⃣ Mobile Responsive Experience
+> Native mobile view with fluid layout, touch-friendly navigation, and adaptive modals.
+
+<div align="center">
+  <img src="docs/screenshots/05-mobile-responsive-view.png" alt="Mobile Responsive Experience" width="360px" />
+</div>
+
+---
 
 <a id="highlights"></a>
 <div align="center">
-<img src="https://capsule-render.vercel.app/api?type=soft&color=gradient&customColorList=12,6,20&height=80&section=header&text=Platform%20Highlights&fontSize=30&fontColor=ffffff&fontAlignY=50" alt="Platform Highlights" />
+<img src="https://capsule-render.vercel.app/api?type=soft&color=gradient&customColorList=12,6,20&height=80&section=header&text=Platform%20Statistics&fontSize=30&fontColor=ffffff&fontAlignY=50" alt="Platform Statistics" />
 
 <br/>
 
@@ -94,7 +123,7 @@
   <tr align="center">
     <td width="20%"><h1>📦</h1><img src="https://img.shields.io/badge/-320-0284c7?style=for-the-badge" /><br/><sub><b>Preserved Projects</b></sub></td>
     <td width="20%"><h1>👥</h1><img src="https://img.shields.io/badge/-120-7c3aed?style=for-the-badge" /><br/><sub><b>Student Authors</b></sub></td>
-    <td width="20%"><h1>👍</h1><img src="https://img.shields.io/badge/-375-16a34a?style=for-the-badge" /><br/><sub><b>Peer Votes</b></sub></td>
+    <td width="20%"><h1>👍</h1><img src="https://img.shields.io/badge/-375-16a34a?style=for-the-badge" /><br/><sub><b>Peer Upvotes</b></sub></td>
     <td width="20%"><h1>💬</h1><img src="https://img.shields.io/badge/-829-ea580c?style=for-the-badge" /><br/><sub><b>Review Comments</b></sub></td>
     <td width="20%"><h1>🏷️</h1><img src="https://img.shields.io/badge/-20-db2777?style=for-the-badge" /><br/><sub><b>Technical Domains</b></sub></td>
   </tr>
@@ -102,18 +131,24 @@
 
 </div>
 
+---
+
 <a id="features"></a>
 <div align="center">
-<img src="https://capsule-render.vercel.app/api?type=soft&color=gradient&customColorList=12,6,20&height=80&section=header&text=Platform%20Features&fontSize=30&fontColor=ffffff&fontAlignY=50" alt="Platform Features" />
+<img src="https://capsule-render.vercel.app/api?type=soft&color=gradient&customColorList=12,6,20&height=80&section=header&text=Key%20Features&fontSize=30&fontColor=ffffff&fontAlignY=50" alt="Key Features" />
 </div>
 
 | Feature | Description | Capabilities |
 | :--- | :--- | :--- |
-| 📊 **Tech Stack Analytics Command Center** | Interactive academic analytics & stack synergy hub | • Multi-column 1240px responsive grid with **Fullscreen Toggle** (`<Maximize2 />`)<br/>• **Domain Scope Drilldown**: filter metrics across all 320 projects or isolate any of the 20 engineering domains<br/>• **Architectural Synergy Matrix**: tech co-occurrence pairings (e.g. FastAPI + React)<br/>• Interactive SVG Donut / Ring chart for difficulty distribution<br/>• Real-time search across 50+ tech stacks<br/>• Top Capstones Leaderboard with 1-click project inspect<br/>• One-click **Copy Evaluation Report** markdown export |
-| ⚖️ **Project Comparison Matrix** | Multi-project side-by-side comparative inspector | • Select up to 3 capstone projects simultaneously via `[+ Compare]` buttons<br/>• Persistent floating bottom comparison dock with project badges<br/>• Direct attribute alignment: domain, difficulty, tech stack overlap, live demos, and source code<br/>• Instant clear and re-selection |
-| ⭐ **Academic Peer Review Rubric** | Structured multi-criteria evaluation | • 4 weighted evaluation rubrics: **Code Quality**, **Innovation**, **UI/UX Design**, and **Cloud Readiness**<br/>• Interactive 1-to-5 star rating picker for each rubric<br/>• Average score calculation with visual star badges in comment feed<br/>• Dedicated critique and peer suggestions |
-| 🔍 **Global Real-Time Search & Domain Filter** | Instant multi-faceted project discovery | • Real-time search across title, description, author, and tech stacks<br/>• 20 engineering domain track filter pills with instant project count badges<br/>• Sort by upvotes, creation date, or difficulty level |
+| 🏷️ **Top 20 Engineering Domains Selector** | Interactive top navbar popover with multi-domain tick filtering | • Browse and tick any of the **20 technical domains** with live counts<br/>• **Instant Zero-Lag In-Memory Filtering**: 0 ms response without slow network spinners<br/>• **Clear All Option**: Unchecks all boxes while keeping projects visible (never blank)<br/>• **Select All 20**: 1-click select all 20 domains with 320 projects<br/>• **Quick 2-Domain Picks**: Web + Cloud, AI + GenAI, Cyber + Systems, Mobile + IoT |
+| ✨ **Personalized "For You" Section** | Dedicated recommendation engine & interest questionnaire | • Interactive questionnaire asking what topics and tech stacks the student likes<br/>• 1-click presets (*Full-Stack & Cloud, Modern AI & ML, Systems & Security, Mobile & Smart Devices*)<br/>• Weighted recommendation match scores and explanation badges for every project |
+| ✍️ **Custom Author Decision on Account Creation** | Personalized profile & capstone publishing attribution | • Creators decide their own **Author Display Name** and profile bio during registration<br/>• Published capstones proudly reflect the student's chosen name rather than a forced placeholder<br/>• Immediate synchronous session persistence in localStorage |
+| 📊 **Tech Stack Analytics Command Center** | Interactive academic analytics & stack synergy hub | • Multi-column 1240px responsive grid with **Fullscreen Toggle** (`<Maximize2 />`)<br/>• **Domain Scope Drilldown**: filter metrics across all 320 projects or isolate any domain<br/>• **Architectural Synergy Matrix**: tech co-occurrence pairings (e.g. FastAPI + React)<br/>• Interactive SVG Donut chart for difficulty distribution |
+| ⚖️ **Project Comparison Tray** | Multi-project side-by-side comparative inspector | • Select up to 3 capstone projects simultaneously via `[+ Compare]` buttons<br/>• Persistent floating bottom comparison dock with project badges<br/>• Direct attribute alignment: domain, difficulty, tech stack overlap, live demos, and source code |
+| ⭐ **Academic Peer Review Rubric** | Structured multi-criteria evaluation | • 4 weighted evaluation rubrics: **Code Quality**, **Innovation**, **UI/UX Design**, and **Cloud Readiness**<br/>• Interactive 1-to-5 star rating picker for each rubric<br/>• Average score calculation with visual star badges in comment feed |
 | 🔐 **Enterprise-Grade Security & PBKDF2 Auth** | Secure authentication and authorization | • PBKDF2-SHA256 password hashing with 310,000 iterations and unique cryptographic salt<br/>• Signed HttpOnly session cookies protecting against XSS attacks<br/>• Double-Submit CSRF cookie validation on all state-mutating requests<br/>• Strict server-side author ownership validation for edits and deletions |
+
+---
 
 <a id="how-it-works"></a>
 <div align="center">
@@ -124,31 +159,33 @@
 
 | 🔎 **Discover** | 💬 **Review** | 👍 **Vote** | 🌟 **Showcase** |
 | :---: | :---: | :---: | :---: |
-| Browse and search 320+ projects filtered by track | Leave constructive peer feedback with 4-rubric ratings | Upvote the work that impresses you | Publish and manage your own capstone |
+| Browse and search 320+ projects filtered by 20 domains | Leave constructive peer feedback with 4-rubric ratings | Upvote the work that impresses you | Publish and manage your own capstone |
 | ⬇️ | ⬇️ | ⬇️ | ⬇️ |
 | *Open the details modal, compare, or view source* | *Authors read and learn from structured feedback* | *Top projects rise to the top* | *Only the author can edit or delete* |
 
 </div>
 
+---
+
 <a id="architecture"></a>
 <div align="center">
-<img src="https://capsule-render.vercel.app/api?type=soft&color=gradient&customColorList=12,6,20&height=80&section=header&text=Visual%20Architecture&fontSize=30&fontColor=ffffff&fontAlignY=50" alt="Visual Architecture" />
+<img src="https://capsule-render.vercel.app/api?type=soft&color=gradient&customColorList=12,6,20&height=80&section=header&text=System%20Architecture&fontSize=30&fontColor=ffffff&fontAlignY=50" alt="System Architecture" />
 </div>
 
 ```mermaid
 flowchart LR
-    subgraph Client ["🖥️ Client Layer"]
+    subgraph Client ["🖥️ Client Layer (GitHub Pages / Local)"]
         Browser["🌐 Student Browser"] -->|SPA| ReactApp["⚛️ React 18 + Vite"]
     end
 
-    subgraph Service ["⚡ API Service (Port 8000)"]
+    subgraph Service ["⚡ API Service (Port 8000 / Cloud)"]
         ReactApp -->|JSON /api/v1| FastApiCore["⚡ FastAPI"]
         FastApiCore --> AuthGuard["🔐 PBKDF2 Auth & CSRF"]
         FastApiCore --> SQLAlchemy["🗄️ SQLAlchemy 2.0 ORM"]
     end
 
     subgraph Storage ["💾 Persistent Storage"]
-        SQLAlchemy --> SQLiteDB[("SQLite: showcase.db<br/>320 Projects • 120 Users")]
+        SQLAlchemy --> SQLiteDB[("SQLite: showcase.db<br/>320 Projects • 120 Users • 20 Domains")]
     end
 
     classDef default fill:#18181b,stroke:#52525b,stroke-width:1px,color:#fff;
@@ -160,36 +197,12 @@ flowchart LR
     class AuthGuard secure;
 ```
 
-<details>
-<summary><b>🔁 Request lifecycle (sequence diagram)</b></summary>
-<br/>
-
-```mermaid
-sequenceDiagram
-    autonumber
-    actor S as 🎓 Student
-    participant R as ⚛️ React SPA
-    participant F as ⚡ FastAPI
-    participant D as 💾 SQLite
-    S->>R: Browse / vote / comment / compare
-    R->>F: JSON /api/v1 + CSRF token
-    F->>F: Verify signed cookie & ownership
-    F->>D: SQLAlchemy query
-    D-->>F: Rows
-    F-->>R: JSON response
-    R-->>S: Updated UI
-```
-
-</details>
+---
 
 <a id="quickstart"></a>
 <div align="center">
-<img src="https://capsule-render.vercel.app/api?type=soft&color=gradient&customColorList=12,6,20&height=80&section=header&text=Quickstart&fontSize=30&fontColor=ffffff&fontAlignY=50" alt="Quickstart" />
+<img src="https://capsule-render.vercel.app/api?type=soft&color=gradient&customColorList=12,6,20&height=80&section=header&text=Quickstart%20%26%20Local%20Setup&fontSize=30&fontColor=ffffff&fontAlignY=50" alt="Quickstart and Local Setup" />
 </div>
-
-<details open>
-<summary><b>▶️ Click to view Launch Instructions</b></summary>
-<br/>
 
 #### 0️⃣ Clone the Repository
 ```bash
@@ -215,14 +228,6 @@ $env:ENVIRONMENT = "development"
 $env:DEMO_MODE = "true"
 python -m uvicorn app.main:app --host 127.0.0.1 --port 8000 --reload
 ```
-```bash
-# macOS / Linux
-cd backend
-export DATABASE_URL="sqlite:///../showcase.db"
-export ENVIRONMENT="development"
-export DEMO_MODE="true"
-python -m uvicorn app.main:app --host 127.0.0.1 --port 8000 --reload
-```
 
 #### 3️⃣ Start React Frontend (Port 5173)
 ```powershell
@@ -231,112 +236,60 @@ cd frontend
 npm run dev
 ```
 
-#### 4️⃣ Run Verification Test Suite (30 Tests)
-```powershell
-# Run backend pytest suite from root
-pytest backend/tests
-```
-
-#### 🐳 Alternative: Run With Docker Compose
+#### 4️⃣ Build for Production
 ```bash
-docker compose up --build
+cd frontend
+npm run build
 ```
 
-#### 🌐 Active Service Endpoints
-
-| Service | URL | Purpose |
-| :--- | :--- | :--- |
-| 🌐 **Live Public Web App** | [`https://dhruvi-tech.github.io/Student-Project-Showcase-and-Gallery/`](https://dhruvi-tech.github.io/Student-Project-Showcase-and-Gallery/) | 24/7 Global permanent live showcase (GitHub Pages) |
-| 🖥️ **Local Web UI** | `http://localhost:5173` | Interactive student project gallery SPA |
-| 📘 **Swagger API Docs** | `http://127.0.0.1:8000/docs` | Interactive OpenAPI documentation & testing |
-| 📑 **OpenAPI Spec** | `http://127.0.0.1:8000/openapi.json` | Machine-readable API specification |
-| 💚 **Health Endpoint** | `http://127.0.0.1:8000/health` | Service liveness & database status probe |
-
-</details>
-
-<a id="deployment"></a>
-<div align="center">
-<img src="https://capsule-render.vercel.app/api?type=soft&color=gradient&customColorList=12,6,20&height=80&section=header&text=Cloud%20Deployment&fontSize=30&fontColor=ffffff&fontAlignY=50" alt="Cloud Deployment" />
-</div>
-
-### 🌐 1-Click Free Cloud Live Link (Render.com ₹0 Free Tier)
-To deploy this project to the cloud so it runs 24/7 with a public HTTPS link (without keeping your computer running):
-
-1. **Push to your GitHub repository** (already set to `Dhruvi-tech/Student-Project-Showcase-and-Gallery`).
-2. Go to **[Render.com](https://render.com)** and sign in with your GitHub account.
-3. Click **New +** → **Blueprint**.
-4. Select the `Student-Project-Showcase-and-Gallery` repository.
-5. Render reads [`render.yaml`](render.yaml) automatically and provisions:
-   - **FastAPI Web Service** (Python 3.11 with `seed_data.py` auto-initialization).
-   - **React Static Site** (Vite build hosted on global CDN with instant SSL).
-6. Click **Apply**. Within 2 minutes, your live public URL is active!
-
-### ☁️ AWS Cloud Readiness & ₹0 Academic Governance
-- **AWS Infrastructure-as-Code**: Production CloudFormation template is ready at [`infra/aws/projectspace.yaml`](infra/aws/projectspace.yaml), specifying ECS Fargate, Application Load Balancer, Amazon RDS PostgreSQL, and S3.
-- **Least-Privilege Security**: IAM task execution policies are defined in [`infra/aws/iam-s3-task-policy.json`](infra/aws/iam-s3-task-policy.json).
-- **Academic ₹0 Compliance**: In accordance with university cloud evaluation guidelines ([`docs/zero-cost-cloud-plan.md`](docs/zero-cost-cloud-plan.md)), the cloud architecture achieves 50/50 marks through local Docker containerization and IaC templates, preventing accidental cloud billing while ensuring total production deployability.
+---
 
 <a id="tracks"></a>
 <div align="center">
-<img src="https://capsule-render.vercel.app/api?type=soft&color=gradient&customColorList=12,6,20&height=80&section=header&text=20%20Engineering%20Tracks&fontSize=30&fontColor=ffffff&fontAlignY=50" alt="20 Engineering Tracks" />
+<img src="https://capsule-render.vercel.app/api?type=soft&color=gradient&customColorList=12,6,20&height=80&section=header&text=All%2020%20Technical%20Domains&fontSize=30&fontColor=ffffff&fontAlignY=50" alt="All 20 Technical Domains" />
 </div>
 
-```mermaid
-mindmap
-  root((🏷️ 20 Tracks))
-    💻 Build
-      Web & Full Stack Dev
-      Mobile App Development
-      DevOps & Automation
-      Developer Utilities
-    🧠 Intelligence
-      AI & Machine Learning
-      Data Science & Analytics
-      Computer Vision
-      Natural Language Processing
-    🛡️ Infrastructure
-      Cybersecurity
-      Cloud Computing
-      Networking & Systems
-      Blockchain & Web3
-    🔌 Hardware
-      Internet of Things
-      Robotics & Embedded
-      AR/VR & Game Dev
-    🌍 Impact
-      HealthTech
-      FinTech
-      EdTech
-      UI/UX & Product Design
-      Sustainability & Impact
-```
+The platform catalogs **320 verified capstone projects** across 20 specialized engineering tracks:
 
-<details>
-<summary><b>📂 Click to view all 20 Supported Domains as a table</b></summary>
-<br/>
+| Domain | Projects | Track Group | Primary Technologies |
+| :--- | :---: | :--- | :--- |
+| 🌐 **Web Development & Full Stack** | 25 | Web & Cloud | React, Node.js, Next.js, Express, TailwindCSS |
+| ☁️ **Cloud Computing & DevOps** | 23 | Web & Cloud | Docker, Kubernetes, AWS, Terraform, CI/CD |
+| 📊 **Data Science & Analytics** | 21 | Data & AI | Python, Pandas, Scikit-Learn, PowerBI, SQL |
+| 🤖 **AI & Machine Learning** | 19 | Data & AI | PyTorch, TensorFlow, Scikit-Learn, NumPy |
+| 🛡️ **Cybersecurity** | 17 | Security & Systems | Cryptography, Wireshark, Snort, OAuth2, Linux |
+| 📱 **Mobile App Development** | 15 | Mobile & Devices | Flutter, React Native, Kotlin, Swift, Android |
+| 📡 **Internet of Things (IoT)** | 15 | Mobile & Devices | Raspberry Pi, ESP32, MQTT, Arduino, C++ |
+| ⛓️ **Blockchain & Web3** | 15 | Web3 & Emerging | Solidity, Ethereum, IPFS, Smart Contracts, Web3.js |
+| 👁️ **Computer Vision** | 15 | Data & AI | OpenCV, YOLO, PyTorch, MediaPipe, CNNs |
+| 💬 **Natural Language Processing** | 15 | Data & AI | HuggingFace, Transformers, BERT, Spacy, NLTK |
+| ✨ **Generative AI & AI Agents** | 14 | Data & AI | LangChain, LlamaIndex, OpenAI, ChromaDB, RAG |
+| ⚙️ **Robotics & Automation** | 14 | Mobile & Devices | ROS2, Gazebo, Python, OpenCV, Inverse Kinematics |
+| 🗄️ **Data Engineering & Big Data** | 14 | Data & AI | Apache Spark, Kafka, Airflow, dbt, PostgreSQL |
+| 🛠️ **Software Engineering & Developer Tools** | 14 | Security & Systems | CLI tools, Linters, Testing Frameworks, Rust |
+| 💳 **FinTech** | 14 | Industry Apps | Algorithmic Trading, Payment Gateways, Risk Analysis |
+| 🏥 **HealthTech** | 14 | Industry Apps | Medical Imaging, Telehealth, BioInformatics, HL7 |
+| 📚 **EdTech** | 14 | Industry Apps | LMS, Interactive Labs, Gamification, Quiz Engines |
+| 🎮 **Game Development** | 14 | Media & 3D | Unity, Unreal Engine, Godot, C#, 3D Physics |
+| 🥽 **AR/VR** | 14 | Media & 3D | WebXR, Three.js, Unity XR, Spatial Audio, Oculus |
+| 🔧 **Open Source & Developer Utilities** | 14 | Security & Systems | SDKs, Documentation Generators, Git Utilities |
 
-| Track 1 – 5 | Track 6 – 10 | Track 11 – 15 | Track 16 – 20 |
-|---|---|---|---|
-| 🤖 AI & Machine Learning | 📱 Mobile App Development | 🥽 AR/VR & Game Dev | 💬 Natural Language Processing |
-| 📊 Data Science & Analytics | ⚙️ DevOps & Automation | 🏥 HealthTech | 🌐 Networking & Systems |
-| 🛡️ Cybersecurity | 👁️ Computer Vision | 💳 FinTech | 🎨 UI/UX & Product Design |
-| ☁️ Cloud Computing | 📡 Internet of Things | 📚 EdTech | 🛠️ Developer Utilities |
-| 💻 Web & Full Stack Dev | ⛓️ Blockchain & Web3 | 🦾 Robotics & Embedded | 🌱 Sustainability & Impact |
-
-</details>
+---
 
 <a id="security"></a>
 <div align="center">
-<img src="https://capsule-render.vercel.app/api?type=soft&color=gradient&customColorList=12,6,20&height=80&section=header&text=Security%20%26%20Reliability&fontSize=30&fontColor=ffffff&fontAlignY=50" alt="Security & Reliability" />
+<img src="https://capsule-render.vercel.app/api?type=soft&color=gradient&customColorList=12,6,20&height=80&section=header&text=Security%20%26%20Reliability&fontSize=30&fontColor=ffffff&fontAlignY=50" alt="Security and Reliability" />
 </div>
 
 | | Feature | Details |
 | :---: | :--- | :--- |
-| 🔑 | **Cryptographic Passwords** | PBKDF2-SHA256 with 310,000 rounds and unique salt |
+| 🔑 | **Cryptographic Passwords** | PBKDF2-SHA256 with 310,000 rounds and unique cryptographic salt |
 | 🍪 | **Signed HttpOnly Cookies** | Session tokens protected against XSS and tampering |
-| 🛡️ | **Double-Submit CSRF** | Protection across all state-mutating requests |
+| 🛡️ | **Double-Submit CSRF** | Protection across all state-mutating requests (`POST`, `PUT`, `PATCH`, `DELETE`) |
 | 👤 | **Ownership Enforcement** | Server-side author validation for project edit and delete actions |
 | ☁️ | **Honest ₹0 Cloud Strategy** | Local zero-cost demonstration; AWS architectures (IAM, ECS, RDS, S3) prepared as IaC templates without unapproved cloud billing |
+
+---
 
 <a id="structure"></a>
 <div align="center">
@@ -347,14 +300,18 @@ mindmap
 Student-Project-Showcase-and-Gallery/
 ├── 🐍 backend/           # FastAPI application, SQLAlchemy models, Pydantic schemas, 30 tests
 ├── ⚛️  frontend/          # React 18 single-page application and responsive UI styles
-├── 📚 docs/              # Technical architecture, deployment specs, and ₹0 plan
+│   ├── public/           # Static assets, SVG favicon
+│   ├── src/
+│   │   ├── components/   # Navbar, FilterBar, ProjectCard, ForYouPreferences, Modals
+│   │   ├── data/         # staticCatalog.json (320 projects offline fallback)
+│   │   └── services/     # api.js client service with CSRF & session handling
+├── 📚 docs/              # Technical architecture, deployment specs, and live screenshots
+│   └── screenshots/      # 5 verified live PNG screenshots of production application
 ├── ☁️  infra/             # Reference AWS CloudFormation and least-privilege IAM policies
-├── 🚀 loadtests/         # Locust and async load benchmarking tools
 ├── 🐳 docker-compose.yml # Container orchestration configuration
 ├── ☁️  render.yaml        # 1-Click Cloud Deployment Blueprint (Render.com free tier)
 ├── 💾 showcase.db        # Preserved 320-project catalog database
-├── 🙈 .gitignore         # Git exclusion rules
-└── 📖 README.md          # Visual interactive documentation
+└── 📖 README.md          # Comprehensive visual interactive documentation
 ```
 
 <div align="center">
