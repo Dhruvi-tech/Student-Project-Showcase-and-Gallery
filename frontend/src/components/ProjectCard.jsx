@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { ExternalLink, MessageSquare, Bookmark, Share2, Check, Quote, Clock, GitCompare, FileText, HelpCircle, Layers } from 'lucide-react';
+import { ExternalLink, MessageSquare, Bookmark, Share2, Check, Clock, GitCompare } from 'lucide-react';
 import { VoteControls } from './VoteControls';
 
 const GithubIcon = ({ size = 14 }) => (
@@ -42,12 +42,8 @@ export function ProjectCard({
   onToggleBookmark,
   onOpenAuthor,
   onShare,
-  onCite,
   isCompared = false,
   onToggleCompare,
-  onOpenDossier,
-  onOpenViva,
-  onOpenArchitecture,
 }) {
   const [copied, setCopied] = useState(false);
 
@@ -242,61 +238,6 @@ export function ProjectCard({
         </div>
 
         <div style={{ display: 'flex', alignItems: 'center', gap: '0.35rem', flexWrap: 'wrap' }}>
-          {/* New Feature 1: Capstone Viva Defense Simulator */}
-          <button
-            type="button"
-            className="card-share-btn"
-            onClick={(e) => {
-              e.stopPropagation();
-              onOpenViva?.(project);
-            }}
-            title="Open Capstone Oral Viva Defense Simulator & Exam Questions"
-          >
-            <HelpCircle size={13} color="var(--accent-amber)" />
-            <span>Viva</span>
-          </button>
-
-          {/* New Feature 2: Interactive System Architecture Flowchart */}
-          <button
-            type="button"
-            className="card-share-btn"
-            onClick={(e) => {
-              e.stopPropagation();
-              onOpenArchitecture?.(project);
-            }}
-            title="View Multi-Tier Architecture & Topology Diagram"
-          >
-            <Layers size={13} color="var(--accent-cobalt)" />
-            <span>Diagram</span>
-          </button>
-
-          {/* Feature 10: Academic Capstone Dossier */}
-          <button
-            type="button"
-            className="card-share-btn card-dossier-btn"
-            onClick={(e) => {
-              e.stopPropagation();
-              onOpenDossier?.(project);
-            }}
-            title="Generate Academic Capstone Dossier (PDF / Print)"
-          >
-            <FileText size={13} />
-            <span>Dossier</span>
-          </button>
-
-          <button
-            type="button"
-            className="card-share-btn card-cite-btn"
-            onClick={(e) => {
-              e.stopPropagation();
-              onCite?.(project);
-            }}
-            title="Generate academic citation (BibTeX, IEEE, APA)"
-          >
-            <Quote size={13} />
-            <span>Cite</span>
-          </button>
-
           <button
             type="button"
             className="card-share-btn"

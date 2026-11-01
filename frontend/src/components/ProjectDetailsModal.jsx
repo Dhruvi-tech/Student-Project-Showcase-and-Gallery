@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useMemo } from 'react';
-import { X, ExternalLink, Send, MessageSquare, Award, Star, FileText, HelpCircle, Layers } from 'lucide-react';
+import { X, ExternalLink, Send, MessageSquare, Award, Star } from 'lucide-react';
 import { api } from '../services/api';
 import { VoteControls } from './VoteControls';
 
@@ -20,9 +20,6 @@ export function ProjectDetailsModal({
   currentUser,
   onEdit,
   onDelete,
-  onOpenDossier,
-  onOpenViva,
-  onOpenArchitecture,
 }) {
   const [details, setDetails] = useState(null);
   const [loading, setLoading] = useState(true);
@@ -205,38 +202,6 @@ export function ProjectDetailsModal({
                   <span>Documentation</span>
                 </a>
               )}
-              <button
-                type="button"
-                className="btn-secondary"
-                onClick={() => onOpenViva?.({ ...project, ...details })}
-                title="Open Oral Exam & Viva Defense Simulator"
-                style={{ display: 'inline-flex', alignItems: 'center', gap: '0.4rem' }}
-              >
-                <HelpCircle size={14} color="#f59e0b" />
-                <span>Viva Defense</span>
-              </button>
-
-              <button
-                type="button"
-                className="btn-secondary"
-                onClick={() => onOpenArchitecture?.({ ...project, ...details })}
-                title="View Multi-Tier Architecture Diagram"
-                style={{ display: 'inline-flex', alignItems: 'center', gap: '0.4rem' }}
-              >
-                <Layers size={14} color="var(--accent-cobalt)" />
-                <span>Architecture Diagram</span>
-              </button>
-
-              <button
-                type="button"
-                className="btn-secondary"
-                onClick={() => onOpenDossier?.({ ...project, ...details })}
-                title="View Academic Capstone Dossier (Print / PDF)"
-                style={{ display: 'inline-flex', alignItems: 'center', gap: '0.4rem' }}
-              >
-                <FileText size={14} color="var(--accent-cobalt)" />
-                <span>Academic Dossier (PDF)</span>
-              </button>
             </div>
 
             <VoteControls project={{ ...project, ...details }} onVote={handleVote} isVoting={isVoting} />

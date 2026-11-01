@@ -2,7 +2,6 @@ import React, { useState } from 'react';
 import {
   Plus,
   Terminal,
-  BookOpen,
   Sun,
   Moon,
   Menu,
@@ -173,16 +172,6 @@ export function Navbar({
           >
             <BarChart3 size={14} />
             <span className="btn-explain-text">Analytics</span>
-          </button>
-
-          {/* Explain Architecture Guide */}
-          <button
-            className="btn-explain"
-            onClick={onOpenExplainModal}
-            title="Open Interactive System Architecture Guide"
-          >
-            <BookOpen size={14} />
-            <span className="btn-explain-text">Architecture</span>
           </button>
 
           {/* Theme Toggle (Light / Dark) */}

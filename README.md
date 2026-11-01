@@ -66,7 +66,7 @@
 
 ```text
 ┌─── Showcase & Gallery ────────────────────────────────────────────────────────────────────────┐
-│  ● ● ●  http://localhost:5173              [📊 Analytics] [⚖️ Compare (0)] [🏛️ Architecture]   │
+│  ● ● ●  http://localhost:5173                               [📊 Analytics] [⚖️ Compare (0)]   │
 ├───────────────────────────────────────────────────────────────────────────────────────────────┤
 │                                                                                               │
 │   🏷️  [All]  [AI & ML]  [Data Science]  [Cybersecurity]  [Cloud]  [Web Dev]  ... 20 Tracks     │
@@ -76,7 +76,6 @@
 │   │ Track: Computer Vision                  │     │ Track: Cybersecurity                    │ │
 │   │ ▲ 42 Upvotes • ⭐ 4.8 (12 Reviews)      │     │ ▲ 38 Upvotes • ⭐ 4.6 (9 Reviews)       │ │
 │   │ [View Source ↗] [Details] [⚖️ +Compare] │     │ [View Source ↗] [Details] [⚖️ +Compare] │ │
-│   │ [📑 Dossier] [🎯 Viva Defense]          │     │ [📑 Dossier] [🎯 Viva Defense]          │ │
 │   └─────────────────────────────────────────┘     └─────────────────────────────────────────┘ │
 │                                                                                               │
 │  ┌─ Floating Comparison Dock ───────────────────────────────────────────────────────────────┐ │
@@ -112,10 +111,7 @@
 | :--- | :--- | :--- |
 | 📊 **Tech Stack Analytics Command Center** | Interactive academic analytics & stack synergy hub | • Multi-column 1240px responsive grid with **Fullscreen Toggle** (`<Maximize2 />`)<br/>• **Domain Scope Drilldown**: filter metrics across all 320 projects or isolate any of the 20 engineering domains<br/>• **Architectural Synergy Matrix**: tech co-occurrence pairings (e.g. FastAPI + React)<br/>• Interactive SVG Donut / Ring chart for difficulty distribution<br/>• Real-time search across 50+ tech stacks<br/>• Top Capstones Leaderboard with 1-click project inspect<br/>• One-click **Copy Evaluation Report** markdown export |
 | ⚖️ **Project Comparison Matrix** | Multi-project side-by-side comparative inspector | • Select up to 3 capstone projects simultaneously via `[+ Compare]` buttons<br/>• Persistent floating bottom comparison dock with project badges<br/>• Direct attribute alignment: domain, difficulty, tech stack overlap, live demos, and source code<br/>• Instant clear and re-selection |
-| 📑 **Academic Capstone Dossier Generator** | Print-ready institutional evaluation export | • One-click `[Dossier]` modal formatted strictly for standard A4 paper (`window.print()`)<br/>• Full project overview, technology breakdown, and architecture specifications<br/>• Structured evaluation rubric scores, reviewer summary, and official sign-off lines |
 | ⭐ **Academic Peer Review Rubric** | Structured multi-criteria evaluation | • 4 weighted evaluation rubrics: **Code Quality**, **Innovation**, **UI/UX Design**, and **Cloud Readiness**<br/>• Interactive 1-to-5 star rating picker for each rubric<br/>• Average score calculation with visual star badges in comment feed<br/>• Dedicated critique and peer suggestions |
-| 🎯 **Capstone Viva Defense Simulator** | Live oral presentation preparation suite | • 10-Minute live presentation countdown timer with visual progress bar<br/>• 5 domain-tailored technical viva defense questions with model answers<br/>• Real-time presentation preparation checklist<br/>• One-click **Copy Viva Study Sheet** for offline defense preparation |
-| 🏛️ **Multi-Tier Architecture Visualizer** | Interactive system architecture explorer | • 5-tier system diagram: Client Layer, Gateway/Security, Compute Engine, Persistence, and Cloud/Infra<br/>• Interactive layer inspector displaying protocols, technologies, and responsibilities<br/>• One-click **Copy System Blueprint** ASCII architecture export |
 | 🔍 **Global Real-Time Search & Domain Filter** | Instant multi-faceted project discovery | • Real-time search across title, description, author, and tech stacks<br/>• 20 engineering domain track filter pills with instant project count badges<br/>• Sort by upvotes, creation date, or difficulty level |
 | 🔐 **Enterprise-Grade Security & PBKDF2 Auth** | Secure authentication and authorization | • PBKDF2-SHA256 password hashing with 310,000 iterations and unique cryptographic salt<br/>• Signed HttpOnly session cookies protecting against XSS attacks<br/>• Double-Submit CSRF cookie validation on all state-mutating requests<br/>• Strict server-side author ownership validation for edits and deletions |
 

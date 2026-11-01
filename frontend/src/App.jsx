@@ -5,18 +5,13 @@ import { ProjectCard } from './components/ProjectCard';
 import { FeaturedSpotlight } from './components/FeaturedSpotlight';
 import { ProjectDetailsModal } from './components/ProjectDetailsModal';
 import { PublishProjectModal } from './components/PublishProjectModal';
-import { ExplainArchitectureModal } from './components/ExplainArchitectureModal';
 import { AuthModal } from './components/AuthModal';
 import { AuthorProfileModal } from './components/AuthorProfileModal';
 import { ProfileEditModal } from './components/ProfileEditModal';
-import { CitationModal } from './components/CitationModal';
 import { ExportModal } from './components/ExportModal';
 import { TechAnalyticsModal } from './components/TechAnalyticsModal';
 import { ComparisonModal } from './components/ComparisonModal';
 import { ComparisonTray } from './components/ComparisonTray';
-import { DossierModal } from './components/DossierModal';
-import { VivaDefenseModal } from './components/VivaDefenseModal';
-import { ArchitectureVisualizerModal } from './components/ArchitectureVisualizerModal';
 import { api } from './services/api';
 import './styles/App.css';
 import {
@@ -31,7 +26,6 @@ import {
   BarChart2,
   BarChart3,
   GitCompare,
-  FileText,
   Plus,
   Compass,
 } from 'lucide-react';
@@ -68,21 +62,14 @@ export function App() {
 
   // Modals & Active View
   const [activeProject, setActiveProject] = useState(null);
-  const [projectToCite, setProjectToCite] = useState(null);
   const [isExportModalOpen, setIsExportModalOpen] = useState(false);
   const [isPublishModalOpen, setIsPublishModalOpen] = useState(false);
-  const [isExplainModalOpen, setIsExplainModalOpen] = useState(false);
   const [votingIds, setVotingIds] = useState(new Set());
 
-  // High-Priority Features: Comparison, Analytics & Academic Dossier
+  // High-Priority Features: Comparison & Tech Stack Analytics
   const [comparisonProjects, setComparisonProjects] = useState([]);
   const [isComparisonModalOpen, setIsComparisonModalOpen] = useState(false);
   const [isAnalyticsModalOpen, setIsAnalyticsModalOpen] = useState(false);
-  const [projectForDossier, setProjectForDossier] = useState(null);
-
-  // 2 New Advanced Features: Viva Defense Simulator & Architecture Diagram Visualizer
-  const [projectForViva, setProjectForViva] = useState(null);
-  const [projectForArchitecture, setProjectForArchitecture] = useState(null);
 
   // Health and System State
   const [healthData, setHealthData] = useState(null);
@@ -433,11 +420,6 @@ export function App() {
     showToast('Comparison tray cleared.', 'info');
   };
 
-  // Feature 10: Academic Dossier Handler
-  const handleOpenDossier = (project) => {
-    setProjectForDossier(project);
-  };
-
   const handleAuthenticated = async (user) => {
     setCurrentUser(user);
     setCurrentStudentId(user.id);
@@ -462,7 +444,6 @@ export function App() {
       {/* Top Navbar */}
       <Navbar
         onOpenPublishModal={() => { setProjectToEdit(null); setIsPublishModalOpen(true); }}
-        onOpenExplainModal={() => setIsExplainModalOpen(true)}
         onOpenAnalytics={() => setIsAnalyticsModalOpen(true)}
         healthData={healthData}
         theme={theme}
@@ -696,12 +677,8 @@ export function App() {
                   onToggleBookmark={toggleBookmark}
                   onOpenAuthor={(id) => setProfileStudentId(id)}
                   onShare={handleShareProject}
-                  onCite={(p) => setProjectToCite(p)}
                   isCompared={comparisonProjects.some((cp) => cp.id === project.id)}
                   onToggleCompare={handleToggleCompare}
-                  onOpenDossier={handleOpenDossier}
-                  onOpenViva={(p) => setProjectForViva(p)}
-                  onOpenArchitecture={(p) => setProjectForArchitecture(p)}
                 />
               ))}
             </div>
@@ -718,9 +695,6 @@ export function App() {
           currentUser={currentUser}
           onClose={() => setActiveProject(null)}
           onVote={handleVote}
-          onOpenDossier={handleOpenDossier}
-          onOpenViva={(p) => setProjectForViva(p)}
-          onOpenArchitecture={(p) => setProjectForArchitecture(p)}
           onEdit={(project) => {
             setActiveProject(null);
             setProjectToEdit(project);
@@ -796,22 +770,6 @@ export function App() {
         />
       )}
 
-      {/* Architecture Guide Modal */}
-      {isExplainModalOpen && (
-        <ExplainArchitectureModal
-          healthData={healthData}
-          onClose={() => setIsExplainModalOpen(false)}
-        />
-      )}
-
-      {/* Citation Generator Modal */}
-      {projectToCite && (
-        <CitationModal
-          project={projectToCite}
-          onClose={() => setProjectToCite(null)}
-        />
-      )}
-
       {/* Catalog Exporter Modal */}
       {isExportModalOpen && (
         <ExportModal
@@ -861,30 +819,6 @@ export function App() {
             setActiveProject(project);
           }}
           onClose={() => setIsAnalyticsModalOpen(false)}
-        />
-      )}
-
-      {/* Feature 10: Academic Capstone Dossier Print / PDF Modal */}
-      {projectForDossier && (
-        <DossierModal
-          project={projectForDossier}
-          onClose={() => setProjectForDossier(null)}
-        />
-      )}
-
-      {/* New Feature 1: Capstone Oral Defense & Viva Simulator */}
-      {projectForViva && (
-        <VivaDefenseModal
-          project={projectForViva}
-          onClose={() => setProjectForViva(null)}
-        />
-      )}
-
-      {/* New Feature 2: Interactive System Architecture Flowchart & Layer Inspector */}
-      {projectForArchitecture && (
-        <ArchitectureVisualizerModal
-          project={projectForArchitecture}
-          onClose={() => setProjectForArchitecture(null)}
         />
       )}
 
