@@ -1,7 +1,5 @@
 <div align="center">
-
-# 🚀 ProjectSpace
-### Student Project Showcase & Peer-Feedback Platform
+# Student Project Showcase & Peer-Feedback Platform
 
 A full-stack web platform for engineering students to discover 320+ capstone projects across 20 technical domains, exchange constructive peer feedback, and showcase technical work.
 
