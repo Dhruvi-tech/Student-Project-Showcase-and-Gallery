@@ -866,7 +866,7 @@ export function App() {
       <footer className="app-footer">
         <div className="footer-container">
           <div className="footer-left">
-            <strong>ProjectSpace • Student Project Showcase</strong>
+            <strong>Student Project Showcase &amp; Peer Gallery</strong>
             <span>Preserved 320-Project Academic Catalog</span>
           </div>
           <div className="footer-links">

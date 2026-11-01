@@ -247,7 +247,7 @@ export function TechAnalyticsModal({ projects = [], onSelectTech, onSelectCatego
     const top5Tech = analytics.sortedTechs.slice(0, 5).map((t) => `${t.name} (${t.count} projects, ${t.percentage}%)`).join(', ');
     const top3Cats = analytics.sortedCategories.slice(0, 3).map((c) => `${c.name} (${c.count} projects)`).join(', ');
     const topPairs = analytics.sortedPairs.slice(0, 3).map((p) => `${p.pair} (${p.count} projects)`).join(', ');
-    const report = `# ProjectSpace Academic Catalog Analytics Report
+    const report = `# Student Project Showcase & Peer Gallery Analytics Report
 • Scope: ${selectedDomainFilter === 'All' ? 'All 320 Projects (All 20 Domains)' : `${selectedDomainFilter} (${analytics.totalProjects} projects)`}
 • Capstone Projects Analyzed: ${analytics.totalProjects}
 • Unique Technology Stacks: ${analytics.uniqueTechsCount}

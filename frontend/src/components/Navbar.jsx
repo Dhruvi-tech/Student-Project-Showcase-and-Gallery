@@ -53,8 +53,8 @@ export function Navbar({
             <Terminal size={19} />
           </div>
           <div className="brand-text">
-            <h1>ProjectSpace</h1>
-            <span className="badge-course">Student Showcase & Peer Reviews</span>
+            <h1>Student Project Showcase</h1>
+            <span className="badge-course">Peer Gallery</span>
           </div>
         </div>
 

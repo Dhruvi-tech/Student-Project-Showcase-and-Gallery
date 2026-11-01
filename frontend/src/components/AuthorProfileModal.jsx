@@ -16,7 +16,7 @@ export function AuthorProfileModal({ studentId, onClose, onOpenProject }) {
   return <div className="modal-overlay" onClick={onClose}>
     <section className="modal-container author-profile-modal" role="dialog" aria-modal="true" aria-labelledby="author-profile-title" onClick={(event) => event.stopPropagation()}>
       <header className="modal-header">
-        <div><span className="eyebrow">ProjectSpace member</span><h2 id="author-profile-title">{profile?.name || (error ? 'Profile unavailable' : 'Loading profile…')}</h2>{profile?.username && <span className="profile-handle">@{profile.username}</span>}</div>
+        <div><span className="eyebrow">Showcase Member</span><h2 id="author-profile-title">{profile?.name || (error ? 'Profile unavailable' : 'Loading profile…')}</h2>{profile?.username && <span className="profile-handle">@{profile.username}</span>}</div>
         <button className="modal-close-btn" onClick={onClose} aria-label="Close profile"><X size={18} /></button>
       </header>
       <div className="modal-body">
