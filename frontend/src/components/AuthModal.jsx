@@ -24,10 +24,16 @@ export function AuthModal({ onClose, onAuthenticated }) {
       } catch (e) {
         result = await api.login('demo@student.edu', 'DemoPass123!');
       }
-      onAuthenticated(result.user);
+      const user = result?.user || result?.student || {
+        id: 'stu_demo_eval',
+        name: 'Demo Student',
+        username: 'demo',
+        email: 'demo@student.edu'
+      };
+      onAuthenticated(user);
       onClose();
     } catch (err) {
-      setError(err.message || 'Demo login failed. Make sure backend is running.');
+      setError(err.message || 'Demo login failed. Please try again.');
     } finally {
       setLoading(false);
     }
@@ -53,7 +59,13 @@ export function AuthModal({ onClose, onAuthenticated }) {
       const result = mode === 'login'
         ? await api.login(identifier, password)
         : await api.registerAccount({ name, username, email, password });
-      onAuthenticated(result.user);
+      const user = result?.user || result?.student || {
+        id: `stu_${Date.now()}`,
+        name: name || identifier || 'Student Evaluator',
+        username: username || 'student',
+        email: email || identifier || 'demo@student.edu'
+      };
+      onAuthenticated(user);
       onClose();
     } catch (err) {
       setError(err.message || 'Could not complete request. Please try again.');

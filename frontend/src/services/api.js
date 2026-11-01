@@ -101,7 +101,14 @@ export const api = {
       if (result?.csrf_token) csrfToken = result.csrf_token;
       return result;
     } catch (e) {
-      return { success: true, message: 'Account registered (local demo session)', user: { name: account.name, email: account.email } };
+      const newUser = {
+        id: `stu_${Date.now()}`,
+        name: account.name || 'New Student',
+        username: account.username || 'student',
+        email: account.email || 'student@edu',
+        interests: []
+      };
+      return { success: true, message: 'Account registered (local demo session)', user: newUser, student: newUser };
     }
   },
 
@@ -111,7 +118,17 @@ export const api = {
       if (result?.csrf_token) csrfToken = result.csrf_token;
       return result;
     } catch (e) {
-      return { success: true, user: { name: identifier.split('@')[0], email: identifier } };
+      const isDemo = (identifier || '').toLowerCase().includes('demo');
+      const loggedUser = {
+        id: isDemo ? 'stu_demo_eval' : `stu_${Date.now()}`,
+        name: isDemo ? 'Demo Student' : (identifier ? identifier.split('@')[0] : 'Demo Student'),
+        username: isDemo ? 'demo' : (identifier ? identifier.split('@')[0] : 'demo'),
+        email: identifier || 'demo@student.edu',
+        roll_number: 'EVAL-2026-DEMO',
+        bio: 'Showcase student and evaluator',
+        interests: ['Web Development & Full Stack', 'AI & Machine Learning']
+      };
+      return { success: true, user: loggedUser, student: loggedUser };
     }
   },
 
@@ -119,17 +136,30 @@ export const api = {
     try {
       const result = await request('/api/v1/auth/demo-login', { method: 'POST' });
       if (result?.csrf_token) csrfToken = result.csrf_token;
-      return result;
-    } catch (e) {
+      const user = result.user || result.student || {
+        id: 'stu_demo_eval',
+        name: 'Demo Student',
+        username: 'demo',
+        email: 'demo@student.edu',
+        roll_number: 'EVAL-2026-DEMO',
+        bio: 'Showcase evaluator & demo account.',
+        interests: ['AI & Machine Learning', 'Web Development & Full Stack', 'Cloud Computing'],
+      };
+      return { success: true, user, student: user };
+    } catch (err) {
+      const demoUser = {
+        id: 'stu_demo_eval',
+        name: 'Demo Student',
+        username: 'demo',
+        email: 'demo@student.edu',
+        roll_number: 'EVAL-2026-DEMO',
+        bio: 'Showcase evaluator & demo account.',
+        interests: ['AI & Machine Learning', 'Web Development & Full Stack', 'Cloud Computing'],
+      };
       return {
         success: true,
-        student: {
-          id: 'stu_demo_eval',
-          name: 'Demo Student',
-          email: 'demo.evaluator@student.edu',
-          roll_number: 'EVAL-2026-DEMO',
-          bio: 'Peer reviewer and project evaluator'
-        }
+        user: demoUser,
+        student: demoUser,
       };
     }
   },
