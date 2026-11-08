@@ -11,7 +11,7 @@ from fastapi.exceptions import RequestValidationError
 from fastapi.encoders import jsonable_encoder
 from app.config import settings
 from app.database import init_db
-from app.routers import projects_router, health_router, auth_router
+from app.routers import projects_router, health_router, auth_router, github_router
 from app.routers.discovery import router as discovery_router
 
 # Configure logging
@@ -85,6 +85,7 @@ app.include_router(health_router)
 app.include_router(projects_router)
 app.include_router(auth_router)
 app.include_router(discovery_router)
+app.include_router(github_router)
 
 
 import os

@@ -82,6 +82,7 @@ def get_projects(
     sort: str = "upvotes",
     tech_stack: Optional[str] = None,
     category: Optional[str] = None,
+    difficulty: Optional[str] = None,
     search: Optional[str] = None,
     student_id: Optional[str] = None,
     limit: int = 100,
@@ -125,6 +126,13 @@ def get_projects(
         all_matching = [
             p for p in all_matching
             if any(target_stack == s.lower() for s in (p.tech_stacks or []))
+        ]
+
+    if difficulty and difficulty.lower() != 'all':
+        target_diff = difficulty.strip().lower()
+        all_matching = [
+            p for p in all_matching
+            if (getattr(p, 'difficulty', 'Intermediate') or 'Intermediate').lower() == target_diff
         ]
 
     total_count = len(all_matching)
