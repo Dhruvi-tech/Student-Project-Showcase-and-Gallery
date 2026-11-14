@@ -8,7 +8,7 @@ export function ExportModal({ projects = [], selectedCategory = 'All', onClose }
   const generateMarkdown = () => {
     let md = `# Student Project Showcase Catalog\n`;
     md += `**Category:** ${selectedCategory} | **Total Projects:** ${projects.length}\n`;
-    md += `*Exported from RV University Student Project Showcase & Peer Gallery on ${new Date().toLocaleDateString()}*\n\n---\n\n`;
+    md += `*Exported from Student Project Showcase & Peer Gallery on ${new Date().toLocaleDateString()}*\n\n---\n\n`;
 
     projects.forEach((p, idx) => {
       md += `### ${idx + 1}. ${p.title}\n`;

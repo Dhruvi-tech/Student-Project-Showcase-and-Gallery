@@ -1,5 +1,6 @@
 from app.schemas.project import (
     ProjectCreate,
+    ProjectPatch,
     ProjectCreateResponse,
     ProjectItem,
     ProjectListResponse,
@@ -10,6 +11,7 @@ from app.schemas.comment import CommentCreate, CommentResponse
 
 __all__ = [
     "ProjectCreate",
+    "ProjectPatch",
     "ProjectCreateResponse",
     "ProjectItem",
     "ProjectListResponse",

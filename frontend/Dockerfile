@@ -1,5 +1,5 @@
 # Multi-Stage Production Dockerfile for React Gallery Frontend
-# CS3452 Cloud Platforms and Service Models
+# CS3302 Development of Web Services
 
 # Stage 1: Build static assets
 FROM node:20-alpine AS builder

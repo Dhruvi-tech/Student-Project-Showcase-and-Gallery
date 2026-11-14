@@ -65,13 +65,13 @@ export function DossierModal({ project, onClose }) {
           <div style={{ borderBottom: '2px solid #0f172a', paddingBottom: '1rem', marginBottom: '1.5rem', display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
             <div>
               <div style={{ fontSize: '0.75rem', fontWeight: 750, letterSpacing: '0.12em', textTransform: 'uppercase', color: '#2563eb' }}>
-                RV UNIVERSITY • SCHOOL OF COMPUTER SCIENCE & ENGINEERING
+                STUDENT PROJECT SHOWCASE • PEER EVALUATION DOSSIER
               </div>
               <h2 style={{ fontSize: '1.5rem', fontWeight: 800, margin: '0.35rem 0 0.15rem', color: '#0f172a', letterSpacing: '-0.02em' }}>
-                Capstone Project Evaluation Dossier
+                Engineering Project Technical Dossier
               </h2>
               <div style={{ fontSize: '0.82rem', color: '#475569' }}>
-                CS3452: Cloud Platforms & Service Models • Final Project Assessment Record
+                CS3302: Development of Web Services • Technical Assessment Record
               </div>
             </div>
             <div style={{ textAlign: 'right', fontSize: '0.78rem', color: '#64748b' }}>
@@ -167,7 +167,7 @@ export function DossierModal({ project, onClose }) {
 
           {/* Academic Citation Block */}
           <div style={{ background: '#f1f5f9', padding: '0.85rem 1rem', borderRadius: '8px', border: '1px solid #cbd5e1', fontSize: '0.78rem', color: '#334155', fontFamily: 'monospace' }}>
-            <strong>Official Citation (IEEE):</strong> [1] {authorName}, "{project.title}," RV University Student Project Showcase & Peer Gallery, 2026.
+            <strong>Official Citation (IEEE):</strong> [1] {authorName}, "{project.title}," Student Project Showcase & Peer Gallery, 2026.
           </div>
 
           {/* Footer signature line for examiners */}

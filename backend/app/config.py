@@ -30,7 +30,8 @@ class Settings(BaseSettings):
 
     # CORS origins
     CORS_ORIGINS: str = os.getenv(
-        "CORS_ORIGINS", "http://localhost:5173,http://127.0.0.1:5173,http://localhost:3000"
+        "CORS_ORIGINS",
+        "http://localhost:5173,http://127.0.0.1:5173,http://localhost:3000,http://localhost:80,https://dhruvi-tech.github.io,https://student-project-showcase-ui.onrender.com",
     )
 
     # Optional object storage; leave the bucket empty for local development.

@@ -6,7 +6,7 @@
 
 import staticCatalog from '../data/staticCatalog.json';
 
-const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || '';
+const API_BASE_URL = (import.meta.env.VITE_API_URL || import.meta.env.VITE_API_BASE_URL || '').replace(/\/+$/, '');
 let csrfToken = null;
 
 function getCsrfFromCookie() {
@@ -45,6 +45,14 @@ async function request(endpoint, options = {}) {
   if (activeCsrf && !['GET', 'HEAD', 'OPTIONS'].includes(method)) {
     defaultHeaders['X-CSRF-Token'] = activeCsrf;
   }
+
+  // Attach JWT Bearer token if present
+  try {
+    const storedToken = localStorage.getItem('showcase_token');
+    if (storedToken) {
+      defaultHeaders['Authorization'] = `Bearer ${storedToken}`;
+    }
+  } catch (e) {}
 
   const config = {
     ...options,
@@ -107,6 +115,11 @@ export const api = {
     try {
       const result = await request('/api/v1/auth/register', { method: 'POST', body: JSON.stringify(payload) });
       if (result?.csrf_token) csrfToken = result.csrf_token;
+      if (result?.access_token) {
+        try {
+          localStorage.setItem('showcase_token', result.access_token);
+        } catch (err) {}
+      }
       const user = result?.user || result?.student || {
         id: `stu_${Date.now()}`,
         name: payload.name,
@@ -117,7 +130,7 @@ export const api = {
       try {
         localStorage.setItem('showcase_user', JSON.stringify(user));
       } catch (e) {}
-      return { success: true, user, student: user };
+      return { success: true, user, student: user, token: result?.access_token };
     } catch (e) {
       if (e?.status === 409 || e?.message?.includes('already registered')) {
         throw new Error('Email or username is already registered. Please sign in instead.');
@@ -144,11 +157,16 @@ export const api = {
     try {
       const result = await request('/api/v1/auth/login', { method: 'POST', body: JSON.stringify({ identifier, password }) });
       if (result?.csrf_token) csrfToken = result.csrf_token;
+      if (result?.access_token) {
+        try {
+          localStorage.setItem('showcase_token', result.access_token);
+        } catch (err) {}
+      }
       const user = result?.user || result?.student;
       try {
         localStorage.setItem('showcase_user', JSON.stringify(user));
       } catch (e) {}
-      return { success: true, user, student: user };
+      return { success: true, user, student: user, token: result?.access_token };
     } catch (e) {
       if (e?.status === 401) {
         throw new Error('Invalid email/username or password.');
@@ -159,7 +177,6 @@ export const api = {
         name: isDemo ? 'Demo Student' : (identifier ? identifier.split('@')[0] : 'Demo Student'),
         username: isDemo ? 'demo' : (identifier ? identifier.split('@')[0] : 'demo'),
         email: identifier || 'demo@student.edu',
-        roll_number: 'EVAL-2026-DEMO',
         bio: 'Showcase student and evaluator',
         interests: ['Web Development & Full Stack', 'AI & Machine Learning']
       };
@@ -174,26 +191,29 @@ export const api = {
     try {
       const result = await request('/api/v1/auth/demo-login', { method: 'POST' });
       if (result?.csrf_token) csrfToken = result.csrf_token;
+      if (result?.access_token) {
+        try {
+          localStorage.setItem('showcase_token', result.access_token);
+        } catch (err) {}
+      }
       const user = result.user || result.student || {
         id: 'stu_demo_eval',
         name: 'Demo Student',
         username: 'demo',
         email: 'demo@student.edu',
-        roll_number: 'EVAL-2026-DEMO',
         bio: 'Showcase evaluator & demo account.',
         interests: ['AI & Machine Learning', 'Web Development & Full Stack', 'Cloud Computing'],
       };
       try {
         localStorage.setItem('showcase_user', JSON.stringify(user));
       } catch (e) {}
-      return { success: true, user, student: user };
+      return { success: true, user, student: user, token: result?.access_token };
     } catch (err) {
       const demoUser = {
         id: 'stu_demo_eval',
         name: 'Demo Student',
         username: 'demo',
         email: 'demo@student.edu',
-        roll_number: 'EVAL-2026-DEMO',
         bio: 'Showcase evaluator & demo account.',
         interests: ['AI & Machine Learning', 'Web Development & Full Stack', 'Cloud Computing'],
       };
@@ -213,6 +233,10 @@ export const api = {
       await request('/api/v1/auth/logout', { method: 'POST' });
     } catch (e) {}
     csrfToken = null;
+    try {
+      localStorage.removeItem('showcase_token');
+      localStorage.removeItem('showcase_user');
+    } catch (e) {}
     return { success: true };
   },
 
@@ -276,6 +300,16 @@ export const api = {
       return await request(`/api/v1/projects/${id}`, { method: 'PUT', headers, body: JSON.stringify(projectData) });
     } catch (e) {
       return { ...projectData, id };
+    }
+  },
+
+  async patchProject(id, patchData, studentId = '') {
+    const headers = {};
+    if (studentId) headers['X-Student-Id'] = studentId;
+    try {
+      return await request(`/api/v1/projects/${id}`, { method: 'PATCH', headers, body: JSON.stringify(patchData) });
+    } catch (e) {
+      return { ...patchData, id };
     }
   },
 
@@ -575,6 +609,19 @@ export const api = {
         student_name: 'Peer Reviewer',
         created_at: new Date().toISOString(),
       };
+    }
+  },
+
+  async deleteComment(projectId, commentId, studentId = '') {
+    const headers = {};
+    if (studentId) headers['X-Student-Id'] = studentId;
+    try {
+      return await request(`/api/v1/projects/${projectId}/comments/${commentId}`, {
+        method: 'DELETE',
+        headers,
+      });
+    } catch (e) {
+      return { success: true, id: commentId };
     }
   },
 

@@ -1,27 +1,47 @@
+databases:
+  # Managed PostgreSQL 15 database with persistent cloud storage
+  - name: student-project-showcase-db
+    databaseName: showcase_db
+    user: showcase_user
+    plan: free
+    region: oregon
+
 services:
-  # FastAPI Web Service
+  # 1. FastAPI REST API Web Service
   - type: web
     name: student-project-showcase-api
     runtime: python
+    plan: free
+    region: oregon
     buildCommand: "pip install -r backend/requirements.txt"
-    startCommand: "cd backend && python seed_data.py && python -m uvicorn app.main:app --host 0.0.0.0 --port $PORT"
+    startCommand: "cd backend && python -m uvicorn app.main:app --host 0.0.0.0 --port $PORT"
+    healthCheckPath: /health
     envVars:
       - key: PYTHON_VERSION
         value: 3.11.9
       - key: ENVIRONMENT
         value: production
       - key: DEMO_MODE
-        value: "true"
+        value: "false"
+      - key: AUTH_SECRET
+        generateValue: true
       - key: DATABASE_URL
-        value: sqlite:///showcase.db
+        fromDatabase:
+          name: student-project-showcase-db
+          property: connectionString
       - key: CORS_ORIGINS
-        value: "*"
+        value: "https://student-project-showcase-ui.onrender.com,https://dhruvi-tech.github.io,http://localhost:5173,http://localhost:3000"
 
-  # React Frontend Static Site
+  # 2. React Frontend Static Site
   - type: static
     name: student-project-showcase-ui
     buildCommand: "cd frontend && npm install && npm run build"
     staticPublishPath: "frontend/dist"
+    envVars:
+      - key: VITE_API_URL
+        value: "https://student-project-showcase-api.onrender.com"
+      - key: VITE_API_BASE_URL
+        value: "https://student-project-showcase-api.onrender.com"
     routes:
       - type: rewrite
         source: /*

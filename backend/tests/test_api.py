@@ -529,3 +529,128 @@ def test_29_single_vote_constraint_spans_like_and_dislike(client, db_session):
         db_session.commit()
     db_session.rollback()
     assert db_session.query(ProjectVote).filter_by(project_id=project.id, student_id="stu_test_alpha").count() == 1
+
+
+def test_30_patch_project_partial_update(client, db_session):
+    """Test 30: PATCH /api/v1/projects/{id} supports partial field updates with owner verification."""
+    created = client.post(
+        "/api/v1/projects",
+        headers={"X-Student-Id": "stu_patch_owner"},
+        json={
+            "title": "Initial Patch Title",
+            "description": "Initial description",
+            "category": "Cloud Computing & DevOps",
+            "tech_stacks": ["Docker", "AWS"],
+            "difficulty": "Beginner",
+        },
+    )
+    assert created.status_code == 201
+    project_id = created.json()["id"]
+
+    # Non-owner patch is rejected with 403 Forbidden
+    unauthorized_patch = client.patch(
+        f"/api/v1/projects/{project_id}",
+        headers={"X-Student-Id": "stu_imposter"},
+        json={"title": "Hacked Title"},
+    )
+    assert unauthorized_patch.status_code == 403
+
+    # Owner partial patch updating only difficulty and description
+    patch_res = client.patch(
+        f"/api/v1/projects/{project_id}",
+        headers={"X-Student-Id": "stu_patch_owner"},
+        json={"difficulty": "Advanced", "description": "Upgraded partial description"},
+    )
+    assert patch_res.status_code == 200
+    patched_data = patch_res.json()
+    assert patched_data["title"] == "Initial Patch Title"  # Preserved
+    assert patched_data["difficulty"] == "Advanced"  # Updated
+    assert patched_data["description"] == "Upgraded partial description"  # Updated
+
+    # Non-existent project returns 404
+    assert client.patch(
+        "/api/v1/projects/prj_nonexistent",
+        headers={"X-Student-Id": "stu_patch_owner"},
+        json={"title": "New Title"},
+    ).status_code == 404
+
+
+def test_31_delete_comment_author_authorization(client, db_session):
+    """Test 31: DELETE /api/v1/projects/{id}/comments/{comment_id} requires comment author or project owner."""
+    # Create project
+    proj = client.post(
+        "/api/v1/projects",
+        headers={"X-Student-Id": "stu_proj_owner"},
+        json={"title": "Commented Project", "category": "EdTech", "tech_stacks": ["React"]},
+    ).json()
+    proj_id = proj["id"]
+
+    # Add comment by peer reviewer
+    comment = client.post(
+        f"/api/v1/projects/{proj_id}/comments",
+        headers={"X-Student-Id": "stu_reviewer"},
+        json={"content": "Thoughtful peer critique on architecture.", "feedback_type": "positive"},
+    ).json()
+    comment_id = comment["id"]
+
+    # Unauthorized third-party cannot delete comment (403)
+    unauthorized = client.delete(
+        f"/api/v1/projects/{proj_id}/comments/{comment_id}",
+        headers={"X-Student-Id": "stu_stranger"},
+    )
+    assert unauthorized.status_code == 403
+
+    # Comment author can delete comment (204 No Content)
+    deleted = client.delete(
+        f"/api/v1/projects/{proj_id}/comments/{comment_id}",
+        headers={"X-Student-Id": "stu_reviewer"},
+    )
+    assert deleted.status_code == 204
+
+    # Deleting non-existent comment returns 404
+    assert client.delete(
+        f"/api/v1/projects/{proj_id}/comments/cmt_not_found",
+        headers={"X-Student-Id": "stu_reviewer"},
+    ).status_code == 404
+
+
+def test_32_jwt_bearer_token_authentication(client, db_session):
+    """Test 32: Verify JWT access_token generation and Bearer header authentication."""
+    reg_payload = {
+        "name": "JWT Developer",
+        "username": "jwt_dev",
+        "email": "jwt.dev@student.edu",
+        "password": "SecurePassword123!",
+    }
+    register_res = client.post("/api/v1/auth/register", json=reg_payload)
+    assert register_res.status_code == 201
+    auth_data = register_res.json()
+    assert "access_token" in auth_data
+    assert auth_data["token_type"] == "bearer"
+    token = auth_data["access_token"]
+
+    # Verify Bearer token works directly with Authorization header
+    me_res = client.get("/api/v1/auth/me", headers={"Authorization": f"Bearer {token}"})
+    assert me_res.status_code == 200
+    assert me_res.json()["user"]["username"] == "jwt_dev"
+
+    # Verify invalid Bearer token returns 401
+    invalid_res = client.get("/api/v1/auth/me", headers={"Authorization": "Bearer invalid.jwt.token"})
+    assert invalid_res.status_code == 401
+
+
+def test_33_openapi_and_docs_endpoints(client):
+    """Test 33: Verify OpenAPI schema includes security schemes and docs return 200."""
+    openapi_res = client.get("/openapi.json")
+    assert openapi_res.status_code == 200
+    schema = openapi_res.json()
+    assert "components" in schema
+    assert "securitySchemes" in schema["components"]
+    assert "BearerAuth" in schema["components"]["securitySchemes"]
+
+    docs_res = client.get("/docs")
+    assert docs_res.status_code == 200
+
+    redoc_res = client.get("/redoc")
+    assert redoc_res.status_code == 200
+

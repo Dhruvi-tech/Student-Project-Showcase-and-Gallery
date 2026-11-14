@@ -67,6 +67,27 @@ def update_project(db: Session, project_id: str, owner_id: str, project_in: Proj
     return project
 
 
+def patch_project(db: Session, project_id: str, owner_id: str, project_patch) -> Project:
+    """Partially updates an existing project with ownership verification."""
+    project = db.query(Project).filter(Project.id == project_id).first()
+    if not project:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=f"Project with ID '{project_id}' not found")
+    if project.student_id != owner_id:
+        raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="Only the project owner can edit this project")
+    
+    update_data = project_patch.model_dump(exclude_unset=True)
+    if "thumbnail_key" in update_data and update_data["thumbnail_key"]:
+        if not update_data["thumbnail_key"].startswith(f"projects/{owner_id}/"):
+            raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="Thumbnail must belong to the project owner")
+            
+    for field, val in update_data.items():
+        setattr(project, field, val)
+        
+    db.commit()
+    db.refresh(project)
+    return project
+
+
 def delete_project(db: Session, project_id: str, owner_id: str) -> None:
     project = db.query(Project).filter(Project.id == project_id).first()
     if not project:
@@ -358,3 +379,22 @@ def add_comment(
     db.commit()
     db.refresh(comment)
     return comment
+
+
+def delete_comment(db: Session, project_id: str, comment_id: str, actor_id: str) -> None:
+    """Deletes a peer feedback comment with author/owner authorization."""
+    comment = db.query(Comment).filter(Comment.id == comment_id, Comment.project_id == project_id).first()
+    if not comment:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail=f"Comment '{comment_id}' not found on project '{project_id}'",
+        )
+    project = db.query(Project).filter(Project.id == project_id).first()
+    if comment.student_id != actor_id and (project and project.student_id != actor_id):
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="Only the comment author or project owner can delete this comment",
+        )
+    db.delete(comment)
+    db.commit()
+

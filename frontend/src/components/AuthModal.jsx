@@ -47,7 +47,7 @@ export function AuthModal({ onClose, onAuthenticated }) {
     const demoPayload = {
       name: `Student Evaluator ${suffix}`,
       username: `eval_${suffix}`,
-      email: `evaluator${suffix}@rvu.edu.in`,
+      email: `evaluator${suffix}@student.edu`,
       password: 'DemoPassword123!',
     };
     try {
@@ -258,7 +258,7 @@ export function AuthModal({ onClose, onAuthenticated }) {
                     <input
                       className="form-input"
                       type="email"
-                      placeholder="e.g. student@rvu.edu.in"
+                      placeholder="e.g. developer@example.com"
                       value={email}
                       onChange={(e) => setEmail(e.target.value)}
                       autoComplete="email"

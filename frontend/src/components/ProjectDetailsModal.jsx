@@ -128,6 +128,20 @@ export function ProjectDetailsModal({
     }
   };
 
+  const handleCommentDelete = async (commentId) => {
+    if (!window.confirm('Delete this peer comment?')) return;
+    try {
+      await api.deleteComment(project.id, commentId, currentStudentId);
+      setDetails((prev) => ({
+        ...prev,
+        comments: (prev?.comments || []).filter((c) => c.id !== commentId),
+        comment_count: Math.max(0, (prev?.comment_count || 1) - 1),
+      }));
+    } catch (err) {
+      setErrorMsg(err.message || 'Could not delete comment');
+    }
+  };
+
   const handleVote = async (projectId, direction) => {
     const result = await onVote(projectId, direction);
     if (!result) return;
@@ -389,6 +403,28 @@ export function ProjectDetailsModal({
                             minute: '2-digit',
                           })}
                         </span>
+                        {currentStudentId && (c.student_id === currentStudentId || currentStudent?.name === c.author_name || (details || project).student_id === currentStudentId) && (
+                          <button
+                            type="button"
+                            className="btn-comment-delete"
+                            style={{
+                              marginLeft: 'auto',
+                              background: 'transparent',
+                              border: 'none',
+                              color: 'var(--text-muted, #94a3b8)',
+                              cursor: 'pointer',
+                              fontSize: '0.75rem',
+                              padding: '2px 6px',
+                              borderRadius: '4px',
+                            }}
+                            onMouseOver={(e) => (e.target.style.color = '#ef4444')}
+                            onMouseOut={(e) => (e.target.style.color = 'var(--text-muted, #94a3b8)')}
+                            onClick={() => handleCommentDelete(c.id)}
+                            title="Delete this comment"
+                          >
+                            ✕
+                          </button>
+                        )}
                       </div>
                       {rubricDetails && (
                         <div className="comment-rubric-badge">

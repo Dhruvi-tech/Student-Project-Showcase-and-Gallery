@@ -1,4 +1,4 @@
-"""Session authentication for real accounts; demo personas remain development-only."""
+"""JWT and session authentication for student accounts; supports Bearer tokens and cookies."""
 import base64
 import hashlib
 import hmac
@@ -7,7 +7,7 @@ import os
 import re
 import secrets
 import time
-from typing import Optional
+from typing import Optional, List
 
 from fastapi import APIRouter, Depends, HTTPException, Request, Response, status
 from pydantic import BaseModel, Field, field_validator
@@ -21,14 +21,39 @@ from app.models.student import Student
 router = APIRouter(prefix="/api/v1/auth", tags=["Authentication"])
 SESSION_COOKIE = "projectspace_session"
 CSRF_COOKIE = "projectspace_csrf"
-SESSION_TTL_SECONDS = 60 * 60 * 12
+SESSION_TTL_SECONDS = 60 * 60 * 24  # 24 hours
+
+# In-memory sliding window rate limiter
+_rate_limits: dict[str, list[float]] = {}
+
+
+def check_auth_rate_limit(request: Request, max_requests: int = 30, window_seconds: int = 60) -> None:
+    """Enforces per-IP rate limiting on sensitive authentication routes."""
+    # Skip during automated test execution
+    if getattr(settings, "ENVIRONMENT", "").lower() == "testing" or os.getenv("PYTEST_CURRENT_TEST"):
+        return
+
+    client_ip = request.client.host if request.client else "127.0.0.1"
+    now = time.time()
+    cutoff = now - window_seconds
+    timestamps = _rate_limits.setdefault(client_ip, [])
+    # Clean up old timestamps
+    _rate_limits[client_ip] = [ts for ts in timestamps if ts > cutoff]
+
+    if len(_rate_limits[client_ip]) >= max_requests:
+        raise HTTPException(
+            status_code=status.HTTP_429_TOO_MANY_REQUESTS,
+            detail=f"Rate limit exceeded. Too many authentication attempts from this IP. Please wait {window_seconds} seconds.",
+            headers={"Retry-After": str(window_seconds)},
+        )
+    _rate_limits[client_ip].append(now)
 
 
 class RegisterBody(BaseModel):
-    name: str = Field(min_length=2, max_length=100)
-    username: str = Field(min_length=3, max_length=40, pattern=r"^[A-Za-z0-9_]+$")
-    email: str = Field(min_length=5, max_length=150)
-    password: str = Field(min_length=6, max_length=128)
+    name: str = Field(min_length=2, max_length=100, description="Full name of student/developer")
+    username: str = Field(min_length=3, max_length=40, pattern=r"^[A-Za-z0-9_]+$", description="Unique username")
+    email: str = Field(min_length=5, max_length=150, description="Valid email address")
+    password: str = Field(min_length=6, max_length=128, description="Account password (min 6 chars)")
 
     @field_validator("name", "username", "email")
     @classmethod
@@ -56,8 +81,8 @@ class RegisterBody(BaseModel):
 
 
 class LoginBody(BaseModel):
-    identifier: str = Field(min_length=3, max_length=150)
-    password: str = Field(min_length=1, max_length=128)
+    identifier: str = Field(min_length=3, max_length=150, description="Registered email or username")
+    password: str = Field(min_length=1, max_length=128, description="Account password")
 
 
 def _secret() -> bytes:
@@ -72,14 +97,21 @@ def _b64(data: bytes) -> str:
 
 
 def _token_for(user_id: str, session_version: int) -> str:
+    """Creates a signed JWT-compatible HS256 token."""
     header = _b64(json.dumps({"alg": "HS256", "typ": "JWT"}, separators=(",", ":")).encode())
-    payload = _b64(json.dumps({"sub": user_id, "ver": session_version, "exp": int(time.time()) + SESSION_TTL_SECONDS}, separators=(",", ":")).encode())
+    payload = _b64(json.dumps({
+        "sub": user_id,
+        "ver": session_version,
+        "iat": int(time.time()),
+        "exp": int(time.time()) + SESSION_TTL_SECONDS
+    }, separators=(",", ":")).encode())
     signing_input = f"{header}.{payload}".encode("ascii")
     signature = _b64(hmac.new(_secret(), signing_input, hashlib.sha256).digest())
     return f"{header}.{payload}.{signature}"
 
 
 def _claims_from_token(token: str) -> Optional[dict]:
+    """Validates the JWT token signature and expiration."""
     try:
         header, payload, signature = token.split(".")
         signing_input = f"{header}.{payload}".encode("ascii")
@@ -94,8 +126,21 @@ def _claims_from_token(token: str) -> Optional[dict]:
         return None
 
 
+def extract_token_from_request(request: Request) -> Optional[str]:
+    """Extracts JWT token from Authorization header or session cookie."""
+    # 1. Bearer token in Authorization header
+    auth_header = request.headers.get("Authorization", "")
+    if auth_header.startswith("Bearer "):
+        token = auth_header[7:].strip()
+        if token:
+            return token
+    # 2. Session cookie fallback
+    return request.cookies.get(SESSION_COOKIE)
+
+
 def get_session_user(request: Request, db: Session) -> Optional[Student]:
-    token = request.cookies.get(SESSION_COOKIE)
+    """Resolves authenticated student from Authorization Bearer header or session cookie."""
+    token = extract_token_from_request(request)
     if not token:
         return None
     claims = _claims_from_token(token)
@@ -108,6 +153,14 @@ def get_session_user(request: Request, db: Session) -> Optional[Student]:
 
 
 def require_csrf(request: Request) -> None:
+    """
+    Validates CSRF token for cookie-based mutating requests.
+    Bearer token authenticated requests are exempt from CSRF checks.
+    """
+    auth_header = request.headers.get("Authorization", "")
+    if auth_header.startswith("Bearer ") and auth_header[7:].strip():
+        return
+
     cookie = request.cookies.get(CSRF_COOKIE, "")
     supplied = request.headers.get("X-CSRF-Token", "")
     if cookie and supplied and hmac.compare_digest(cookie, supplied):
@@ -127,11 +180,13 @@ def public_user(user: Student) -> dict:
     }
 
 
-def set_session(response: Response, user: Student, request: Optional[Request] = None) -> str:
+def set_session(response: Response, user: Student, request: Optional[Request] = None) -> tuple[str, str]:
+    """Sets session and CSRF cookies, and returns (token, csrf)."""
+    token = _token_for(user.id, user.session_version or 0)
     csrf = (request.cookies.get(CSRF_COOKIE) if request else None) or secrets.token_urlsafe(32)
     response.set_cookie(
         SESSION_COOKIE,
-        _token_for(user.id, user.session_version or 0),
+        token,
         max_age=SESSION_TTL_SECONDS,
         httponly=True,
         secure=settings.ENVIRONMENT.lower() == "production",
@@ -147,7 +202,7 @@ def set_session(response: Response, user: Student, request: Optional[Request] = 
         samesite="lax",
         path="/",
     )
-    return csrf
+    return token, csrf
 
 
 def _hash_password(password: str, salt: Optional[bytes] = None) -> str:
@@ -169,8 +224,9 @@ def _verify_password(password: str, encoded: str) -> bool:
         return False
 
 
-@router.get("/csrf")
+@router.get("/csrf", summary="Generate CSRF token")
 def get_csrf_token(response: Response, request: Request):
+    """Issues a double-submit CSRF token for web browsers."""
     csrf = request.cookies.get(CSRF_COOKIE) or secrets.token_urlsafe(32)
     response.set_cookie(
         CSRF_COOKIE, csrf, max_age=SESSION_TTL_SECONDS, httponly=False,
@@ -179,11 +235,19 @@ def get_csrf_token(response: Response, request: Request):
     return {"csrf_token": csrf}
 
 
-@router.post("/register", status_code=status.HTTP_201_CREATED)
+@router.post("/register", status_code=status.HTTP_201_CREATED, summary="Register new student account")
 def register(body: RegisterBody, request: Request, response: Response, db: Session = Depends(get_db)):
+    """Registers a new developer account, creates PBKDF2 hash, issues JWT and session."""
+    check_auth_rate_limit(request, max_requests=20, window_seconds=60)
     if db.query(Student).filter((Student.email == body.email) | (Student.username == body.username)).first():
         raise HTTPException(status_code=status.HTTP_409_CONFLICT, detail="Email or username is already registered")
-    user = Student(name=body.name, username=body.username, email=body.email, password_hash=_hash_password(body.password))
+    user = Student(
+        name=body.name,
+        username=body.username,
+        email=body.email,
+        password_hash=_hash_password(body.password),
+        session_version=1,
+    )
     db.add(user)
     try:
         db.commit()
@@ -191,24 +255,37 @@ def register(body: RegisterBody, request: Request, response: Response, db: Sessi
         db.rollback()
         raise HTTPException(status_code=status.HTTP_409_CONFLICT, detail="Email or username is already registered")
     db.refresh(user)
-    csrf = set_session(response, user, request)
-    return {"user": public_user(user), "csrf_token": csrf}
+    token, csrf = set_session(response, user, request)
+    return {
+        "access_token": token,
+        "token_type": "bearer",
+        "user": public_user(user),
+        "csrf_token": csrf,
+    }
 
 
-@router.post("/login")
+@router.post("/login", summary="Sign in to existing student account")
 def login(body: LoginBody, request: Request, response: Response, db: Session = Depends(get_db)):
+    """Authenticates credentials using PBKDF2-SHA256 and returns a JWT access token."""
+    check_auth_rate_limit(request, max_requests=20, window_seconds=60)
     identifier = body.identifier.strip().lower()
     user = db.query(Student).filter(
         (Student.email == identifier) | (Student.username == identifier)
     ).first()
     if not user or not user.password_hash or not _verify_password(body.password, user.password_hash):
         raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Invalid username/email or password")
-    csrf = set_session(response, user, request)
-    return {"user": public_user(user), "csrf_token": csrf}
+    token, csrf = set_session(response, user, request)
+    return {
+        "access_token": token,
+        "token_type": "bearer",
+        "user": public_user(user),
+        "csrf_token": csrf,
+    }
 
 
-@router.post("/demo-login")
+@router.post("/demo-login", summary="Instant evaluator / demo login")
 def demo_login(request: Request, response: Response, db: Session = Depends(get_db)):
+    """Quick evaluator sign-in providing instant demonstration credentials."""
     user = db.query(Student).filter(
         (Student.email == "demo@student.edu") | (Student.username == "demo")
     ).first()
@@ -230,12 +307,18 @@ def demo_login(request: Request, response: Response, db: Session = Depends(get_d
         user.password_hash = _hash_password("DemoPass123!")
         db.commit()
         db.refresh(user)
-    csrf = set_session(response, user, request)
-    return {"user": public_user(user), "csrf_token": csrf}
+    token, csrf = set_session(response, user, request)
+    return {
+        "access_token": token,
+        "token_type": "bearer",
+        "user": public_user(user),
+        "csrf_token": csrf,
+    }
 
 
-@router.post("/logout")
+@router.post("/logout", summary="Sign out and revoke active session")
 def logout(request: Request, response: Response, db: Session = Depends(get_db)):
+    """Invalidates session version and deletes authentication cookies."""
     require_csrf(request)
     user = get_session_user(request, db)
     if user:
@@ -246,8 +329,9 @@ def logout(request: Request, response: Response, db: Session = Depends(get_db)):
     return {"message": "Logged out"}
 
 
-@router.get("/me")
+@router.get("/me", summary="Get current signed-in student profile")
 def me(request: Request, db: Session = Depends(get_db)):
+    """Returns current user profile resolved via JWT Bearer token or session cookie."""
     user = get_session_user(request, db)
     if not user:
         raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Sign in required")
@@ -257,11 +341,12 @@ def me(request: Request, db: Session = Depends(get_db)):
 class ProfileUpdateBody(BaseModel):
     name: Optional[str] = Field(default=None, min_length=2, max_length=100)
     bio: Optional[str] = Field(default=None, max_length=500)
-    interests: Optional[list[str]] = Field(default=None, max_length=30)
+    interests: Optional[List[str]] = Field(default=None, max_length=30)
 
 
-@router.patch("/me")
+@router.patch("/me", summary="Update current user profile")
 def update_me(body: ProfileUpdateBody, request: Request, db: Session = Depends(get_db)):
+    """Updates profile information for the authenticated student."""
     require_csrf(request)
     user = get_session_user(request, db)
     if not user:

@@ -10,6 +10,7 @@ from app.database import get_db
 from app.models.student import Student
 from app.schemas.project import (
     ProjectCreate,
+    ProjectPatch,
     ProjectCreateResponse,
     ProjectListResponse,
     ProjectDetailResponse,
@@ -129,6 +130,13 @@ def edit_project(id: str, project_in: ProjectCreate, request: Request, db: Sessi
     owner_id = resolve_actor(request, db, x_student_id)
     project_in.student_id = owner_id
     project = project_service.update_project(db, id, owner_id, project_in)
+    return project
+
+
+@router.patch("/projects/{id}", status_code=status.HTTP_200_OK, summary="Partially update a project you own")
+def patch_project(id: str, project_patch: ProjectPatch, request: Request, db: Session = Depends(get_db), x_student_id: Optional[str] = Header(None)):
+    owner_id = resolve_actor(request, db, x_student_id)
+    project = project_service.patch_project(db, id, owner_id, project_patch)
     return project
 
 
@@ -303,6 +311,24 @@ def add_comment(
 def list_comments(id: str, db: Session = Depends(get_db)):
     proj_details = project_service.get_project_by_id(db, project_id=id)
     return proj_details.get("comments", [])
+
+
+@router.delete(
+    "/projects/{project_id}/comments/{comment_id}",
+    status_code=status.HTTP_204_NO_CONTENT,
+    summary="Delete a peer review or comment",
+    description="Deletes a comment if the requesting user is the comment author or project owner.",
+)
+def remove_comment(
+    project_id: str,
+    comment_id: str,
+    request: Request,
+    db: Session = Depends(get_db),
+    x_student_id: Optional[str] = Header(None),
+):
+    actor_id = resolve_actor(request, db, x_student_id)
+    project_service.delete_comment(db, project_id=project_id, comment_id=comment_id, actor_id=actor_id)
+    return Response(status_code=status.HTTP_204_NO_CONTENT)
 
 
 @router.get(

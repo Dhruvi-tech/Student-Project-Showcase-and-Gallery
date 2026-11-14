@@ -17,12 +17,12 @@ export function CitationModal({ project, onClose }) {
     bibtex: `@misc{${slug}_${year},
   author       = {${author}},
   title        = {${title}},
-  howpublished = {Student Project Showcase & Peer Gallery, RV University},
+  howpublished = {Student Project Showcase & Peer Gallery},
   year         = {${year}},
   url          = {${project.github_link || url}}
 }`,
-    ieee: `[1] ${author}, "${title}," RV University Student Project Showcase & Peer Gallery, ${year}. [Online]. Available: ${project.github_link || url}.`,
-    apa: `${author}. (${year}). ${title} [Computer software / Student capstone project]. RV University Student Project Showcase. ${project.github_link || url}`,
+    ieee: `[1] ${author}, "${title}," Student Project Showcase & Peer Gallery, ${year}. [Online]. Available: ${project.github_link || url}.`,
+    apa: `${author}. (${year}). ${title} [Computer software / Student capstone project]. Student Project Showcase & Peer Gallery. ${project.github_link || url}`,
     markdown: `### [${title}](${project.github_link || url})
 > **Author:** ${author} | **Category:** ${project.category || 'Developer Utilities'}  
 > *Published on Student Project Showcase & Peer Gallery (${year})*`

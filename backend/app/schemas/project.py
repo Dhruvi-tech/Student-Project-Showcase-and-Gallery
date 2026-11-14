@@ -83,6 +83,72 @@ class ProjectCreate(BaseModel):
         return cleaned
 
 
+class ProjectPatch(BaseModel):
+    """Schema for partial project updates (PATCH /api/v1/projects/{id})."""
+    title: Optional[str] = Field(default=None, min_length=2, max_length=200)
+    description: Optional[str] = Field(default=None, max_length=2000)
+    category: Optional[str] = Field(default=None, min_length=2, max_length=80)
+    difficulty: Optional[str] = Field(default=None)
+    docs_url: Optional[str] = Field(default=None, max_length=500)
+    author_display_name: Optional[str] = Field(default=None, max_length=120)
+    author_profile_url: Optional[str] = Field(default=None, max_length=500)
+    thumbnail_key: Optional[str] = Field(default=None, max_length=500)
+    github_link: Optional[str] = Field(default=None)
+    demo_url: Optional[str] = Field(default=None)
+    tech_stacks: Optional[List[str]] = Field(default=None)
+
+    @field_validator("title")
+    def validate_title_not_empty(cls, v: Optional[str]) -> Optional[str]:
+        if v is None:
+            return None
+        clean = v.strip()
+        if not clean:
+            raise ValueError("Project title cannot be whitespace only")
+        return clean
+
+    @field_validator("category")
+    def validate_category(cls, v: Optional[str]) -> Optional[str]:
+        if v is None:
+            return None
+        clean = normalize_category(v)
+        if clean not in CATEGORIES:
+            raise ValueError("Choose one of the supported project categories")
+        return clean
+
+    @field_validator("difficulty")
+    @classmethod
+    def validate_difficulty(cls, value: Optional[str]) -> Optional[str]:
+        if value is None:
+            return None
+        cleaned = value.strip().title()
+        if cleaned not in {"Beginner", "Intermediate", "Advanced"}:
+            raise ValueError("Difficulty must be Beginner, Intermediate, or Advanced")
+        return cleaned
+
+    @field_validator("docs_url", "author_profile_url")
+    @classmethod
+    def validate_optional_urls(cls, value: Optional[str]) -> Optional[str]:
+        if value is None or not value.strip():
+            return None
+        cleaned = value.strip()
+        if not cleaned.startswith(("https://", "http://")):
+            raise ValueError("URLs must start with http:// or https://")
+        return cleaned
+
+    @field_validator("tech_stacks")
+    def validate_tech_stacks(cls, v: Optional[List[str]]) -> Optional[List[str]]:
+        if v is None:
+            return None
+        seen = set()
+        cleaned = []
+        for stack in v:
+            item = stack.strip()
+            if item and item.lower() not in seen:
+                seen.add(item.lower())
+                cleaned.append(item)
+        return cleaned
+
+
 class ProjectCreateResponse(BaseModel):
     """Response strictly matching Section 5.1: 201 Created"""
     model_config = ConfigDict(from_attributes=True)

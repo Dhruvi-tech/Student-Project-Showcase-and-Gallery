@@ -1,5 +1,5 @@
 # Multi-Stage Production Dockerfile for Student Project Showcase API
-# CS3452 Cloud Platforms and Service Models
+# CS3302 Development of Web Services
 
 # Stage 1: Dependency Builder
 FROM python:3.11-slim AS builder
@@ -32,8 +32,10 @@ COPY --from=builder /install /usr/local
 # Create non-root application user for cloud security best practices
 RUN addgroup --system appgroup && adduser --system --ingroup appgroup appuser
 
-# Copy application source code
+# Copy application source code and migrations
 COPY app/ ./app/
+COPY alembic/ ./alembic/
+COPY alembic.ini .
 COPY seed_data.py .
 COPY curated_projects.json .
 COPY .env.example .env
@@ -50,5 +52,3 @@ HEALTHCHECK --interval=15s --timeout=5s --start-period=5s --retries=3 \
     CMD curl -f http://localhost:8000/health || exit 1
 
 CMD ["uvicorn", "app.main:app", "--host", "0.0.0.0", "--port", "8000"]
-
-

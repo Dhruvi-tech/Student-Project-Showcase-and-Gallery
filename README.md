@@ -8,16 +8,16 @@
 </a>
 
 <!-- ⌨️ Typing animation -->
-<img src="https://readme-typing-svg.demolab.com?font=Fira+Code&weight=600&size=24&duration=3000&pause=900&color=38BDF8&center=true&vCenter=true&width=800&height=55&lines=%F0%9F%9A%80+Discover+320+capstone+projects;%F0%9F%8E%AF+Explore+20+engineering+domains;%F0%9F%92%AC+Give+%26+receive+constructive+peer+feedback;%F0%9F%8C%9F+Showcase+your+technical+work;%E2%9A%A1+React+%2B+FastAPI+%2B+SQLite+%E2%80%94+%E2%82%B90+cloud+cost" alt="Typing animation" />
+<img src="https://readme-typing-svg.demolab.com?font=Fira+Code&weight=600&size=24&duration=3000&pause=900&color=38BDF8&center=true&vCenter=true&width=800&height=55&lines=%F0%9F%9A%80+CS3302+Development+of+Web+Services;%F0%9F%8E%AF+FastAPI+%2B+React+18+%2B+PostgreSQL;%F0%9F%92%AC+RESTful+API+with+JWT+Bearer+Auth;%F0%9F%8C%9F+OpenAPI+%2B+Swagger+%2B+Alembic;%E2%9A%A1+34+Automated+Tests+Passed" alt="Typing animation" />
 
 <br/>
 
-<sub>A cloud-native full-stack web platform for engineering students to **discover**, **review**, and **showcase** capstone projects across 20 technical domains.</sub>
+<sub>A Cloud-Native, RESTful Web Service and Peer Gallery platform for engineering students to **publish**, **discover**, **peer-review**, and **showcase** technical projects across 20 specialized engineering tracks.</sub>
 
 <br/><br/>
 
 <!-- 🧰 Tech stack icons -->
-<img src="https://skillicons.dev/icons?i=react,vite,python,fastapi,sqlite,docker,aws&theme=dark&perline=7" alt="Tech stack" />
+<img src="https://skillicons.dev/icons?i=react,vite,python,fastapi,postgres,sqlite,docker&theme=dark&perline=7" alt="Tech stack" />
 
 <br/><br/>
 
@@ -25,12 +25,13 @@
 [![Vite](https://img.shields.io/badge/Vite-5-646CFF?style=for-the-badge&logo=vite&logoColor=white)](https://vitejs.dev)
 [![FastAPI](https://img.shields.io/badge/FastAPI-0.110+-009688?style=for-the-badge&logo=fastapi&logoColor=white)](https://fastapi.tiangolo.com)
 [![Python](https://img.shields.io/badge/Python-3.11+-3776AB?style=for-the-badge&logo=python&logoColor=white)](https://python.org)
+[![PostgreSQL](https://img.shields.io/badge/PostgreSQL-15-4169E1?style=for-the-badge&logo=postgresql&logoColor=white)](https://postgresql.org)
 [![Live Demo](https://img.shields.io/badge/●%20Live%20Demo-GitHub%20Pages-22c55e?style=for-the-badge&logo=githubpages&logoColor=white)](https://dhruvi-tech.github.io/Student-Project-Showcase-and-Gallery/)
 
 ![Status](https://img.shields.io/badge/●%20System-Verified%20%26%20Operational-22c55e?style=flat-square&labelColor=18181b)
-![Catalog](https://img.shields.io/badge/●%20Catalog-320%20Verified%20Projects-38bdf8?style=flat-square&labelColor=18181b)
-![Domains](https://img.shields.io/badge/●%20Domains-All%2020%20Tracks-a855f7?style=flat-square&labelColor=18181b)
-![Policy](https://img.shields.io/badge/●%20Policy-Strict%20₹0%20Cloud-f59e0b?style=flat-square&labelColor=18181b)
+![Tests](https://img.shields.io/badge/●%20Tests-34%20Passed%20(100%25)-38bdf8?style=flat-square&labelColor=18181b)
+![Syllabus](https://img.shields.io/badge/●%20Syllabus-CS3302%20Modules%201--5-a855f7?style=flat-square&labelColor=18181b)
+![Catalog](https://img.shields.io/badge/●%20Catalog-320%20Verified%20Projects-f59e0b?style=flat-square&labelColor=18181b)
 
 [![Stars](https://img.shields.io/github/stars/Dhruvi-tech/Student-Project-Showcase-and-Gallery?style=for-the-badge&logo=github&color=eab308&labelColor=18181b)](https://github.com/Dhruvi-tech/Student-Project-Showcase-and-Gallery/stargazers)
 [![Forks](https://img.shields.io/github/forks/Dhruvi-tech/Student-Project-Showcase-and-Gallery?style=for-the-badge&logo=github&color=38bdf8&labelColor=18181b)](https://github.com/Dhruvi-tech/Student-Project-Showcase-and-Gallery/forks)
@@ -38,108 +39,55 @@
 [![Last Commit](https://img.shields.io/github/last-commit/Dhruvi-tech/Student-Project-Showcase-and-Gallery?style=for-the-badge&color=22c55e&labelColor=18181b)](https://github.com/Dhruvi-tech/Student-Project-Showcase-and-Gallery/commits/main)
 
 <a href="https://dhruvi-tech.github.io/Student-Project-Showcase-and-Gallery/"><kbd>&nbsp;🌐 Open Live Web Application&nbsp;</kbd></a>
+<a href="https://student-project-showcase-api.onrender.com/docs"><kbd>&nbsp;📜 Open Swagger API Documentation&nbsp;</kbd></a>
 <a href="https://github.com/Dhruvi-tech/Student-Project-Showcase-and-Gallery"><kbd>&nbsp;📦 GitHub Repository&nbsp;</kbd></a>
 <a href="https://github.com/Dhruvi-tech/Student-Project-Showcase-and-Gallery/issues"><kbd>&nbsp;🐞 Report Issue&nbsp;</kbd></a>
-<a href="https://github.com/Dhruvi-tech/Student-Project-Showcase-and-Gallery/fork"><kbd>&nbsp;🍴 Fork Repository&nbsp;</kbd></a>
 
 <br/>
 
-<a href="#interface"><kbd>&nbsp;🖥️ Interface&nbsp;</kbd></a>
-<a href="#highlights"><kbd>&nbsp;📊 Platform Stats&nbsp;</kbd></a>
-<a href="#features"><kbd>&nbsp;✨ Key Features&nbsp;</kbd></a>
-<a href="#how-it-works"><kbd>&nbsp;🧭 How It Works&nbsp;</kbd></a>
+<a href="#live-links"><kbd>&nbsp;🔗 Live Deployment&nbsp;</kbd></a>
+<a href="#syllabus"><kbd>&nbsp;🎓 CS3302 Alignment&nbsp;</kbd></a>
 <a href="#architecture"><kbd>&nbsp;🏗️ Architecture&nbsp;</kbd></a>
-<a href="#quickstart"><kbd>&nbsp;⚡ Quickstart&nbsp;</kbd></a>
-<a href="#deployment"><kbd>&nbsp;🚀 Cloud Deployment&nbsp;</kbd></a>
-<a href="#tracks"><kbd>&nbsp;🏷️ 20 Tracks&nbsp;</kbd></a>
-<a href="#security"><kbd>&nbsp;🛡️ Security&nbsp;</kbd></a>
-<a href="#structure"><kbd>&nbsp;📁 Structure&nbsp;</kbd></a>
+<a href="#endpoints"><kbd>&nbsp;⚡ REST API&nbsp;</kbd></a>
+<a href="#quickstart"><kbd>&nbsp;🚀 Quickstart&nbsp;</kbd></a>
+<a href="#docs"><kbd>&nbsp;📚 Documentation&nbsp;</kbd></a>
 
 </div>
 
 <br/>
 
-<a id="interface"></a>
+---
+
+<a id="live-links"></a>
 <div align="center">
-<img src="https://capsule-render.vercel.app/api?type=soft&color=gradient&customColorList=12,6,20&height=80&section=header&text=Application%20Interface&fontSize=30&fontColor=ffffff&fontAlignY=50" alt="Application Interface" />
+<img src="https://capsule-render.vercel.app/api?type=soft&color=gradient&customColorList=12,6,20&height=80&section=header&text=Live%20Public%20Deployment&fontSize=30&fontColor=ffffff&fontAlignY=50" alt="Live Deployment Links" />
 </div>
 
-### 🌐 Live Production Link: [https://dhruvi-tech.github.io/Student-Project-Showcase-and-Gallery/](https://dhruvi-tech.github.io/Student-Project-Showcase-and-Gallery/)
-
-```text
-┌─── Student Project Showcase & Peer Gallery ───────────────────────────────────────────────────┐
-│  🎓 Student Project Showcase   [Home] [Explore (320)] [Domains (All 20) ▾] [For You]  [Publish] │
-├───────────────────────────────────────────────────────────────────────────────────────────────┤
-│                                                                                               │
-│   🏷️  [All 20 Tracks]  [AI & ML]  [Web Dev]  [Cloud]  [Cybersecurity]  ... 320 Projects Total  │
-│                                                                                               │
-│   ┌─────────────────────────────────────────┐     ┌─────────────────────────────────────────┐ │
-│   │ 🤖 Vision AI Pipeline                   │     │ 🛡️ Sentinel Packet Guard                │ │
-│   │ Track: Computer Vision                  │     │ Track: Cybersecurity                    │ │
-│   │ By: Aarav Sharma • Difficulty: Advanced │     │ By: Dev Student • Difficulty: Medium    │ │
-│   │ ▲ 42 Upvotes • ⭐ 4.8 (12 Reviews)      │     │ ▲ 38 Upvotes • ⭐ 4.6 (9 Reviews)       │ │
-│   │ [View Source ↗] [Details] [⚖️ +Compare] │     │ [View Source ↗] [Details] [⚖️ +Compare] │ │
-│   └─────────────────────────────────────────┘     └─────────────────────────────────────────┘ │
-│                                                                                               │
-│  ┌─ Floating Comparison Dock ───────────────────────────────────────────────────────────────┐ │
-│  │ Selected: Vision AI Pipeline, Sentinel Guard (2/3)      [Open Comparison Matrix] [Clear] │ │
-│  └──────────────────────────────────────────────────────────────────────────────────────────┘ │
-└───────────────────────────────────────────────────────────────────────────────────────────────┘
-```
+| Component | Target URL | Verification Status | Details |
+|---|---|:---:|---|
+| 🌐 **Live Web Application (Frontend)** | [https://dhruvi-tech.github.io/Student-Project-Showcase-and-Gallery/](https://dhruvi-tech.github.io/Student-Project-Showcase-and-Gallery/) | **DEPLOYED AND VERIFIED** | React 18 SPA published via GitHub Pages (`gh-pages` branch) |
+| ☁️ **Render Static Site** | [https://student-project-showcase-ui.onrender.com](https://student-project-showcase-ui.onrender.com) | **CONFIGURED & READY** | Configured in `render.yaml` with SPA URL rewrite routing |
+| 🐍 **FastAPI Backend REST Service** | [https://student-project-showcase-api.onrender.com](https://student-project-showcase-api.onrender.com) | **CONFIGURED & READY** | FastAPI service on Render with dynamic port binding |
+| 📜 **Interactive Swagger UI** | [https://student-project-showcase-api.onrender.com/docs](https://student-project-showcase-api.onrender.com/docs) | **CONFIGURED & READY** | OpenAPI 3.0 interactive documentation with JWT Bearer auth |
+| 📖 **ReDoc Documentation** | [https://student-project-showcase-api.onrender.com/redoc](https://student-project-showcase-api.onrender.com/redoc) | **CONFIGURED & READY** | Detailed endpoint schema and data model contracts |
+| 🩺 **Health & Liveness Probe** | [https://student-project-showcase-api.onrender.com/health](https://student-project-showcase-api.onrender.com/health) | **CONFIGURED & READY** | Real-time database latency and 12-factor cloud metrics |
 
 ---
 
-<a id="highlights"></a>
+<a id="syllabus"></a>
 <div align="center">
-<img src="https://capsule-render.vercel.app/api?type=soft&color=gradient&customColorList=12,6,20&height=80&section=header&text=Platform%20Statistics&fontSize=30&fontColor=ffffff&fontAlignY=50" alt="Platform Statistics" />
-
-<br/>
-
-<table>
-  <tr align="center">
-    <td width="20%"><h1>📦</h1><img src="https://img.shields.io/badge/-320-0284c7?style=for-the-badge" /><br/><sub><b>Preserved Projects</b></sub></td>
-    <td width="20%"><h1>👥</h1><img src="https://img.shields.io/badge/-120-7c3aed?style=for-the-badge" /><br/><sub><b>Student Authors</b></sub></td>
-    <td width="20%"><h1>👍</h1><img src="https://img.shields.io/badge/-375-16a34a?style=for-the-badge" /><br/><sub><b>Peer Upvotes</b></sub></td>
-    <td width="20%"><h1>💬</h1><img src="https://img.shields.io/badge/-829-ea580c?style=for-the-badge" /><br/><sub><b>Review Comments</b></sub></td>
-    <td width="20%"><h1>🏷️</h1><img src="https://img.shields.io/badge/-20-db2777?style=for-the-badge" /><br/><sub><b>Technical Domains</b></sub></td>
-  </tr>
-</table>
-
+<img src="https://capsule-render.vercel.app/api?type=soft&color=gradient&customColorList=12,6,20&height=80&section=header&text=CS3302%20Curriculum%20Alignment&fontSize=30&fontColor=ffffff&fontAlignY=50" alt="CS3302 Curriculum Alignment" />
 </div>
 
----
+The application comprehensively demonstrates all 5 modules and 4 course outcomes of **CS3302 – Development of Web Services**:
 
-<a id="features"></a>
-<div align="center">
-<img src="https://capsule-render.vercel.app/api?type=soft&color=gradient&customColorList=12,6,20&height=80&section=header&text=Key%20Features&fontSize=30&fontColor=ffffff&fontAlignY=50" alt="Key Features" />
-</div>
-
-| Feature | Description | Capabilities |
-| :--- | :--- | :--- |
-| 🏷️ **Top 20 Engineering Domains Selector** | Interactive top navbar popover with multi-domain tick filtering | • Browse and tick any of the **20 technical domains** with live counts<br/>• **Instant Zero-Lag In-Memory Filtering**: 0 ms response without slow network spinners<br/>• **Clear All Option**: Unchecks all boxes while keeping projects visible (never blank)<br/>• **Select All 20**: 1-click select all 20 domains with 320 projects<br/>• **Quick 2-Domain Picks**: Web + Cloud, AI + GenAI, Cyber + Systems, Mobile + IoT |
-| ✨ **Personalized "For You" Section** | Dedicated recommendation engine & interest questionnaire | • Interactive questionnaire asking what topics and tech stacks the student likes<br/>• 1-click presets (*Full-Stack & Cloud, Modern AI & ML, Systems & Security, Mobile & Smart Devices*)<br/>• Weighted recommendation match scores and explanation badges for every project |
-| ✍️ **Custom Author Decision on Account Creation** | Personalized profile & capstone publishing attribution | • Creators decide their own **Author Display Name** and profile bio during registration<br/>• Published capstones proudly reflect the student's chosen name rather than a forced placeholder<br/>• Immediate synchronous session persistence in localStorage |
-| 📊 **Tech Stack Analytics Command Center** | Interactive academic analytics & stack synergy hub | • Multi-column 1240px responsive grid with **Fullscreen Toggle** (`<Maximize2 />`)<br/>• **Domain Scope Drilldown**: filter metrics across all 320 projects or isolate any domain<br/>• **Architectural Synergy Matrix**: tech co-occurrence pairings (e.g. FastAPI + React)<br/>• Interactive SVG Donut chart for difficulty distribution |
-| ⚖️ **Project Comparison Tray** | Multi-project side-by-side comparative inspector | • Select up to 3 capstone projects simultaneously via `[+ Compare]` buttons<br/>• Persistent floating bottom comparison dock with project badges<br/>• Direct attribute alignment: domain, difficulty, tech stack overlap, live demos, and source code |
-| ⭐ **Academic Peer Review Rubric** | Structured multi-criteria evaluation | • 4 weighted evaluation rubrics: **Code Quality**, **Innovation**, **UI/UX Design**, and **Cloud Readiness**<br/>• Interactive 1-to-5 star rating picker for each rubric<br/>• Average score calculation with visual star badges in comment feed |
-| 🔐 **Enterprise-Grade Security & PBKDF2 Auth** | Secure authentication and authorization | • PBKDF2-SHA256 password hashing with 310,000 iterations and unique cryptographic salt<br/>• Signed HttpOnly session cookies protecting against XSS attacks<br/>• Double-Submit CSRF cookie validation on all state-mutating requests<br/>• Strict server-side author ownership validation for edits and deletions |
-
----
-
-<a id="how-it-works"></a>
-<div align="center">
-<img src="https://capsule-render.vercel.app/api?type=soft&color=gradient&customColorList=12,6,20&height=80&section=header&text=How%20It%20Works&fontSize=30&fontColor=ffffff&fontAlignY=50" alt="How It Works" />
-</div>
-
-<div align="center">
-
-| 🔎 **Discover** | 💬 **Review** | 👍 **Vote** | 🌟 **Showcase** |
-| :---: | :---: | :---: | :---: |
-| Browse and search 320+ projects filtered by 20 domains | Leave constructive peer feedback with 4-rubric ratings | Upvote the work that impresses you | Publish and manage your own capstone |
-| ⬇️ | ⬇️ | ⬇️ | ⬇️ |
-| *Open the details modal, compare, or view source* | *Authors read and learn from structured feedback* | *Top projects rise to the top* | *Only the author can edit or delete* |
-
-</div>
+| Module | Core Topics | Concrete Project Implementation | Documentation Reference |
+|---|---|---|---|
+| **Module 1: Fundamentals of Web Services** | Web app evolution, SOA principles, client-server & multi-tier architecture, service provider/consumer, HTTP protocol, SOAP vs. REST, JSON | Decoupled 3-tier architecture (React SPA, FastAPI, PostgreSQL/SQLite), standard JSON communication contracts, HTTP status codes | [`docs/ARCHITECTURE.md`](file:///docs/ARCHITECTURE.md) |
+| **Module 2: RESTful Web Service Design** | Statelessness, URI design, RESTful endpoint naming, HTTP methods (`GET`, `POST`, `PUT`, `PATCH`, `DELETE`), filtering, sorting, pagination, OpenAPI & Swagger | Full CRUD on `/api/v1/projects` (including `PATCH` and `DELETE`), domain filtering (`?category=`), sorting (`?sort=upvotes`), pagination (`?limit=&offset=`), `/docs` Swagger | [`docs/API_DOCUMENTATION.md`](file:///docs/API_DOCUMENTATION.md) |
+| **Module 3: Web Service Development** | FastAPI framework, modular routing, input validation (Pydantic v2), error handling, request logging, lifecycle management | Modular `APIRouter` structure (`auth`, `projects`, `discovery`, `github`, `health`), `X-Request-Id` tracing, centralized error handlers, `lifespan` context manager | [`docs/ARCHITECTURE.md`](file:///docs/ARCHITECTURE.md) |
+| **Module 4: Data Integration & Security** | Database connectivity, SQLAlchemy ORM, PostgreSQL & SQLite persistence, JWT token authentication, PBKDF2 password hashing, rate limiting, CORS | Dual DB persistence, Alembic migrations, HS256 JWT tokens with `Authorization: Bearer` and cookie support, sliding rate limiting, strict CORS allowlist | [`docs/CS3302_SYLLABUS_MAPPING.md`](file:///docs/CS3302_SYLLABUS_MAPPING.md) |
+| **Module 5: Microservices & Deployment** | Monolith vs microservices, Docker containerization, cloud deployment (PaaS & DBaaS), health monitoring, logging | Multi-stage Dockerfiles, Docker Compose, Render Blueprint (`render.yaml`) with managed PostgreSQL 15, GitHub Pages CI/CD, `/health` probe | [`docs/DEPLOYMENT_GUIDE.md`](file:///docs/DEPLOYMENT_GUIDE.md) |
 
 ---
 
@@ -148,152 +96,113 @@
 <img src="https://capsule-render.vercel.app/api?type=soft&color=gradient&customColorList=12,6,20&height=80&section=header&text=System%20Architecture&fontSize=30&fontColor=ffffff&fontAlignY=50" alt="System Architecture" />
 </div>
 
-```mermaid
-flowchart LR
-    subgraph Client ["🖥️ Client Layer (GitHub Pages / Local)"]
-        Browser["🌐 Student Browser"] -->|SPA| ReactApp["⚛️ React 18 + Vite"]
-    end
-
-    subgraph Service ["⚡ API Service (Port 8000 / Cloud)"]
-        ReactApp -->|JSON /api/v1| FastApiCore["⚡ FastAPI"]
-        FastApiCore --> AuthGuard["🔐 PBKDF2 Auth & CSRF"]
-        FastApiCore --> SQLAlchemy["🗄️ SQLAlchemy 2.0 ORM"]
-    end
-
-    subgraph Storage ["💾 Persistent Storage"]
-        SQLAlchemy --> SQLiteDB[("SQLite: showcase.db<br/>320 Projects • 120 Users • 20 Domains")]
-    end
-
-    classDef default fill:#18181b,stroke:#52525b,stroke-width:1px,color:#fff;
-    classDef highlight fill:#0284c7,stroke:#38bdf8,stroke-width:2px,color:#fff;
-    classDef store fill:#7c3aed,stroke:#a78bfa,stroke-width:2px,color:#fff;
-    classDef secure fill:#be123c,stroke:#fb7185,stroke-width:2px,color:#fff;
-    class FastApiCore,ReactApp highlight;
-    class SQLiteDB store;
-    class AuthGuard secure;
+```text
+┌────────────────────────────────────────────────────────────────────────┐
+│                      PRESENTATION TIER (React 18)                      │
+│   • Single Page Application (Vite 5)     • Responsive CSS Grid / Flex  │
+│   • JWT Bearer Token & Cookie Session     • Interactive Modal Views     │
+└───────────────────────────────────┬────────────────────────────────────┘
+                                    │ HTTPS / JSON / Bearer JWT
+                                    ▼
+┌────────────────────────────────────────────────────────────────────────┐
+│                   APPLICATION TIER (FastAPI ASGI)                      │
+│   • Request Logging & X-Request-Id       • In-Memory Sliding Limiter   │
+│   • Pydantic v2 Schema Validation        • PBKDF2-SHA256 Password Hash │
+│   • Modular Routers (/api/v1/*)          • OpenAPI & Swagger Engine    │
+└───────────────────────────────────┬────────────────────────────────────┘
+                                    │ SQLAlchemy 2.0 ORM / Connection Pool
+                                    ▼
+┌────────────────────────────────────────────────────────────────────────┐
+│                  PERSISTENCE TIER (Relational Storage)                 │
+│   • Production: Managed PostgreSQL 15    • Dev: Embedded SQLite        │
+│   • Alembic Migration Tracking           • Unique Constraints & Indexes│
+└────────────────────────────────────────────────────────────────────────┘
 ```
+
+---
+
+<a id="endpoints"></a>
+<div align="center">
+<img src="https://capsule-render.vercel.app/api?type=soft&color=gradient&customColorList=12,6,20&height=80&section=header&text=RESTful%20API%20Endpoints&fontSize=30&fontColor=ffffff&fontAlignY=50" alt="REST API Endpoints" />
+</div>
+
+| Method | Endpoint | Description | Auth Required | Status Code |
+|:---:|---|---|:---:|:---:|
+| `GET` | `/health` | Liveness & database connectivity probe | No | `200 OK` |
+| `POST` | `/api/v1/auth/register` | Register new account and issue JWT access token | No | `201 Created` |
+| `POST` | `/api/v1/auth/login` | Sign in with username/email and receive Bearer token | No | `200 OK` |
+| `POST` | `/api/v1/auth/demo-login` | Instant one-click evaluator login | No | `200 OK` |
+| `POST` | `/api/v1/auth/logout` | Revoke active session token | Yes | `200 OK` |
+| `GET` | `/api/v1/auth/me` | Fetch active user profile (Bearer or cookie) | Yes | `200 OK` |
+| `PATCH`| `/api/v1/auth/me` | Update active user profile | Yes | `200 OK` |
+| `GET` | `/api/v1/projects` | Query paginated catalogue (sort, filter, search) | No | `200 OK` |
+| `POST` | `/api/v1/projects` | Publish a new student project | Yes | `201 Created` |
+| `GET` | `/api/v1/projects/{id}` | Get project details, reviews, and rubric ratings | No | `200 OK` |
+| `PUT` | `/api/v1/projects/{id}` | Full project update (owner enforced) | Yes | `200 OK` |
+| `PATCH`| `/api/v1/projects/{id}` | Partial project update (owner enforced) | Yes | `200 OK` |
+| `DELETE`| `/api/v1/projects/{id}`| Delete project and cascading records (owner enforced) | Yes | `204 No Content`|
+| `POST` | `/api/v1/projects/{id}/upvote` | Cast or flip vote to upvote | Yes | `200 OK` |
+| `POST` | `/api/v1/projects/{id}/downvote` | Cast or flip vote to downvote | Yes | `200 OK` |
+| `DELETE`| `/api/v1/projects/{id}/vote` | Remove active vote | Yes | `200 OK` |
+| `GET` | `/api/v1/projects/{id}/comments` | Retrieve peer reviews and rubric scores | No | `200 OK` |
+| `POST` | `/api/v1/projects/{id}/comments` | Submit peer feedback and rubric ratings | Yes | `201 Created` |
+| `DELETE`| `/api/v1/projects/{id}/comments/{comment_id}` | Delete a peer review (author / owner enforced) | Yes | `204 No Content`|
+| `GET` | `/api/v1/catalog/categories` | List 20 standardized technical domains | No | `200 OK` |
+| `GET` | `/api/v1/catalog/technologies` | List all unique technology tags with project counts | No | `200 OK` |
 
 ---
 
 <a id="quickstart"></a>
 <div align="center">
-<img src="https://capsule-render.vercel.app/api?type=soft&color=gradient&customColorList=12,6,20&height=80&section=header&text=Quickstart%20%26%20Local%20Setup&fontSize=30&fontColor=ffffff&fontAlignY=50" alt="Quickstart and Local Setup" />
+<img src="https://capsule-render.vercel.app/api?type=soft&color=gradient&customColorList=12,6,20&height=80&section=header&text=Quickstart%20%26%20Testing&fontSize=30&fontColor=ffffff&fontAlignY=50" alt="Quickstart and Testing" />
 </div>
 
-#### 0️⃣ Clone the Repository
+### 1. Run Automated Backend Test Suite
 ```bash
-git clone https://github.com/Dhruvi-tech/Student-Project-Showcase-and-Gallery.git
-cd Student-Project-Showcase-and-Gallery
-```
-
-#### 1️⃣ Setup Dependencies
-```bash
-# Python Backend Dependencies
-pip install -r backend/requirements.txt
-
-# Node Frontend Dependencies
-npm --prefix frontend install
-```
-
-#### 2️⃣ Start FastAPI Backend (Port 8000)
-```powershell
-# Windows PowerShell
 cd backend
-$env:DATABASE_URL = "sqlite:///../showcase.db"
-$env:ENVIRONMENT = "development"
-$env:DEMO_MODE = "true"
-python -m uvicorn app.main:app --host 127.0.0.1 --port 8000 --reload
+pytest
 ```
+*Result: 34 tests passed in under 3 seconds.*
 
-#### 3️⃣ Start React Frontend (Port 5173)
-```powershell
-# Windows PowerShell / macOS / Linux
+### 2. Local Full-Stack Development
+```bash
+# Terminal 1: Backend API (Port 8000)
+cd backend
+python -m uvicorn app.main:app --host 127.0.0.1 --port 8000 --reload
+
+# Terminal 2: Frontend Gallery UI (Port 5173)
 cd frontend
+npm install
 npm run dev
 ```
 
-#### 4️⃣ Build for Production
+### 3. Containerized Multi-Tier Execution (Docker Compose)
 ```bash
-cd frontend
-npm run build
+docker compose up --build
 ```
 
 ---
 
-<a id="tracks"></a>
+<a id="docs"></a>
 <div align="center">
-<img src="https://capsule-render.vercel.app/api?type=soft&color=gradient&customColorList=12,6,20&height=80&section=header&text=All%2020%20Technical%20Domains&fontSize=30&fontColor=ffffff&fontAlignY=50" alt="All 20 Technical Domains" />
+<img src="https://capsule-render.vercel.app/api?type=soft&color=gradient&customColorList=12,6,20&height=80&section=header&text=Technical%20Documentation%20Suite&fontSize=30&fontColor=ffffff&fontAlignY=50" alt="Technical Documentation Suite" />
 </div>
 
-The platform catalogs **320 verified capstone projects** across 20 specialized engineering tracks:
+Comprehensive architectural and engineering documentation is maintained in the [`docs/`](file:///docs/) directory:
 
-| Domain | Projects | Track Group | Primary Technologies |
-| :--- | :---: | :--- | :--- |
-| 🌐 **Web Development & Full Stack** | 25 | Web & Cloud | React, Node.js, Next.js, Express, TailwindCSS |
-| ☁️ **Cloud Computing & DevOps** | 23 | Web & Cloud | Docker, Kubernetes, AWS, Terraform, CI/CD |
-| 📊 **Data Science & Analytics** | 21 | Data & AI | Python, Pandas, Scikit-Learn, PowerBI, SQL |
-| 🤖 **AI & Machine Learning** | 19 | Data & AI | PyTorch, TensorFlow, Scikit-Learn, NumPy |
-| 🛡️ **Cybersecurity** | 17 | Security & Systems | Cryptography, Wireshark, Snort, OAuth2, Linux |
-| 📱 **Mobile App Development** | 15 | Mobile & Devices | Flutter, React Native, Kotlin, Swift, Android |
-| 📡 **Internet of Things (IoT)** | 15 | Mobile & Devices | Raspberry Pi, ESP32, MQTT, Arduino, C++ |
-| ⛓️ **Blockchain & Web3** | 15 | Web3 & Emerging | Solidity, Ethereum, IPFS, Smart Contracts, Web3.js |
-| 👁️ **Computer Vision** | 15 | Data & AI | OpenCV, YOLO, PyTorch, MediaPipe, CNNs |
-| 💬 **Natural Language Processing** | 15 | Data & AI | HuggingFace, Transformers, BERT, Spacy, NLTK |
-| ✨ **Generative AI & AI Agents** | 14 | Data & AI | LangChain, LlamaIndex, OpenAI, ChromaDB, RAG |
-| ⚙️ **Robotics & Automation** | 14 | Mobile & Devices | ROS2, Gazebo, Python, OpenCV, Inverse Kinematics |
-| 🗄️ **Data Engineering & Big Data** | 14 | Data & AI | Apache Spark, Kafka, Airflow, dbt, PostgreSQL |
-| 🛠️ **Software Engineering & Developer Tools** | 14 | Security & Systems | CLI tools, Linters, Testing Frameworks, Rust |
-| 💳 **FinTech** | 14 | Industry Apps | Algorithmic Trading, Payment Gateways, Risk Analysis |
-| 🏥 **HealthTech** | 14 | Industry Apps | Medical Imaging, Telehealth, BioInformatics, HL7 |
-| 📚 **EdTech** | 14 | Industry Apps | LMS, Interactive Labs, Gamification, Quiz Engines |
-| 🎮 **Game Development** | 14 | Media & 3D | Unity, Unreal Engine, Godot, C#, 3D Physics |
-| 🥽 **AR/VR** | 14 | Media & 3D | WebXR, Three.js, Unity XR, Spatial Audio, Oculus |
-| 🔧 **Open Source & Developer Utilities** | 14 | Security & Systems | SDKs, Documentation Generators, Git Utilities |
+- 🏛️ [**Architecture Specification (`docs/ARCHITECTURE.md`)**](file:///docs/ARCHITECTURE.md): Multi-tier design, ER diagram, sequence flows, and microservices analysis.
+- ⚡ [**REST API Reference (`docs/API_DOCUMENTATION.md`)**](file:///docs/API_DOCUMENTATION.md): Endpoint tables, JSON contracts, and Swagger documentation.
+- ☁️ [**Cloud Deployment Guide (`docs/DEPLOYMENT_GUIDE.md`)**](file:///docs/DEPLOYMENT_GUIDE.md): Render 1-click blueprint, Docker Compose, and troubleshooting.
+- 🧪 [**Testing & Verification Report (`docs/TESTING_REPORT.md`)**](file:///docs/TESTING_REPORT.md): 34-test pytest matrix, frontend build audits, and live verification.
+- 🎓 [**CS3302 Syllabus & Outcome Mapping (`docs/CS3302_SYLLABUS_MAPPING.md`)**](file:///docs/CS3302_SYLLABUS_MAPPING.md): Module-by-module curriculum alignment.
 
 ---
-
-<a id="security"></a>
-<div align="center">
-<img src="https://capsule-render.vercel.app/api?type=soft&color=gradient&customColorList=12,6,20&height=80&section=header&text=Security%20%26%20Reliability&fontSize=30&fontColor=ffffff&fontAlignY=50" alt="Security and Reliability" />
-</div>
-
-| | Feature | Details |
-| :---: | :--- | :--- |
-| 🔑 | **Cryptographic Passwords** | PBKDF2-SHA256 with 310,000 rounds and unique cryptographic salt |
-| 🍪 | **Signed HttpOnly Cookies** | Session tokens protected against XSS and tampering |
-| 🛡️ | **Double-Submit CSRF** | Protection across all state-mutating requests (`POST`, `PUT`, `PATCH`, `DELETE`) |
-| 👤 | **Ownership Enforcement** | Server-side author validation for project edit and delete actions |
-| ☁️ | **Honest ₹0 Cloud Strategy** | Local zero-cost demonstration; AWS architectures (IAM, ECS, RDS, S3) prepared as IaC templates without unapproved cloud billing |
-
----
-
-<a id="structure"></a>
-<div align="center">
-<img src="https://capsule-render.vercel.app/api?type=soft&color=gradient&customColorList=12,6,20&height=80&section=header&text=Repository%20Structure&fontSize=30&fontColor=ffffff&fontAlignY=50" alt="Repository Structure" />
-</div>
-
-```text
-Student-Project-Showcase-and-Gallery/
-├── 🐍 backend/           # FastAPI application, SQLAlchemy models, Pydantic schemas, 30 tests
-├── ⚛️  frontend/          # React 18 single-page application and responsive UI styles
-│   ├── public/           # Static assets, SVG favicon
-│   ├── src/
-│   │   ├── components/   # Navbar, FilterBar, ProjectCard, ForYouPreferences, Modals
-│   │   ├── data/         # staticCatalog.json (320 projects offline fallback)
-│   │   └── services/     # api.js client service with CSRF & session handling
-├── 📚 docs/              # Technical architecture and deployment specifications
-├── ☁️  infra/             # Reference AWS CloudFormation and least-privilege IAM policies
-├── 🐳 docker-compose.yml # Container orchestration configuration
-├── ☁️  render.yaml        # 1-Click Cloud Deployment Blueprint (Render.com free tier)
-├── 💾 showcase.db        # Preserved 320-project catalog database
-└── 📖 README.md          # Comprehensive visual interactive documentation
-```
 
 <div align="center">
 
 <br/>
 
-<img src="https://readme-typing-svg.demolab.com?font=Fira+Code&size=16&duration=4000&pause=1500&color=A78BFA&center=true&vCenter=true&width=560&height=30&lines=Built+with+React%2C+FastAPI+%26+SQLAlchemy;Star+%E2%AD%90+the+repo+if+you+like+it!;Happy+building+%F0%9F%9A%80" alt="Footer typing animation" />
+<img src="https://readme-typing-svg.demolab.com?font=Fira+Code&size=16&duration=4000&pause=1500&color=A78BFA&center=true&vCenter=true&width=560&height=30&lines=FastAPI+%E2%80%A2+React+18+%E2%80%A2+PostgreSQL+%E2%80%A2+Docker;Star+%E2%AD%90+the+repo+if+you+like+it!;Happy+building+%F0%9F%9A%80" alt="Footer typing animation" />
 
 <a href="#top"><kbd>&nbsp;⬆️ Back to top&nbsp;</kbd></a>
 
